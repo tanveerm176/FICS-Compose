@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.fics_compose.screens.BondOption
 import com.example.fics_compose.screens.GlossaryScreen
 import com.example.fics_compose.screens.HistoryScreen
 import com.example.fics_compose.screens.HistoryTopAppBar
@@ -23,7 +24,7 @@ fun BottomNavGraph(navController: NavHostController){
         }
 
         composable(route=BottomNavBar.Simulator.route){
-            SimulatorScreen()
+            SimulatorScreen(wallet = 120.00, netWorth = 130.00, bonds = BondOption("US Treasury Bond", 24.50, 3.5))
         }
 
         composable(route=BottomNavBar.Glossary.route){
