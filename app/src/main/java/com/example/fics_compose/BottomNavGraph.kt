@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.fics_compose.screens.GlossaryScreen
 import com.example.fics_compose.screens.HistoryScreen
+import com.example.fics_compose.screens.HistoryTopAppBar
 import com.example.fics_compose.screens.SimulatorScreen
 import com.example.fics_compose.screens.WelcomeScreen
 
@@ -30,7 +31,7 @@ fun BottomNavGraph(navController: NavHostController){
         }
 
         composable(route=BottomNavBar.History.route){
-            HistoryScreen()
+            HistoryTopAppBar()
         }
     }
 
