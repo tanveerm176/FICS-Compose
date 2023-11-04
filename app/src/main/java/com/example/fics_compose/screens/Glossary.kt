@@ -14,26 +14,51 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.ui.unit.dp
 import com.example.fics_compose.ui.theme.FICSComposeTheme
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GlossaryTopAppBar() {
+    var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.smallTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.secondary,
+                ),
+                title = {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Text("Glossary")
+                    }
+                }
+            )
+            scrollBehavior = scrollBehavior
+        },
+    ) {innerPadding ->
+        Box(modifier = Modifier.padding(innerPadding)){
+            GlossaryScreen()
+        }
+    }
+}
+
 @Composable
 fun GlossaryScreen() {
-    Box(
-    ) {
-        Text(
-            text = "Glossary Page"
-        )
-
-    }
     Spacer(modifier = Modifier.height(24.dp))
-    
     TermsList(terms = GlossaryData.glossaryTerms)
 }
 
