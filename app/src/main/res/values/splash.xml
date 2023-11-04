@@ -3,7 +3,8 @@
     <style name="Theme.FICSCompose.MySplash" parent="Theme.SplashScreen">
         <item name="android:windowSplashScreenBackground">#28242D</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/ssicon</item>
-        <item name="android:windowSplashScreenAnimationDuration">3000</item>
+        <item name="android:windowSplashScreenAnimationDuration">8000</item>
+<!--        modified duration from 3000 to 5000-->
         <item name="postSplashScreenTheme">@style/Theme.FICSCompose</item>
     </style>
 </resources>

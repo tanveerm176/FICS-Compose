@@ -8,28 +8,31 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.fics_compose.screens.BondOption
 import com.example.fics_compose.screens.GlossaryScreen
+import com.example.fics_compose.screens.GlossaryTopAppBar
 import com.example.fics_compose.screens.HistoryScreen
 import com.example.fics_compose.screens.HistoryTopAppBar
 import com.example.fics_compose.screens.SimulatorScreen
+import com.example.fics_compose.screens.SimulatorTopAppBar
 import com.example.fics_compose.screens.WelcomeScreen
 
 @Composable
 fun BottomNavGraph(navController: NavHostController){
     NavHost(
         navController = navController,
-        startDestination = BottomNavBar.Welcome.route
+        startDestination = BottomNavBar.Simulator.route
     ){
-        composable(route=BottomNavBar.Welcome.route){
-            WelcomeScreen()
+        composable(route=BottomNavBar.Glossary.route){
+            GlossaryTopAppBar()
         }
+
+        /*composable(route=BottomNavBar.Welcome.route){
+            WelcomeScreen()
+        }*/
 
         composable(route=BottomNavBar.Simulator.route){
-            SimulatorScreen(wallet = 120.00, netWorth = 130.00, bonds = BondOption("US Treasury Bond", 24.50, 3.5))
+            SimulatorTopAppBar()
         }
 
-        composable(route=BottomNavBar.Glossary.route){
-            GlossaryScreen()
-        }
 
         composable(route=BottomNavBar.History.route){
             HistoryTopAppBar()

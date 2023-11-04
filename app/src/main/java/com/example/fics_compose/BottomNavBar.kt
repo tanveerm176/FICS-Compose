@@ -13,16 +13,16 @@ sealed class BottomNavBar(
     val title: String,
     val icon: ImageVector
 ) {
-    object Welcome:BottomNavBar(
+    /*object Welcome:BottomNavBar(
         route = "welcome",
         title = "Welcome",
         icon = Icons.Default.Home
-    )
+    )*/
 
     object Simulator:BottomNavBar(
         route = "simulator",
         title = "Simulator",
-        icon = Icons.Default.Menu
+        icon = Icons.Default.Home
     )
 
     object Glossary:BottomNavBar(

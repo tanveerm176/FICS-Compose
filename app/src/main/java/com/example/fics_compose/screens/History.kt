@@ -52,7 +52,7 @@ fun HistoryTopAppBar() {
                 ),
                 title = {
                     Box(modifier = Modifier.fillMaxWidth()) {
-                        Text("Your Past Investments")
+                        Text("Portfolio")
                     }
                 }
             )
