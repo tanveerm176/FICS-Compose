@@ -201,12 +201,18 @@ fun Timer() {
                     baseTime += System.currentTimeMillis() - elapsedTime
                 } else {
                     isRunning = true
+                    baseTime = System.currentTimeMillis() - elapsedTime
                     CoroutineScope(Dispatchers.Main).launch {
                         while (isRunning) {
                             elapsedTime = System.currentTimeMillis() - baseTime
                             delay(100)
-                            if (elapsedTime > month * 6000) {
+                            if (elapsedTime >= month * 30000) {
                                 month += 1
+                            }
+                            if (month == 12) {
+                                isRunning = false
+                                elapsedTime = 0
+                                baseTime = System.currentTimeMillis()
                             }
                         }
                     }
@@ -221,6 +227,7 @@ fun Timer() {
                 isRunning = false
                 elapsedTime = 0
                 baseTime = System.currentTimeMillis()
+                month = 1
             }
         ) {
             Text(text = "Stop")
