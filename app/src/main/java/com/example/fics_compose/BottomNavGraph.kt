@@ -22,7 +22,7 @@ fun BottomNavGraph(navController: NavHostController){
         }
 
         composable(route=BottomNavBar.Simulator.route){
-            SimulatorScreen()
+            SimulatorScreen(wallet = 120.00, netWorth = 130.00)
         }
 
         composable(route=BottomNavBar.Glossary.route){
