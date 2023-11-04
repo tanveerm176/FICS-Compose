@@ -28,6 +28,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,6 +41,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 //class to hold the users portfolio, including wallet, net worth, investments, monthly ROI, number of bonds purchased
@@ -140,26 +145,9 @@ fun SimulatorCard(userInfo : usrInfo, bonds: BondOption) {
     ) {
         Spacer(modifier = Modifier.height(8.dp))
 
-        //Time Display
-        Text(
-            text = "Year 1 of 10",
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 25.sp,
-            color = Color(0xFFDEB841),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(all = 5.dp),
-        )
+        //note: replaced Time and Pause button with Timer function
 
-        //Pause Button
-        Button(
-            modifier = Modifier
-                .padding(all = 5.dp),
-            onClick = { /*TODO*/ },
-        ) {
-            Text(
-                text = "Pause",
-            )
-        }
+        Timer()
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -309,3 +297,83 @@ fun NumericInputField(value: Int, onValueChange: (Int) -> Unit) {
 fun SimulatorScreenPreview() {
     SimulatorCard(userInfo = usrInfo(), bonds = BondOption("US Treasury Bond", 24.50, 3.5))
 }
+
+//Timer Function for Simulator, allows for Start, Pause, and Restart
+//Monthly Increments every 30 seconds until 1 year is complete
+@Composable
+fun Timer() {
+    var month by remember { mutableIntStateOf(1) }
+    var isRunning by remember { mutableStateOf(false) }
+    var elapsedTime by remember { mutableLongStateOf(0L) }
+    var baseTime by remember { mutableLongStateOf(0L) }
+
+    Text(
+        text = "Month $month of 12",
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 25.sp,
+        color = Color(0xFFDEB841),
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(all = 5.dp),
+    )
+
+    Text(
+        text = formatTime(elapsedTime),
+        color = Color(0xffbfbdc1),
+        fontSize = 20.sp
+    )
+
+    Row(
+        modifier = Modifier.padding(8.dp)
+    ) {
+        //Start / Pause Button
+        Button(
+            onClick = {
+                if (isRunning) {
+                    isRunning = false
+                    baseTime += System.currentTimeMillis() - elapsedTime
+                } else {
+                    isRunning = true
+                    baseTime = System.currentTimeMillis() - elapsedTime
+                    CoroutineScope(Dispatchers.Main).launch {
+                        while (isRunning) {
+                            elapsedTime = System.currentTimeMillis() - baseTime
+                            delay(100)
+                            if (elapsedTime >= month * 30000) {
+                                month += 1
+                            }
+                            if (month == 12) {
+                                isRunning = false
+                                elapsedTime = 0
+                                baseTime = System.currentTimeMillis()
+                            }
+                        }
+                    }
+                }
+            }
+        ) {
+            Text(text = if (isRunning) "Pause" else "Start")
+        }
+
+        Spacer(modifier = Modifier.width(4.dp))
+
+        //Restart Button
+        Button(
+            onClick = {
+                isRunning = false
+                elapsedTime = 0
+                baseTime = System.currentTimeMillis()
+                month = 1
+            }
+        ) {
+            Text(text = "Restart")
+        }
+    }
+}
+
+fun formatTime(time: Long): String {
+    val seconds = (time / 1000).toInt()
+    val minutes = seconds / 60
+    val remainingSeconds = seconds % 60
+    return "%02d:%02d".format(minutes, remainingSeconds)
+}
+
