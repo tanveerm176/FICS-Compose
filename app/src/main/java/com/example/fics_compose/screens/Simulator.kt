@@ -304,9 +304,6 @@ fun NumericInputField(value: Int, onValueChange: (Int) -> Unit) {
 }
 
 
-
-
-
 @Composable
 @Preview
 fun SimulatorScreenPreview() {
