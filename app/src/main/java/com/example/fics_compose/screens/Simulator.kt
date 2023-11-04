@@ -44,6 +44,8 @@ fun SimulatorScreen(){
 }
 
 //note: Need to change the params of data class to reflect the new bonds
+//note: Add additional data classes for each type of bond, ex: corporate, tres, asset backed
+//note: need to modify data class for tres bonds since making up prices use list of whole round numbers
 data class BondOption(val title: String, val price: Double, val interest: Double)
 
 @Composable
