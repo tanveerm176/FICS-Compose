@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -51,30 +50,48 @@ import kotlinx.coroutines.launch
 import java.io.Serializable
 
 
-//class to hold the users portfolio, including wallet, net worth, investments, monthly ROI, number of bonds purchased
+// class to hold the users portfolio, including wallet, net worth, investments, monthly ROI, number of bonds purchased
 data class usrInfo(
     var wallet: Double = 10000.00,
     var netWorth: Double = 0.0,
     var investment: Double = 0.0,
     var monthlyReturn: Double = 0.0,
-    var numBonds : Double = 0.0
-): Serializable {
+    var numBonds : Int = 0
+) {
 
-    //functions to calculate users net worth, investments, and monthly ROI
+    // functions to calculate users net worth, investments, and monthly ROI
+    // note: made numBonds integer for all functions
+    // note: updated wallet and investment so that new bonds add on to old bonds
     fun calcNetWorth(wallet: Double, investment: Double): Double {
         this.netWorth =  wallet + investment
         return this.netWorth
     }
 
-    fun calcInvestments(numBonds: Double, bondPrice: Double): Double {
-        this.investment =  numBonds * bondPrice
+    fun calcInvestments(numBonds: Int, bondPrice: Double): Double {
+        this.investment +=  numBonds * bondPrice
         return this.investment
     }
 
-    fun monthlyReturn(numBonds: Double, bondPrice: Double, interestRate: Double): Double {
+    fun monthlyReturn(numBonds: Int, bondPrice: Double, interestRate: Double): Double {
         val interestRateDec: Double = interestRate / 100
-        this.monthlyReturn =  numBonds * bondPrice * interestRateDec
+        this.monthlyReturn +=  numBonds * bondPrice * interestRateDec
         return this.monthlyReturn
+    }
+
+    // update wallet with monthly return
+    fun addMonthlyReturn(): Double {
+        this.wallet += this.monthlyReturn
+        return this.wallet
+    }
+
+    // reset user info to default state
+    fun reset(): usrInfo {
+        this.wallet = 10000.00
+        this.netWorth = 0.0
+        this.investment = 0.0
+        this.monthlyReturn = 0.0
+        this.numBonds = 0
+        return this
     }
 }
 
@@ -108,10 +125,8 @@ fun SimulatorTopAppBar() {
 @Composable
 fun SimulatorScreen(){
     Spacer(modifier = Modifier.height(24.dp))
-    SimulatorCard(usrInfo(), bonds = BondOption("US Treasury Bond", 24.50, 3.5))
+    SimulatorCard(usrInfo(), bonds = TestData.testDataList)
 }
-
-
 
 data class BondOption(val title: String, val price: Double, val interestRate: Double)
 
@@ -130,16 +145,77 @@ object TestData{
             interestRate = 3.00
         ),
         BondOption(
-            title = "Treasury Inflation-Protected Securities (TIPS)",
+            title = "Treasury Securities",
             price = 500.00,
             interestRate = 0.5
-        )
+        ),
+        BondOption(
+            title = "Federal Financing Bank",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Domestic Series",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Special Purpose Vehicle",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Foreign Series",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Government Account Series",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Treasury Bills",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Treasury Notes",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Treasury Bonds",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Total Marketable",
+            price = 500.00,
+            interestRate = 0.5
+        ),
     )
 }
 
 
 @Composable
-fun SimulatorCard(userInfo : usrInfo, bonds: BondOption) {
+fun SimulatorCard(
+    userInfo : usrInfo,
+    bonds: List<BondOption>
+) {
+    // for traversing bonds list
+    var i by remember { mutableIntStateOf(0) }
+    var numOfBonds by remember { mutableIntStateOf(0) }
+    var currentBond by remember { mutableStateOf(bonds[i]) }
+
+    // for Timer functionality
+    var month by remember { mutableIntStateOf(1) }
+    var isRunning by remember { mutableStateOf(false) }
+    var elapsedTime by remember { mutableLongStateOf(0L) }
+    var baseTime by remember { mutableLongStateOf(0L) }
+    val currContext = LocalContext.current
+
+
     Spacer(modifier = Modifier.width(8.dp))
 
     Column(
@@ -149,8 +225,84 @@ fun SimulatorCard(userInfo : usrInfo, bonds: BondOption) {
     ) {
         Spacer(modifier = Modifier.height(8.dp))
 
-        //note: replaced Time and Pause button with Timer function
-        Timer()
+        // note: replaced Time and Pause button with Timer function
+        // note(S.S): replaced Timer card and added in the core functionalities into SimulationCard
+
+        // Month Display
+        Text(
+            text = "Month $month of 12",
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 25.sp,
+            color = Color(0xFFDEB841),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(all = 5.dp),
+        )
+
+        // Timer Display
+        Text(
+            text = formatTime(elapsedTime),
+            color = Color(0xffbfbdc1),
+            fontSize = 20.sp
+        )
+
+        // Timer Buttons (Start/Pause, Restart)
+        Row(
+            modifier = Modifier.padding(8.dp)
+        ) {
+            //Start / Pause Button
+            Button(
+                onClick = {
+                    if (isRunning) {
+                        isRunning = false
+                        baseTime += System.currentTimeMillis() - elapsedTime
+                    } else {
+                        isRunning = true
+                        baseTime = System.currentTimeMillis() - elapsedTime
+                        CoroutineScope(Dispatchers.Main).launch {
+                            while (isRunning) {
+                                elapsedTime = System.currentTimeMillis() - baseTime
+                                delay(100)
+                                // every month, update bond card and user portfolio
+                                if (elapsedTime >= month * 10000 && month < 12) {
+                                    month += 1
+                                    i += 1
+                                    currentBond = bonds[if (i + 1 < bonds.size) i + 1 else 0]
+                                    userInfo.addMonthlyReturn()
+                                    toastMessages(currContext, "newBond")
+
+                                }
+                                if (month == 12) {
+                                    isRunning = false
+                                    elapsedTime = 0
+                                    baseTime = System.currentTimeMillis()
+                                    toastMessages(currContext, "finish")
+                                }
+                            }
+                        }
+                    }
+                }
+            ) {
+                Text(text = if (isRunning) "Pause" else "Start")
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            // Restart Button
+            Button(
+                onClick = {
+                    isRunning = false
+                    elapsedTime = 0
+                    baseTime = System.currentTimeMillis()
+                    month = 1
+                    userInfo.reset()
+                    i = 0
+                    currentBond = bonds[0]
+                    toastMessages(currContext, "reset")
+                }
+            ) {
+                Text(text = "Restart")
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -161,26 +313,18 @@ fun SimulatorCard(userInfo : usrInfo, bonds: BondOption) {
             color = Color(0xffbfbdc1)
             //TODO: Add padding to bond card and account for longer titles
         ) {
-            BondCard(bond = bonds)
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        //Invest Button
-        Button(
-            modifier = Modifier
-                .padding(all = 5.dp)
-                .align(Alignment.CenterHorizontally),
-            onClick = {
-                      /*TODO update NetWorth, Wallet, Investments, NumBonds*/
-                      },
-        ) {
-            Text(
-                text = "Invest",
+            BondCard(
+                bond = bonds[i],
+                numberOfBonds = numOfBonds,
+                onNumberOfBondsChanged = {
+                    numOfBonds = it
+                },
+                userInfo = userInfo,
             )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
+
 
         //User Portfolio Info
         //TODO: Create Card Around User Portfolio --> Better UI
@@ -200,7 +344,12 @@ fun SimulatorCard(userInfo : usrInfo, bonds: BondOption) {
             )
 
             Text(
-                text = "Investments: $${userInfo.calcInvestments(userInfo.numBonds,bonds.price)}",
+                text = "Investments: $${
+                    userInfo.calcInvestments(
+                        userInfo.numBonds,
+                        bonds[i].price
+                    )
+                }",
                 color = Color(0xFFDEB841),
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 15.sp,
@@ -212,7 +361,12 @@ fun SimulatorCard(userInfo : usrInfo, bonds: BondOption) {
             )
 
             Text(
-                text = "Net Worth: $${userInfo.calcNetWorth(userInfo.wallet, userInfo.investment)}",
+                text = "Net Worth: $${
+                    userInfo.calcNetWorth(
+                        userInfo.wallet,
+                        userInfo.investment
+                    )
+                }",
                 color = Color(0xFFDEB841),
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 15.sp,
@@ -224,7 +378,13 @@ fun SimulatorCard(userInfo : usrInfo, bonds: BondOption) {
             )
 
             Text(
-                text = "Monthly Return: $${userInfo.monthlyReturn(userInfo.numBonds,bonds.price,bonds.interestRate)}",
+                text = "Monthly Return: $${
+                    userInfo.monthlyReturn(
+                        userInfo.numBonds,
+                        bonds[i].price,
+                        bonds[i].interestRate
+                    )
+                }",
                 color = Color(0xFFDEB841),
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 15.sp,
@@ -234,12 +394,19 @@ fun SimulatorCard(userInfo : usrInfo, bonds: BondOption) {
             )
 
         }
-
     }
 }
 
 @Composable
-fun BondCard(bond: BondOption) {
+fun BondCard(
+    bond: BondOption,
+    numberOfBonds: Int,
+    onNumberOfBondsChanged: (Int) -> Unit,
+    userInfo: usrInfo,
+) {
+
+    var numBonds by remember { mutableIntStateOf(numberOfBonds) }
+
     Column (
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -267,12 +434,34 @@ fun BondCard(bond: BondOption) {
             modifier = Modifier.padding(top = 5.dp),
             color = Color(0xFF08010F)
         )
-
-        var numericValue by remember { mutableIntStateOf(0) }
         NumericInputField(
-            value = numericValue,
-            onValueChange = {numericValue = it}
+            value = numBonds,
+            onValueChange = {
+                onNumberOfBondsChanged(it)
+            }
         )
+        // Invest Button
+        // Note (S.S.): Moved Invest Button here for smoother functioning
+        Button(
+            modifier = Modifier
+                .padding(all = 5.dp),
+            onClick = {
+                // decrease price of bond from wallet
+                userInfo.wallet -= (bond.price * numberOfBonds)
+                // update monthlyReturn, investment, and net worth
+                userInfo.monthlyReturn(numberOfBonds, bond.price, bond.interestRate)
+                userInfo.calcInvestments(numberOfBonds, bond.price)
+                userInfo.calcNetWorth(userInfo.wallet, userInfo.investment)
+
+                // note (S.S.): This does not change what the user sees in the input field, but it does allow
+                // user to keep investing the same number of bonds
+                numBonds = 0
+            },
+        ) {
+            Text(
+                text = "Invest",
+            )
+        }
     }
 }
 
@@ -298,103 +487,6 @@ fun NumericInputField(value: Int, onValueChange: (Int) -> Unit) {
     )
 }
 
-
-@Composable
-@Preview
-fun SimulatorScreenPreview() {
-    SimulatorCard(userInfo = usrInfo(), bonds = BondOption("US Treasury Bond", 24.50, 3.5))
-}
-
-//Timer Function for Simulator, allows for Start, Pause, and Restart
-//Monthly Increments every 30 seconds until 1 year is complete
-@Composable
-fun Timer() {
-    var month by remember { mutableIntStateOf(1) }
-    var isRunning by remember { mutableStateOf(false) }
-    var elapsedTime by remember { mutableLongStateOf(0L) }
-    var baseTime by remember { mutableLongStateOf(0L) }
-
-    val currContext = LocalContext.current
-
-    Text(
-        text = "Month $month of 12",
-        fontWeight = FontWeight.ExtraBold,
-        fontSize = 25.sp,
-        color = Color(0xFFDEB841),
-        style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(all = 5.dp),
-    )
-
-    Text(
-        text = formatTime(elapsedTime),
-        color = Color(0xffbfbdc1),
-        fontSize = 20.sp
-    )
-
-    Row(
-        modifier = Modifier.padding(8.dp)
-    ) {
-        //Start / Pause Button
-        Button(
-            onClick = {
-                if (isRunning) {
-                    isRunning = false
-                    baseTime += System.currentTimeMillis() - elapsedTime
-                } else {
-                    isRunning = true
-                    baseTime = System.currentTimeMillis() - elapsedTime
-                    CoroutineScope(Dispatchers.Main).launch {
-                        while (isRunning) {
-                            elapsedTime = System.currentTimeMillis() - baseTime
-                            delay(100)
-
-                            //TODO: Modify timer from 30 secs -> 20 or 15
-                            if (elapsedTime >= month * 30000) {
-                                month += 1
-
-                                //TODO: display new bond option from list
-                                //TODO: update wallet with monthly return (interest payment from investments)
-                            }
-                            if (month == 12) {
-                                isRunning = false
-                                elapsedTime = 0
-                                baseTime = System.currentTimeMillis()
-
-                                toastMessages(currContext, "finish")
-                                //TODO: send user portfolio to history screen
-                                //TODO: display toast message that simulation is over
-                                //TODO: start history screen activity
-
-                            }
-                        }
-                    }
-                }
-            }
-        ) {
-            Text(text = if (isRunning) "Pause" else "Start")
-        }
-
-        Spacer(modifier = Modifier.width(4.dp))
-
-
-
-        //Restart Button
-        Button(
-            onClick = {
-                isRunning = false
-                elapsedTime = 0
-                baseTime = System.currentTimeMillis()
-                month = 1
-
-                toastMessages(currContext, "reset")
-                //TODO: add functionality to reset to default
-            }
-        ) {
-            Text(text = "Restart")
-        }
-    }
-}
-
 fun formatTime(time: Long): String {
     val seconds = (time / 1000).toInt()
     val minutes = seconds / 60
@@ -402,13 +494,17 @@ fun formatTime(time: Long): String {
     return "%02d:%02d".format(minutes, remainingSeconds)
 }
 
-
-//TODO: Replace Toast Msg with Dialog Boxes in Final
-private fun toastMessages(context: Context, flg:String){
-    when(flg){
-        "reset" -> Toast.makeText(context, "Simulation Reset", Toast.LENGTH_LONG).show()
-        "finish" -> Toast.makeText(context, "Simulation Complete, View Portfolio", Toast.LENGTH_LONG).show()
-    }
-
+@Composable
+@Preview
+fun SimulatorScreenPreview() {
+    SimulatorCard(userInfo = usrInfo(), bonds = TestData.testDataList)
 }
 
+//TODO: Replace Toast Msg with Dialog Boxes in Final
+private fun toastMessages(context: Context, flg:String) {
+    when (flg) {
+        "reset" -> Toast.makeText(context, "Simulation Reset", Toast.LENGTH_LONG).show()
+        "finish" -> Toast.makeText(context, "Simulation Complete, View Portfolio", Toast.LENGTH_LONG).show()
+        "newBond" -> Toast.makeText(context, "New Bond!", Toast.LENGTH_LONG).show()
+    }
+}
