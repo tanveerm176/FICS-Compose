@@ -47,6 +47,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.Serializable
 
 
 // class to hold the users portfolio, including wallet, net worth, investments, monthly ROI, number of bonds purchased
@@ -310,6 +311,7 @@ fun SimulatorCard(
             shape = MaterialTheme.shapes.medium,
             shadowElevation = 5.dp,
             color = Color(0xffbfbdc1)
+            //TODO: Add padding to bond card and account for longer titles
         ) {
             BondCard(
                 bond = bonds[i],
@@ -325,6 +327,7 @@ fun SimulatorCard(
 
 
         //User Portfolio Info
+        //TODO: Create Card Around User Portfolio --> Better UI
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
