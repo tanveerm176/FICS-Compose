@@ -43,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
+import com.example.fics_compose.usrInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -50,7 +51,7 @@ import kotlinx.coroutines.launch
 import java.io.Serializable
 
 
-// class to hold the users portfolio, including wallet, net worth, investments, monthly ROI, number of bonds purchased
+/*// class to hold the users portfolio, including wallet, net worth, investments, monthly ROI, number of bonds purchased
 data class usrInfo(
     var wallet: Double = 10000.00,
     var netWorth: Double = 0.0,
@@ -93,7 +94,7 @@ data class usrInfo(
         this.numBonds = 0
         return this
     }
-}
+}*/
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

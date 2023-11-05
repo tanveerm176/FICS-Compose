@@ -138,49 +138,7 @@ object HistoryData{
             finalNetWorth = 25100,
             initialWallet = 3000,
             numOfTrades = 6
-        ),
-        Investment(
-            date = "5/10/2023",
-            finalNetWorth = 15000,
-            initialWallet = 9000,
-            numOfTrades = 3
-        ),
-        Investment(
-            date = "4/10/2023",
-            finalNetWorth = 15000,
-            initialWallet = 9000,
-            numOfTrades = 3
-        ),
-        Investment(
-            date = "2/10/2023",
-            finalNetWorth = 15000,
-            initialWallet = 9000,
-            numOfTrades = 3
-        ),
-        Investment(
-            date = "8/10/2023",
-            finalNetWorth = 15000,
-            initialWallet = 9000,
-            numOfTrades = 3
-        ),
-        Investment(
-            date = "9/10/2023",
-            finalNetWorth = 15000,
-            initialWallet = 9000,
-            numOfTrades = 3
-        ),
-        Investment(
-            date = "10/10/2023",
-            finalNetWorth = 15000,
-            initialWallet = 9000,
-            numOfTrades = 3
-        ),
-        Investment(
-            date = "5/10/2023",
-            finalNetWorth = 15000,
-            initialWallet = 9000,
-            numOfTrades = 3
-        ),
+        )
     )
 }
 
