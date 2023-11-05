@@ -104,10 +104,53 @@ fun SimulatorTopAppBar() {
 @Composable
 fun SimulatorScreen(){
     Spacer(modifier = Modifier.height(24.dp))
+    ShowDialog()
     SimulatorCard(usrInfo(), bonds = BondOption("US Treasury Bond", 24.50, 3.5))
+
 }
 
+@Composable
+private fun ShowDialog (){
+    var showDialog by remember { mutableStateOf(true) }
+    var currentDialogIndex by remember { mutableStateOf(0) }
+    val dialogs = listOf(
+        DialogContent(
+            title = "Welcome to the FICS simulation!",
+            info = "Click next for some helpful terms for you to know."
+        ),
+        DialogContent(
+            title = "Fixed Income",
+            info = "Fixed income is a type of investment that pays the investor a fixed amount on a fixed schedule."
+        ),
+        DialogContent(
+            title = "Bond",
+            info = "A bond is a debt security, which means borrowers issue bonds to raise money from investors willing to lend them money for a certain amount of time. \nWhen you buy a bond, you are lending to the issuer, which may be a government, municipality, or corporation. In return, the issuer promises to pay you a specified rate of interest during the life of the bond and to repay the principal, also known as face value or par value of the bond, when it matures or comes due after a set period of time."
+        ),
+        // Add more dialog content here as needed
+    )
 
+    if (currentDialogIndex < dialogs.size) {
+        val currentDialogContent = dialogs[currentDialogIndex]
+
+        SimulatorDialog(
+            showDialog = showDialog,
+            onDismissRequest = {
+                showDialog = false // Dismiss the dialog
+            },
+            onConfirmation = {
+                if (currentDialogIndex < dialogs.size - 1) {
+                    // Display the next dialog content
+                    currentDialogIndex++
+                } else {
+                    // If it's the last dialog, close the dialog
+                    showDialog = false
+                }
+            },
+            title = currentDialogContent.title,
+            info = currentDialogContent.info
+        )
+    }
+}
 
 data class BondOption(val title: String, val price: Double, val interestRate: Double)
 

@@ -2,6 +2,7 @@
 
 package com.example.fics_compose
 
+import android.app.Dialog
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
