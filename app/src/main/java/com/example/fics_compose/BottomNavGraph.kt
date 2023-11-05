@@ -1,19 +1,14 @@
 package com.example.fics_compose
 
+import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.fics_compose.screens.BondOption
-import com.example.fics_compose.screens.GlossaryScreen
 import com.example.fics_compose.screens.GlossaryTopAppBar
-import com.example.fics_compose.screens.HistoryScreen
 import com.example.fics_compose.screens.HistoryTopAppBar
-import com.example.fics_compose.screens.SimulatorScreen
 import com.example.fics_compose.screens.SimulatorTopAppBar
-import com.example.fics_compose.screens.WelcomeScreen
 
 @Composable
 fun BottomNavGraph(navController: NavHostController){
@@ -30,12 +25,18 @@ fun BottomNavGraph(navController: NavHostController){
         }*/
 
         composable(route=BottomNavBar.Simulator.route){
-            SimulatorTopAppBar()
+            SimulatorTopAppBar(navController)
         }
 
 
         composable(route=BottomNavBar.History.route){
-            HistoryTopAppBar()
+            val result = navController.previousBackStackEntry?.savedStateHandle?.get<usrInfo>("port")
+            LaunchedEffect(key1 = it ){
+                Log.d("wallet", "${result?.wallet}")
+
+            }
+            HistoryTopAppBar(result)
+
         }
     }
 

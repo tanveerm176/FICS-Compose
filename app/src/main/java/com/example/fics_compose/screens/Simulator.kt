@@ -43,6 +43,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.fics_compose.BottomNavBar
 import com.example.fics_compose.usrInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -51,54 +54,10 @@ import kotlinx.coroutines.launch
 import java.io.Serializable
 
 
-/*// class to hold the users portfolio, including wallet, net worth, investments, monthly ROI, number of bonds purchased
-data class usrInfo(
-    var wallet: Double = 10000.00,
-    var netWorth: Double = 0.0,
-    var investment: Double = 0.0,
-    var monthlyReturn: Double = 0.0,
-    var numBonds : Int = 0
-) {
-
-    // functions to calculate users net worth, investments, and monthly ROI
-    // note: made numBonds integer for all functions
-    // note: updated wallet and investment so that new bonds add on to old bonds
-    fun calcNetWorth(wallet: Double, investment: Double): Double {
-        this.netWorth =  wallet + investment
-        return this.netWorth
-    }
-
-    fun calcInvestments(numBonds: Int, bondPrice: Double): Double {
-        this.investment +=  numBonds * bondPrice
-        return this.investment
-    }
-
-    fun monthlyReturn(numBonds: Int, bondPrice: Double, interestRate: Double): Double {
-        val interestRateDec: Double = interestRate / 100
-        this.monthlyReturn +=  numBonds * bondPrice * interestRateDec
-        return this.monthlyReturn
-    }
-
-    // update wallet with monthly return
-    fun addMonthlyReturn(): Double {
-        this.wallet += this.monthlyReturn
-        return this.wallet
-    }
-
-    // reset user info to default state
-    fun reset(): usrInfo {
-        this.wallet = 10000.00
-        this.netWorth = 0.0
-        this.investment = 0.0
-        this.monthlyReturn = 0.0
-        this.numBonds = 0
-        return this
-    }
-}*/
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SimulatorTopAppBar() {
+fun SimulatorTopAppBar(navController: NavController) {
     var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
@@ -118,15 +77,15 @@ fun SimulatorTopAppBar() {
         },
     ) {innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)){
-            SimulatorScreen()
+            SimulatorScreen(navController)
         }
     }
 }
 
 @Composable
-fun SimulatorScreen(){
+fun SimulatorScreen(navController: NavController){
     Spacer(modifier = Modifier.height(24.dp))
-    SimulatorCard(usrInfo(), bonds = TestData.testDataList)
+    SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController)
 }
 
 data class BondOption(val title: String, val price: Double, val interestRate: Double)
@@ -202,7 +161,8 @@ object TestData{
 @Composable
 fun SimulatorCard(
     userInfo : usrInfo,
-    bonds: List<BondOption>
+    bonds: List<BondOption>,
+    navController: NavController
 ) {
     // for traversing bonds list
     var i by remember { mutableIntStateOf(0) }
@@ -264,12 +224,12 @@ fun SimulatorCard(
                                 elapsedTime = System.currentTimeMillis() - baseTime
                                 delay(100)
                                 // every month, update bond card and user portfolio
-                                if (elapsedTime >= month * 10000 && month < 12) {
+                                if (elapsedTime >= month * 1000 && month < 12) {
                                     month += 1
                                     i += 1
                                     currentBond = bonds[if (i + 1 < bonds.size) i + 1 else 0]
                                     userInfo.addMonthlyReturn()
-                                    toastMessages(currContext, "newBond")
+//                                    toastMessages(currContext, "newBond")
 
                                 }
                                 if (month == 12) {
@@ -277,6 +237,9 @@ fun SimulatorCard(
                                     elapsedTime = 0
                                     baseTime = System.currentTimeMillis()
                                     toastMessages(currContext, "finish")
+
+                                    //note:START HISTORY SCREEN WHEN SIM FINISHES
+                                    startHistoryScreen(navController,userInfo)
                                 }
                             }
                         }
@@ -498,7 +461,7 @@ fun formatTime(time: Long): String {
 @Composable
 @Preview
 fun SimulatorScreenPreview() {
-    SimulatorCard(userInfo = usrInfo(), bonds = TestData.testDataList)
+//    SimulatorCard(userInfo = usrInfo(), bonds = TestData.testDataList)
 }
 
 //TODO: Replace Toast Msg with Dialog Boxes in Final
@@ -508,4 +471,11 @@ private fun toastMessages(context: Context, flg:String) {
         "finish" -> Toast.makeText(context, "Simulation Complete, View Portfolio", Toast.LENGTH_LONG).show()
         "newBond" -> Toast.makeText(context, "New Bond!", Toast.LENGTH_LONG).show()
     }
+}
+
+fun startHistoryScreen(navController:NavController, portfolio:usrInfo){
+
+//    val testUserInfo = usrInfo(wallet = 3000.00, netWorth = 30000.00)
+    navController.currentBackStackEntry?.savedStateHandle?.set("port",portfolio)
+    navController.navigate(BottomNavBar.History.route)
 }
