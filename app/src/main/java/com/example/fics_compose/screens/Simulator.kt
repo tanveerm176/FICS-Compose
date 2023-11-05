@@ -1,6 +1,8 @@
 package com.example.fics_compose.screens
 
 import android.R.attr.value
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +48,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.Serializable
 
 
 //class to hold the users portfolio, including wallet, net worth, investments, monthly ROI, number of bonds purchased
@@ -54,7 +58,7 @@ data class usrInfo(
     var investment: Double = 0.0,
     var monthlyReturn: Double = 0.0,
     var numBonds : Double = 0.0
-) {
+): Serializable {
 
     //functions to calculate users net worth, investments, and monthly ROI
     fun calcNetWorth(wallet: Double, investment: Double): Double {
@@ -146,7 +150,6 @@ fun SimulatorCard(userInfo : usrInfo, bonds: BondOption) {
         Spacer(modifier = Modifier.height(8.dp))
 
         //note: replaced Time and Pause button with Timer function
-
         Timer()
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -156,6 +159,7 @@ fun SimulatorCard(userInfo : usrInfo, bonds: BondOption) {
             shape = MaterialTheme.shapes.medium,
             shadowElevation = 5.dp,
             color = Color(0xffbfbdc1)
+            //TODO: Add padding to bond card and account for longer titles
         ) {
             BondCard(bond = bonds)
         }
@@ -167,7 +171,9 @@ fun SimulatorCard(userInfo : usrInfo, bonds: BondOption) {
             modifier = Modifier
                 .padding(all = 5.dp)
                 .align(Alignment.CenterHorizontally),
-            onClick = { /*TODO*/ },
+            onClick = {
+                      /*TODO update NetWorth, Wallet, Investments, NumBonds*/
+                      },
         ) {
             Text(
                 text = "Invest",
@@ -177,6 +183,7 @@ fun SimulatorCard(userInfo : usrInfo, bonds: BondOption) {
         Spacer(modifier = Modifier.height(8.dp))
 
         //User Portfolio Info
+        //TODO: Create Card Around User Portfolio --> Better UI
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -307,6 +314,8 @@ fun Timer() {
     var elapsedTime by remember { mutableLongStateOf(0L) }
     var baseTime by remember { mutableLongStateOf(0L) }
 
+    val currContext = LocalContext.current
+
     Text(
         text = "Month $month of 12",
         fontWeight = FontWeight.ExtraBold,
@@ -338,13 +347,24 @@ fun Timer() {
                         while (isRunning) {
                             elapsedTime = System.currentTimeMillis() - baseTime
                             delay(100)
+
+                            //TODO: Modify timer from 30 secs -> 20 or 15
                             if (elapsedTime >= month * 30000) {
                                 month += 1
+
+                                //TODO: display new bond option from list
+                                //TODO: update wallet with monthly return (interest payment from investments)
                             }
                             if (month == 12) {
                                 isRunning = false
                                 elapsedTime = 0
                                 baseTime = System.currentTimeMillis()
+
+                                toastMessages(currContext, "finish")
+                                //TODO: send user portfolio to history screen
+                                //TODO: display toast message that simulation is over
+                                //TODO: start history screen activity
+
                             }
                         }
                     }
@@ -356,6 +376,8 @@ fun Timer() {
 
         Spacer(modifier = Modifier.width(4.dp))
 
+
+
         //Restart Button
         Button(
             onClick = {
@@ -363,6 +385,9 @@ fun Timer() {
                 elapsedTime = 0
                 baseTime = System.currentTimeMillis()
                 month = 1
+
+                toastMessages(currContext, "reset")
+                //TODO: add functionality to reset to default
             }
         ) {
             Text(text = "Restart")
@@ -375,5 +400,15 @@ fun formatTime(time: Long): String {
     val minutes = seconds / 60
     val remainingSeconds = seconds % 60
     return "%02d:%02d".format(minutes, remainingSeconds)
+}
+
+
+//TODO: Replace Toast Msg with Dialog Boxes in Final
+private fun toastMessages(context: Context, flg:String){
+    when(flg){
+        "reset" -> Toast.makeText(context, "Simulation Reset", Toast.LENGTH_LONG).show()
+        "finish" -> Toast.makeText(context, "Simulation Complete, View Portfolio", Toast.LENGTH_LONG).show()
+    }
+
 }
 
