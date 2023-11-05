@@ -224,7 +224,7 @@ fun SimulatorCard(
                                 elapsedTime = System.currentTimeMillis() - baseTime
                                 delay(100)
                                 // every month, update bond card and user portfolio
-                                if (elapsedTime >= month * 1000 && month < 12) {
+                                if (elapsedTime >= month * 10000 && month < 12) {
                                     month += 1
                                     i += 1
                                     currentBond = bonds[if (i + 1 < bonds.size) i + 1 else 0]
@@ -474,8 +474,6 @@ private fun toastMessages(context: Context, flg:String) {
 }
 
 fun startHistoryScreen(navController:NavController, portfolio:usrInfo){
-
-//    val testUserInfo = usrInfo(wallet = 3000.00, netWorth = 30000.00)
     navController.currentBackStackEntry?.savedStateHandle?.set("port",portfolio)
     navController.navigate(BottomNavBar.History.route)
 }
