@@ -1,6 +1,8 @@
 package com.example.fics_compose.screens
 
 import android.R.attr.value
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -141,52 +144,52 @@ object TestData{
             interestRate = 3.00
         ),
         BondOption(
-            title = "Treasury Inflation-Protected Securities (TIPS)",
+            title = "Treasury Securities",
             price = 500.00,
             interestRate = 0.5
         ),
         BondOption(
-            title = "Testing 1",
+            title = "Federal Financing Bank",
             price = 500.00,
             interestRate = 0.5
         ),
         BondOption(
-            title = "Testing 2",
+            title = "Domestic Series",
             price = 500.00,
             interestRate = 0.5
         ),
         BondOption(
-            title = "Testing 3",
+            title = "Special Purpose Vehicle",
             price = 500.00,
             interestRate = 0.5
         ),
         BondOption(
-            title = "Testing 4",
+            title = "Foreign Series",
             price = 500.00,
             interestRate = 0.5
         ),
         BondOption(
-            title = "Testing 5",
+            title = "Government Account Series",
             price = 500.00,
             interestRate = 0.5
         ),
         BondOption(
-            title = "Testing 6",
+            title = "Treasury Bills",
             price = 500.00,
             interestRate = 0.5
         ),
         BondOption(
-            title = "Testing 7",
+            title = "Treasury Notes",
             price = 500.00,
             interestRate = 0.5
         ),
         BondOption(
-            title = "Testing 8",
+            title = "Treasury Bonds",
             price = 500.00,
             interestRate = 0.5
         ),
         BondOption(
-            title = "Testing 9",
+            title = "Total Marketable",
             price = 500.00,
             interestRate = 0.5
         ),
@@ -209,6 +212,7 @@ fun SimulatorCard(
     var isRunning by remember { mutableStateOf(false) }
     var elapsedTime by remember { mutableLongStateOf(0L) }
     var baseTime by remember { mutableLongStateOf(0L) }
+    val currContext = LocalContext.current
 
 
     Spacer(modifier = Modifier.width(8.dp))
@@ -263,12 +267,14 @@ fun SimulatorCard(
                                     i += 1
                                     currentBond = bonds[if (i + 1 < bonds.size) i + 1 else 0]
                                     userInfo.addMonthlyReturn()
+                                    toastMessages(currContext, "newBond")
 
                                 }
                                 if (month == 12) {
                                     isRunning = false
                                     elapsedTime = 0
                                     baseTime = System.currentTimeMillis()
+                                    toastMessages(currContext, "finish")
                                 }
                             }
                         }
@@ -290,6 +296,7 @@ fun SimulatorCard(
                     userInfo.reset()
                     i = 0
                     currentBond = bonds[0]
+                    toastMessages(currContext, "reset")
                 }
             ) {
                 Text(text = "Restart")
@@ -490,111 +497,11 @@ fun SimulatorScreenPreview() {
     SimulatorCard(userInfo = usrInfo(), bonds = TestData.testDataList)
 }
 
-//Timer Function for Simulator, allows for Start, Pause, and Restart
-//Monthly Increments every 30 seconds until 1 year is complete
-//@Composable
-//fun Timer(
-//    userInfo: usrInfo,
-//    onUserInfoChange: (usrInfo) -> Unit,
-//    i: Int,
-//    bonds: List<BondOption>,
-//    onBondOptionChange: (Int) -> Unit,
-//    onUpdateSimulator: (Int, BondOption) -> Unit
-//)
-//{
-//    var month by remember { mutableIntStateOf(1) }
-//    var isRunning by remember { mutableStateOf(false) }
-//    var elapsedTime by remember { mutableLongStateOf(0L) }
-//    var baseTime by remember { mutableLongStateOf(0L) }
-//
-//    Text(
-//        text = "Month $month of 12",
-//        fontWeight = FontWeight.ExtraBold,
-//        fontSize = 25.sp,
-//        color = Color(0xFFDEB841),
-//        style = MaterialTheme.typography.titleMedium,
-//        modifier = Modifier.padding(all = 5.dp),
-//    )
-//
-//    Text(
-//        text = formatTime(elapsedTime),
-//        color = Color(0xffbfbdc1),
-//        fontSize = 20.sp
-//    )
-//
-//    Row(
-//        modifier = Modifier.padding(8.dp)
-//    ) {
-//        //Start / Pause Button
-//        Button(
-//            onClick = {
-//                if (isRunning) {
-//                    isRunning = false
-//                    baseTime += System.currentTimeMillis() - elapsedTime
-//                } else {
-//                    isRunning = true
-//                    baseTime = System.currentTimeMillis() - elapsedTime
-//                    CoroutineScope(Dispatchers.Main).launch {
-//                        while (isRunning) {
-//                            elapsedTime = System.currentTimeMillis() - baseTime
-//                            delay(100)
-//                            if (elapsedTime >= month * 10000) {
-//                                month += 1
-//                                onBondOptionChange(i+1)
-//                                onUpdateSimulator(i + 1, bonds[if (i + 1 < bonds.size) i + 1 else 0])
-//                            }
-//                            if (month == 12) {
-//                                isRunning = false
-//                                elapsedTime = 0
-//                                baseTime = System.currentTimeMillis()
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        ) {
-//            Text(text = if (isRunning) "Pause" else "Start")
-//        }
-//
-//        Spacer(modifier = Modifier.width(4.dp))
-//
-//        // Restart Button
-//        Button(
-//            onClick = {
-//                isRunning = false
-//                elapsedTime = 0
-//                baseTime = System.currentTimeMillis()
-//                month = 1
-//                onUserInfoChange(userInfo.reset())
-//                onBondOptionChange(0)
-//            }
-//        ) {
-//            Text(text = "Restart")
-//        }
-//
-//        LaunchedEffect(isRunning) {
-//            while (isRunning) {
-//                elapsedTime = System.currentTimeMillis() - baseTime
-//                delay(100)
-//
-//                // Check for updates every 10 seconds (60000 milliseconds)
-//                if (elapsedTime >= month * 10000) {
-//                    month += 1
-//                    // Update the bond options
-//                    val newIndex = (i + 1) % bonds.size
-//                    onBondOptionChange(newIndex)
-//                    onUpdateSimulator(newIndex, bonds[newIndex])
-//                }
-//
-//                if (month == 12) {
-//                    isRunning = false
-//                    elapsedTime = 0
-//                    baseTime = System.currentTimeMillis()
-//                }
-//            }
-//        }
-//    }
-//}
-
-
-
+//TODO: Replace Toast Msg with Dialog Boxes in Final
+private fun toastMessages(context: Context, flg:String) {
+    when (flg) {
+        "reset" -> Toast.makeText(context, "Simulation Reset", Toast.LENGTH_LONG).show()
+        "finish" -> Toast.makeText(context, "Simulation Complete, View Portfolio", Toast.LENGTH_LONG).show()
+        "newBond" -> Toast.makeText(context, "New Bond!", Toast.LENGTH_LONG).show()
+    }
+}
