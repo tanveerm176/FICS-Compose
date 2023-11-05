@@ -43,6 +43,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.fics_compose.BottomNavBar
 import com.example.fics_compose.usrInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -98,7 +101,7 @@ data class usrInfo(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SimulatorTopAppBar() {
+fun SimulatorTopAppBar(navController: NavController) {
     var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
@@ -118,15 +121,15 @@ fun SimulatorTopAppBar() {
         },
     ) {innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)){
-            SimulatorScreen()
+            SimulatorScreen(navController)
         }
     }
 }
 
 @Composable
-fun SimulatorScreen(){
+fun SimulatorScreen(navController: NavController){
     Spacer(modifier = Modifier.height(24.dp))
-    SimulatorCard(usrInfo(), bonds = TestData.testDataList)
+    SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController)
 }
 
 data class BondOption(val title: String, val price: Double, val interestRate: Double)
@@ -202,7 +205,8 @@ object TestData{
 @Composable
 fun SimulatorCard(
     userInfo : usrInfo,
-    bonds: List<BondOption>
+    bonds: List<BondOption>,
+    navController: NavController
 ) {
     // for traversing bonds list
     var i by remember { mutableIntStateOf(0) }
@@ -264,12 +268,12 @@ fun SimulatorCard(
                                 elapsedTime = System.currentTimeMillis() - baseTime
                                 delay(100)
                                 // every month, update bond card and user portfolio
-                                if (elapsedTime >= month * 10000 && month < 12) {
+                                if (elapsedTime >= month * 1000 && month < 12) {
                                     month += 1
                                     i += 1
                                     currentBond = bonds[if (i + 1 < bonds.size) i + 1 else 0]
                                     userInfo.addMonthlyReturn()
-                                    toastMessages(currContext, "newBond")
+//                                    toastMessages(currContext, "newBond")
 
                                 }
                                 if (month == 12) {
@@ -277,6 +281,7 @@ fun SimulatorCard(
                                     elapsedTime = 0
                                     baseTime = System.currentTimeMillis()
                                     toastMessages(currContext, "finish")
+                                    startHistoryScreen(navController)
                                 }
                             }
                         }
@@ -498,7 +503,7 @@ fun formatTime(time: Long): String {
 @Composable
 @Preview
 fun SimulatorScreenPreview() {
-    SimulatorCard(userInfo = usrInfo(), bonds = TestData.testDataList)
+//    SimulatorCard(userInfo = usrInfo(), bonds = TestData.testDataList)
 }
 
 //TODO: Replace Toast Msg with Dialog Boxes in Final
@@ -508,4 +513,8 @@ private fun toastMessages(context: Context, flg:String) {
         "finish" -> Toast.makeText(context, "Simulation Complete, View Portfolio", Toast.LENGTH_LONG).show()
         "newBond" -> Toast.makeText(context, "New Bond!", Toast.LENGTH_LONG).show()
     }
+}
+
+fun startHistoryScreen(navController:NavController){
+    navController.navigate(BottomNavBar.History.route)
 }

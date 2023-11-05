@@ -30,7 +30,7 @@ fun BottomNavGraph(navController: NavHostController){
         }*/
 
         composable(route=BottomNavBar.Simulator.route){
-            SimulatorTopAppBar()
+            SimulatorTopAppBar(navController)
         }
 
 
