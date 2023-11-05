@@ -10,6 +10,7 @@ class usrInfo(
     var netWorth: Double = 0.0,
     var investment: Double = 0.0,
     var monthlyReturn: Double = 0.0,
+    var totalGains: Double = 0.0,
     var numBonds : Int = 0
 ) : Parcelable {
 
@@ -36,6 +37,17 @@ class usrInfo(
     fun addMonthlyReturn(): Double {
         this.wallet += this.monthlyReturn
         return this.wallet
+    }
+
+    // update number of trades made
+    fun addNumBonds() : Int{
+        this.numBonds += this.numBonds
+        return this.numBonds
+    }
+
+    fun calcGains(netWorth: Double) : Double{
+        this.totalGains = this.netWorth - 10000.00 //note:need to correct
+        return this.totalGains
     }
 
     // reset user info to default state

@@ -1,8 +1,7 @@
 package com.example.fics_compose.screens
 
-import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -10,11 +9,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,17 +28,13 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.ui.unit.dp
 import com.example.fics_compose.ui.theme.FICSComposeTheme
-import java.util.Date
+import com.example.fics_compose.usrInfo
 
-@Composable
-fun HistoryScreen() {
-    Spacer(modifier = Modifier.height(24.dp))
-    InvestmentsList(investments = HistoryData.investmentHistory)
-}
 
+//TODO: parcelable can't be persistent, need to create an internal data class and set results to its attr
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryTopAppBar() {
+fun HistoryTopAppBar(result: usrInfo?) {
     var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     Scaffold(
         topBar = {
@@ -60,24 +53,48 @@ fun HistoryTopAppBar() {
         },
     ) {innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)){
-            HistoryScreen()
+            HistoryScreen(result)
         }
     }
 }
 
-data class Investment(val date: String,
-                      val finalNetWorth: Int,
-                      val initialWallet: Int,
-                      val numOfTrades: Int)
+@Composable
+fun HistoryScreen(result: usrInfo?) {
+    Spacer(modifier = Modifier.height(24.dp))
+    addToPortfolio(result)
+}
 
 @Composable
-fun HistoryCard(investment: Investment){
+fun addToPortfolio(result: usrInfo?){
+    var portfolioList = mutableListOf<usrInfo>() //TODO:
+
+    if (result != null) {
+        portfolioList.add(result)
+    }
+
+//    Log.d("portfolioList","${portfolioList[0]}")
+
+    InvestmentsList(portfolio = portfolioList)
+}
+
+@Composable
+fun InvestmentsList(portfolio: List<usrInfo>) {
+    LazyColumn {
+        items(portfolio) {portfolio ->
+            HistoryCard(portfolio)
+        }
+    }
+}
+
+
+@Composable
+fun HistoryCard(portfolio: usrInfo){
     Row(modifier = Modifier.fillMaxWidth()){
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = investment.date,
+                text = "Number of Trades: ${portfolio.numBonds}",
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleMedium
             );
@@ -95,17 +112,17 @@ fun HistoryCard(investment: Investment){
                 ) {
                     Column{
                         Text(
-                            text = "Net Worth $${investment.finalNetWorth}",
+                            text = "Final Net Worth: $${portfolio.netWorth}",
                             color = Color.Black,
                             modifier = Modifier.padding(all = 3.dp),
                         );
                         Text(
-                            text = "Initial Wallet $${investment.initialWallet}",
+                            text = "Remaining Wallet $${portfolio.wallet}",
                             color = Color.Black,
                             modifier = Modifier.padding(all = 3.dp),
                         );
                         Text(
-                            text = "Total Trades: ${investment.numOfTrades}",
+                            text = "Total Gains: ${portfolio.calcGains(portfolio.netWorth)}",
                             color = Color.Black,
                             modifier = Modifier.padding(all = 3.dp),
                         )
@@ -116,37 +133,4 @@ fun HistoryCard(investment: Investment){
     }
 }
 
-@Composable
-fun InvestmentsList(investments: List<Investment>) {
-    LazyColumn {
-        items(investments) {investments ->
-            HistoryCard(investments)
-        }
-    }
-}
 
-object HistoryData{
-    val investmentHistory = listOf(
-        Investment(
-            date = "1/1/2023",
-            finalNetWorth = 10000,
-            initialWallet = 1080,
-            numOfTrades = 5
-        ),
-        Investment(
-            date = "3/1/2023",
-            finalNetWorth = 25100,
-            initialWallet = 3000,
-            numOfTrades = 6
-        )
-    )
-}
-
-@Preview
-@Composable
-fun HistoryScreenPreview() {
-    FICSComposeTheme {
-        HistoryScreen()
-        InvestmentsList(HistoryData.investmentHistory)
-    }
-}
