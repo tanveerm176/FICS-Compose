@@ -25,7 +25,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -75,11 +74,13 @@ data class usrInfo(
         return this.monthlyReturn
     }
 
+    // update wallet with monthly return
     fun addMonthlyReturn(): Double {
         this.wallet += this.monthlyReturn
         return this.wallet
     }
 
+    // reset user info to default state
     fun reset(): usrInfo {
         this.wallet = 10000.00
         this.netWorth = 0.0
@@ -198,6 +199,7 @@ fun SimulatorCard(
     userInfo : usrInfo,
     bonds: List<BondOption>
 ) {
+    // for traversing bonds list
     var i by remember { mutableIntStateOf(0) }
     var numOfBonds by remember { mutableIntStateOf(0) }
     var currentBond by remember { mutableStateOf(bonds[i]) }
@@ -219,7 +221,7 @@ fun SimulatorCard(
         Spacer(modifier = Modifier.height(8.dp))
 
         // note: replaced Time and Pause button with Timer function
-        // note(S.S): replaced Timer and added in the core functionalities into SimulationCard
+        // note(S.S): replaced Timer card and added in the core functionalities into SimulationCard
 
         // Month Display
         Text(
@@ -255,6 +257,7 @@ fun SimulatorCard(
                             while (isRunning) {
                                 elapsedTime = System.currentTimeMillis() - baseTime
                                 delay(100)
+                                // every month, update bond card and user portfolio
                                 if (elapsedTime >= month * 10000 && month < 12) {
                                     month += 1
                                     i += 1
@@ -440,6 +443,8 @@ fun BondCard(
                 userInfo.calcInvestments(numberOfBonds, bond.price)
                 userInfo.calcNetWorth(userInfo.wallet, userInfo.investment)
 
+                // note (S.S.): This does not change what the user sees in the input field, but it does allow
+                // user to keep investing the same number of bonds
                 numBonds = 0
             },
         ) {
