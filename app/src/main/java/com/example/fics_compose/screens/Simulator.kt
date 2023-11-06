@@ -467,6 +467,7 @@ fun BondCard(
                 // note (S.S.): This does not change what the user sees in the input field, but it does allow
                 // user to keep investing the same number of bonds
                 numBonds = 0
+                userInfo.incrementTrades()
             },
         ) {
             Text(
