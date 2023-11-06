@@ -11,7 +11,8 @@ class usrInfo(
     var investment: Double = 0.0,
     var monthlyReturn: Double = 0.0,
     var totalGains: Double = 0.0,
-    var numBonds : Int = 0
+    var numBonds: Int = 0,
+    var trades: Int = 0
 ) : Parcelable {
 
     // functions to calculate users net worth, investments, and monthly ROI
@@ -48,6 +49,11 @@ class usrInfo(
     fun calcGains(netWorth: Double) : Double{
         this.totalGains = this.netWorth - 10000.00 //note:need to correct
         return this.totalGains
+    }
+
+    fun incrementTrades() : Int{
+        this.trades += 1
+        return this.trades
     }
 
     // reset user info to default state
