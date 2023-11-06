@@ -94,7 +94,7 @@ fun HistoryCard(portfolio: usrInfo){
         Column {
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "Number of Trades: ${portfolio.numBonds}",
+                text = "Number of Trades: ${portfolio.trades}",
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleMedium
             );
