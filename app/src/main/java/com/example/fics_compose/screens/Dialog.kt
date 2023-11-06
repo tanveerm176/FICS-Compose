@@ -71,13 +71,13 @@ fun SimulatorDialog(
                             onClick = { onDismissRequest() },
                             modifier = Modifier.padding(8.dp),
                         ) {
-                            Text("Skip")
+                            Text("SKIP")
                         }
                         Button(
                             onClick = { onConfirmation() },
                             modifier = Modifier.padding(8.dp),
                         ) {
-                            Text("Next")
+                            Text("NEXT")
                         }
                     }
                 }
