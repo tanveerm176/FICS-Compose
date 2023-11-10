@@ -249,7 +249,7 @@ fun SimulatorCard(
 
         // Month Display
         Text(
-            text = "Month $month of 12",
+            text = "Month $month of 24",
             fontWeight = FontWeight.ExtraBold,
             fontSize = 25.sp,
             color = Color(0xFFDEB841),
@@ -258,74 +258,74 @@ fun SimulatorCard(
         )
 
         // Timer Display
-        Text(
-            text = formatTime(elapsedTime),
-            color = Color(0xffbfbdc1),
-            fontSize = 20.sp
-        )
+//        Text(
+//            text = formatTime(elapsedTime),
+//            color = Color(0xffbfbdc1),
+//            fontSize = 20.sp
+//        )
 
         // Timer Buttons (Start/Pause, Restart)
-        Row(
-            modifier = Modifier.padding(8.dp)
-        ) {
-            //Start / Pause Button
-            Button(
-                onClick = {
-                    if (isRunning) {
-                        isRunning = false
-                        baseTime += System.currentTimeMillis() - elapsedTime
-                    } else {
-                        isRunning = true
-                        baseTime = System.currentTimeMillis() - elapsedTime
-                        CoroutineScope(Dispatchers.Main).launch {
-                            while (isRunning) {
-                                elapsedTime = System.currentTimeMillis() - baseTime
-                                delay(100)
-
-                                // every month, update bond card and user portfolio
-                                if (elapsedTime >= month * 10000 && month < 12) {
-                                    month += 1
-                                    i += 1
-                                    currentBond = bonds[if (i + 1 < bonds.size) i + 1 else 0]
-                                    userInfo.addMonthlyReturn()
-                                    toastMessages(currContext, "newBond")
-
-                                }
-                                if (month == 12) {
-                                    isRunning = false
-                                    elapsedTime = 0
-                                    baseTime = System.currentTimeMillis()
-                                    toastMessages(currContext, "finish")
-
-                                    //note:START HISTORY SCREEN WHEN SIM FINISHES
-                                    startHistoryScreen(navController,userInfo)
-                                }
-                            }
-                        }
-                    }
-                }
-            ) {
-                Text(text = if (isRunning) "Pause" else "Start")
-            }
-
-            Spacer(modifier = Modifier.width(4.dp))
-
-            // Restart Button
-            Button(
-                onClick = {
-                    isRunning = false
-                    elapsedTime = 0
-                    baseTime = System.currentTimeMillis()
-                    month = 1
-                    userInfo.reset()
-                    i = 0
-                    currentBond = bonds[0]
-                    toastMessages(currContext, "reset")
-                }
-            ) {
-                Text(text = "Restart")
-            }
-        }
+//        Row(
+//            modifier = Modifier.padding(8.dp)
+//        ) {
+//            //Start / Pause Button
+//            Button(
+//                onClick = {
+//                    if (isRunning) {
+//                        isRunning = false
+//                        baseTime += System.currentTimeMillis() - elapsedTime
+//                    } else {
+//                        isRunning = true
+//                        baseTime = System.currentTimeMillis() - elapsedTime
+//                        CoroutineScope(Dispatchers.Main).launch {
+//                            while (isRunning) {
+//                                elapsedTime = System.currentTimeMillis() - baseTime
+//                                delay(100)
+//
+//                                // every month, update bond card and user portfolio
+//                                if (elapsedTime >= month * 10000 && month < 12) {
+//                                    month += 1
+//                                    i += 1
+//                                    currentBond = bonds[if (i + 1 < bonds.size) i + 1 else 0]
+//                                    userInfo.addMonthlyReturn()
+//                                    toastMessages(currContext, "newBond")
+//
+//                                }
+//                                if (month == 24) {
+//                                    isRunning = false
+//                                    elapsedTime = 0
+//                                    baseTime = System.currentTimeMillis()
+//                                    toastMessages(currContext, "finish")
+//
+//                                    //note:START HISTORY SCREEN WHEN SIM FINISHES
+//                                    startHistoryScreen(navController,userInfo)
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            ) {
+//                Text(text = if (isRunning) "Pause" else "Start")
+//            }
+//
+//            Spacer(modifier = Modifier.width(4.dp))
+//
+//            // Restart Button
+//            Button(
+//                onClick = {
+//                    isRunning = false
+//                    elapsedTime = 0
+//                    baseTime = System.currentTimeMillis()
+//                    month = 1
+//                    userInfo.reset()
+//                    i = 0
+//                    currentBond = bonds[0]
+//                    toastMessages(currContext, "reset")
+//                }
+//            ) {
+//                Text(text = "Restart")
+//            }
+//        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -343,6 +343,18 @@ fun SimulatorCard(
                     numOfBonds = it
                 },
                 userInfo = userInfo,
+                onInvestClicked = {
+                    // Update the month and current bond
+                    month += 1
+                    i = (i + 1) % bonds.size
+                    currentBond = bonds[i]
+                    if (month == 24) {
+                        toastMessages(currContext, "finish")
+
+                        //note:START HISTORY SCREEN WHEN SIM FINISHES
+                        startHistoryScreen(navController, userInfo)
+                    }
+                }
             )
         }
 
@@ -426,6 +438,7 @@ fun BondCard(
     numberOfBonds: Int,
     onNumberOfBondsChanged: (Int) -> Unit,
     userInfo: usrInfo,
+    onInvestClicked: () -> Unit,
 ) {
 
     var numBonds by remember { mutableIntStateOf(numberOfBonds) }
@@ -449,6 +462,11 @@ fun BondCard(
         )
         Text(
             text = "Interest Rate: % " + bond.interestRate,
+            modifier = Modifier.padding(all = 5.dp),
+            color = Color(0xFF08010F)
+        )
+        Text(
+            text = "Monthly Return: $" + (bond.price * bond.interestRate / 100),
             modifier = Modifier.padding(all = 5.dp),
             color = Color(0xFF08010F)
         )
@@ -480,6 +498,8 @@ fun BondCard(
                 // user to keep investing the same number of bonds
                 numBonds = 0
                 userInfo.incrementTrades()
+
+                onInvestClicked()
             },
         ) {
             Text(
