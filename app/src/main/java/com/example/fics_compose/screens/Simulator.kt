@@ -1,5 +1,7 @@
 package com.example.fics_compose.screens
 
+import android.R.attr.layout_alignLeft
+import android.R.attr.layout_alignRight
 import android.R.attr.value
 import android.content.Context
 import android.widget.Toast
@@ -36,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.fics_compose.BottomNavBar
 import com.example.fics_compose.usrInfo
@@ -51,6 +55,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import java.io.Serializable
 
 
@@ -59,6 +64,7 @@ import java.io.Serializable
 @Composable
 fun SimulatorTopAppBar(navController: NavController) {
     var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    var showHelp = remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -69,7 +75,21 @@ fun SimulatorTopAppBar(navController: NavController) {
                 ),
                 title = {
                     Box(modifier = Modifier.fillMaxWidth()) {
-                        Text("FICS Simulator")
+                        Text(
+                            modifier = Modifier.align(Alignment.CenterStart),
+                            text = "FICS Simulator"
+                        )
+                        Button(
+                            onClick = { showHelp.value = true },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(horizontal = 5.dp)
+                        ) {
+                            Text(text = "Help")
+                        }
+                        if (showHelp.value) {
+                            ShowDialog(onSkip = {showHelp.value = false})
+                        }
                     }
                 }
             )
@@ -85,15 +105,18 @@ fun SimulatorTopAppBar(navController: NavController) {
 @Composable
 fun SimulatorScreen(navController: NavController){
     Spacer(modifier = Modifier.height(24.dp))
-    ShowDialog()
+    ShowDialog(onSkip = {})
     SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController)
 }
 
-
+// Note (S.S.): For some reason, when the help button is pressed, the dialog shows up with the text
+// slightly bigger. Not sure why.
 @Composable
-private fun ShowDialog (){
+private fun ShowDialog (
+    onSkip: () -> Unit,
+){
     var showDialog by remember { mutableStateOf(true) }
-    var currentDialogIndex by remember { mutableStateOf(0) }
+    var currentDialogIndex by remember { mutableIntStateOf(0) }
     val dialogs = listOf(
         DialogContent(
             title = "Welcome to the FICS!",
@@ -128,6 +151,7 @@ private fun ShowDialog (){
         SimulatorDialog(
             showDialog = showDialog,
             onDismissRequest = {
+                onSkip()
                 showDialog = false // Dismiss the dialog
             },
             onConfirmation = {
@@ -227,13 +251,9 @@ fun SimulatorCard(
     var numOfBonds by remember { mutableIntStateOf(0) }
     var currentBond by remember { mutableStateOf(bonds[i]) }
 
-    // for Timer functionality
+    // Note (SS): removed timer functionality and associated variables
     var month by remember { mutableIntStateOf(1) }
-    var isRunning by remember { mutableStateOf(false) }
-    var elapsedTime by remember { mutableLongStateOf(0L) }
-    var baseTime by remember { mutableLongStateOf(0L) }
     val currContext = LocalContext.current
-
 
     Spacer(modifier = Modifier.width(8.dp))
 
@@ -244,88 +264,15 @@ fun SimulatorCard(
     ) {
         Spacer(modifier = Modifier.height(8.dp))
 
-        // note: replaced Time and Pause button with Timer function
-        // note(S.S): replaced Timer card and added in the core functionalities into SimulationCard
-
         // Month Display
         Text(
-            text = "Month $month of 12",
+            text = "Month $month of 24",
             fontWeight = FontWeight.ExtraBold,
             fontSize = 25.sp,
             color = Color(0xFFDEB841),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(all = 5.dp),
         )
-
-        // Timer Display
-        Text(
-            text = formatTime(elapsedTime),
-            color = Color(0xffbfbdc1),
-            fontSize = 20.sp
-        )
-
-        // Timer Buttons (Start/Pause, Restart)
-        Row(
-            modifier = Modifier.padding(8.dp)
-        ) {
-            //Start / Pause Button
-            Button(
-                onClick = {
-                    if (isRunning) {
-                        isRunning = false
-                        baseTime += System.currentTimeMillis() - elapsedTime
-                    } else {
-                        isRunning = true
-                        baseTime = System.currentTimeMillis() - elapsedTime
-                        CoroutineScope(Dispatchers.Main).launch {
-                            while (isRunning) {
-                                elapsedTime = System.currentTimeMillis() - baseTime
-                                delay(100)
-
-                                // every month, update bond card and user portfolio
-                                if (elapsedTime >= month * 10000 && month < 12) {
-                                    month += 1
-                                    i += 1
-                                    currentBond = bonds[if (i + 1 < bonds.size) i + 1 else 0]
-                                    userInfo.addMonthlyReturn()
-                                    toastMessages(currContext, "newBond")
-
-                                }
-                                if (month == 12) {
-                                    isRunning = false
-                                    elapsedTime = 0
-                                    baseTime = System.currentTimeMillis()
-                                    toastMessages(currContext, "finish")
-
-                                    //note:START HISTORY SCREEN WHEN SIM FINISHES
-                                    startHistoryScreen(navController,userInfo)
-                                }
-                            }
-                        }
-                    }
-                }
-            ) {
-                Text(text = if (isRunning) "Pause" else "Start")
-            }
-
-            Spacer(modifier = Modifier.width(4.dp))
-
-            // Restart Button
-            Button(
-                onClick = {
-                    isRunning = false
-                    elapsedTime = 0
-                    baseTime = System.currentTimeMillis()
-                    month = 1
-                    userInfo.reset()
-                    i = 0
-                    currentBond = bonds[0]
-                    toastMessages(currContext, "reset")
-                }
-            ) {
-                Text(text = "Restart")
-            }
-        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -343,6 +290,18 @@ fun SimulatorCard(
                     numOfBonds = it
                 },
                 userInfo = userInfo,
+                onInvestClicked = {
+                    // Update the month and current bond
+                    month += 1
+                    i = (i + 1) % bonds.size
+                    currentBond = bonds[i]
+                    if (month == 24) {
+                        toastMessages(currContext, "finish")
+
+                        //note:START HISTORY SCREEN WHEN SIM FINISHES
+                        startHistoryScreen(navController, userInfo)
+                    }
+                }
             )
         }
 
@@ -426,6 +385,7 @@ fun BondCard(
     numberOfBonds: Int,
     onNumberOfBondsChanged: (Int) -> Unit,
     userInfo: usrInfo,
+    onInvestClicked: () -> Unit,
 ) {
 
     var numBonds by remember { mutableIntStateOf(numberOfBonds) }
@@ -449,6 +409,11 @@ fun BondCard(
         )
         Text(
             text = "Interest Rate: % " + bond.interestRate,
+            modifier = Modifier.padding(all = 5.dp),
+            color = Color(0xFF08010F)
+        )
+        Text(
+            text = "Monthly Return: $" + (bond.price * bond.interestRate / 100),
             modifier = Modifier.padding(all = 5.dp),
             color = Color(0xFF08010F)
         )
@@ -480,6 +445,8 @@ fun BondCard(
                 // user to keep investing the same number of bonds
                 numBonds = 0
                 userInfo.incrementTrades()
+
+                onInvestClicked()
             },
         ) {
             Text(
@@ -518,13 +485,13 @@ fun formatTime(time: Long): String {
     return "%02d:%02d".format(minutes, remainingSeconds)
 }
 
-@Composable
-@Preview
-fun SimulatorScreenPreview() {
+//@Composable
+//@Preview
+//fun SimulatorScreenPreview() {
 //    SimulatorCard(userInfo = usrInfo(), bonds = TestData.testDataList)
-}
+//}
 
-//TODO: Replace Toast Msg with Dialog Boxes in Final
+//TODO: Replace Toast Msg with Dialog Boxes 2in Final
 private fun toastMessages(context: Context, flg:String) {
     when (flg) {
         "reset" -> Toast.makeText(context, "Simulation Reset", Toast.LENGTH_LONG).show()
