@@ -4,6 +4,7 @@ import android.R.attr.layout_alignLeft
 import android.R.attr.layout_alignRight
 import android.R.attr.value
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -445,6 +446,10 @@ fun BondCard(
                 // user to keep investing the same number of bonds
                 numBonds = 0
                 userInfo.incrementTrades()
+
+                //TODO: move BondOption data class to it's own file?
+                userInfo.investList += bond
+                Log.d("investList","{${userInfo.investList[0]}}")
 
                 onInvestClicked()
             },
