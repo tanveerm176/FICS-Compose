@@ -19,8 +19,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -265,15 +269,27 @@ fun SimulatorCard(
     ) {
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Month Display
-        Text(
-            text = "Month $month of 24",
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 25.sp,
-            color = Color(0xFFDEB841),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(all = 5.dp),
-        )
+        Row(
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+
+            // Month Display
+            Text(
+                text = "Month $month of 24",
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 25.sp,
+                color = Color(0xFFDEB841),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(all = 5.dp),
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(Icons.Filled.ShoppingCart, contentDescription = "Investment List")
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
