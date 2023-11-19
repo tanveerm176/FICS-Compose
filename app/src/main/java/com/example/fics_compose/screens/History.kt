@@ -1,12 +1,10 @@
 package com.example.fics_compose.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.background
@@ -27,7 +25,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.ui.unit.dp
-import com.example.fics_compose.ui.theme.FICSComposeTheme
 import com.example.fics_compose.usrInfo
 
 
@@ -45,7 +42,7 @@ fun HistoryTopAppBar(result: usrInfo?) {
                 ),
                 title = {
                     Box(modifier = Modifier.fillMaxWidth()) {
-                        Text("Portfolio")
+                        Text("History")
                     }
                 }
             )
@@ -61,40 +58,40 @@ fun HistoryTopAppBar(result: usrInfo?) {
 @Composable
 fun HistoryScreen(result: usrInfo?) {
     Spacer(modifier = Modifier.height(24.dp))
-    addToPortfolio(result)
+    addToHistory(result)
 }
 
 @Composable
-fun addToPortfolio(result: usrInfo?){
-    var portfolioList = mutableListOf<usrInfo>() //TODO:
+fun addToHistory(result: usrInfo?){
+    var historyList = mutableListOf<usrInfo>() //TODO:
 
     if (result != null) {
-        portfolioList.add(result)
+        historyList.add(result)
     }
 
 //    Log.d("portfolioList","${portfolioList[0]}")
 
-    InvestmentsList(portfolio = portfolioList)
+    HistoryList(history = historyList)
 }
 
 @Composable
-fun InvestmentsList(portfolio: List<usrInfo>) {
+fun HistoryList(history: List<usrInfo>) {
     LazyColumn {
-        items(portfolio) {portfolio ->
-            HistoryCard(portfolio)
+        items(history) {history ->
+            HistoryCard(history)
         }
     }
 }
 
 
 @Composable
-fun HistoryCard(portfolio: usrInfo){
+fun HistoryCard(history: usrInfo){
     Row(modifier = Modifier.fillMaxWidth()){
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "Number of Trades: ${portfolio.trades}",
+                text = "Number of Trades: ${history.trades}",
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleMedium
             );
@@ -112,17 +109,17 @@ fun HistoryCard(portfolio: usrInfo){
                 ) {
                     Column{
                         Text(
-                            text = "Final Net Worth: $${portfolio.netWorth}",
+                            text = "Final Net Worth: $${history.netWorth}",
                             color = Color.Black,
                             modifier = Modifier.padding(all = 3.dp),
                         );
                         Text(
-                            text = "Remaining Wallet $${portfolio.wallet}",
+                            text = "Remaining Wallet $${history.wallet}",
                             color = Color.Black,
                             modifier = Modifier.padding(all = 3.dp),
                         );
                         Text(
-                            text = "Total Gains: ${portfolio.calcGains(portfolio.netWorth)}",
+                            text = "Total Gains: ${history.calcGains(history.netWorth)}",
                             color = Color.Black,
                             modifier = Modifier.padding(all = 3.dp),
                         )

@@ -333,10 +333,10 @@ fun BondCard(
                 numBonds = 0
                 userInfo.incrementTrades()
 
-                var bondInfo: List<Double> = listOf(bond.price,bond.interestRate, numberOfBonds.toDouble())
+                var bondInfo: List<Any> = listOf(bond.title,bond.price,bond.interestRate, numberOfBonds.toDouble())
                 //TODO: move BondOption data class to it's own file? AND track number bought
-                userInfo.investList.put(bond.title, bondInfo)
-                Log.d("investList","{${userInfo.investList.entries}}")
+                userInfo.investList.add(bondInfo)
+                Log.d("investList","{${userInfo.investList}}")
                 onInvestClicked()
             },
         ) {

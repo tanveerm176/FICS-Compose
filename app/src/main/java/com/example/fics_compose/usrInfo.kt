@@ -15,7 +15,7 @@ class usrInfo(
     var trades: Int = 0
 ) : Parcelable {
 
-    val investList = mutableMapOf<String, List<Double>>()
+    val investList = mutableListOf<List<Any>>()
 
     // functions to calculate users net worth, investments, and monthly ROI
     // note: made numBonds integer for all functions
