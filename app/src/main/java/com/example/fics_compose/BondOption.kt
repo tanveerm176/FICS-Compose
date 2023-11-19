@@ -1,6 +1,6 @@
 package com.example.fics_compose
 
-class BondOption(
+data class BondOption(
     val title: String,
     val price: Double,
     val interestRate: Double) {
