@@ -31,7 +31,7 @@ import com.example.fics_compose.usrInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PortfolioTopAppBar(portfolio: List<List<Any>>) {
+fun PortfolioTopAppBar(portfolio: List<List<Any>>?) {
     var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     Scaffold(
         topBar = {
@@ -50,7 +50,9 @@ fun PortfolioTopAppBar(portfolio: List<List<Any>>) {
         },
     ) {innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)){
-            PortfolioScreen(portfolio)
+            if (portfolio != null) {
+                PortfolioScreen(portfolio)
+            }
         }
     }
 }

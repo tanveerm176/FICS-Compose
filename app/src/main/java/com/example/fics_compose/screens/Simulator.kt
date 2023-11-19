@@ -56,6 +56,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.fics_compose.BondOption
 import com.example.fics_compose.BottomNavBar
+import com.example.fics_compose.InternalNav
 import com.example.fics_compose.usrInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -156,7 +157,7 @@ fun SimulatorCard(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { startPortfolioScreen(navController,userInfo.investList)}) {
                 Icon(Icons.Filled.ShoppingCart, contentDescription = "Investment List")
             }
         }
@@ -518,4 +519,9 @@ private fun toastMessages(context: Context, flg:String) {
 fun startHistoryScreen(navController:NavController, portfolio:usrInfo){
     navController.currentBackStackEntry?.savedStateHandle?.set("port",portfolio)
     navController.navigate(BottomNavBar.History.route)
+}
+
+fun startPortfolioScreen(navController: NavController, portfolio: List<List<Any>>){
+    navController.currentBackStackEntry?.savedStateHandle?.set("portfolio", portfolio)
+    navController.navigate(InternalNav.Portfolio.route)
 }
