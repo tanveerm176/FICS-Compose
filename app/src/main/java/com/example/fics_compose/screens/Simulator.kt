@@ -4,6 +4,7 @@ import android.R.attr.layout_alignLeft
 import android.R.attr.layout_alignRight
 import android.R.attr.value
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,8 +19,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -49,7 +54,9 @@ import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.fics_compose.BondOption
 import com.example.fics_compose.BottomNavBar
+import com.example.fics_compose.InternalNav
 import com.example.fics_compose.usrInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -109,137 +116,6 @@ fun SimulatorScreen(navController: NavController){
     SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController)
 }
 
-// Note (S.S.): For some reason, when the help button is pressed, the dialog shows up with the text
-// slightly bigger. Not sure why.
-@Composable
-private fun ShowDialog (
-    onSkip: () -> Unit,
-){
-    var showDialog by remember { mutableStateOf(true) }
-    var currentDialogIndex by remember { mutableIntStateOf(0) }
-    val dialogs = listOf(
-        DialogContent(
-            title = "Welcome to the FICS!",
-            info = "This is an investment simulation to help you learn about investing into the fixed income market.\n\nClick NEXT to learn how to use the simulator and to walk through some key financial terms."
-        ),
-        DialogContent(
-            title = "Instructions",
-            info = "Click START  to start the simulation and the timer.\nNote: Every 10 seconds is equivalent a month passing.\nand every month you get the option to invest in a new bond.\n\nIf you need more time to consider an investment, click PAUSE to pause the simulation.\n\nIf you would like to redo the simulation from the beginning, click RESTART to reset the simulation."
-        ),
-        DialogContent(
-            title = "Investing",
-            info = "You can choose how many bonds you want to invest in based on the price and interest rate of the bond and your wallet.\n\nYour wallet is the cash you have available to invest.\n\nYour Net Worth is the difference between what you own (assets) and what you owe (liabilities). It represents your overall financial value or wealth.\n\nThe Monthly Return is the periodic interest rate payment."
-        ),
-        DialogContent(
-            title = "Fixed Income",
-            info = "Fixed income is a type of investment that pays the investor a fixed amount on a fixed schedule."
-        ),
-        DialogContent(
-            title = "Bond",
-            info = "A bond is a debt security, which means borrowers issue bonds to raise money from investors willing to lend them money for a certain amount of time. \n\nWhen you buy a bond, you are lending to the issuer, which may be a government, municipality, or corporation. In return, the issuer promises to pay you a specified rate of interest during the life of the bond and to repay the principal, also known as face value or par value of the bond, when it matures or comes due after a set period of time."
-        ),
-        DialogContent(
-            title = "Treasury Bond",
-            info = "A Treasury bond is a long-term, low-risk government debt security issued by the U.S. Department of the Treasury.\nIt is considered one of the safest investments due to the backing of the U.S. government."
-        ),
-        // Add more dialog content here as needed
-    )
-
-    if (currentDialogIndex < dialogs.size) {
-        val currentDialogContent = dialogs[currentDialogIndex]
-
-        SimulatorDialog(
-            showDialog = showDialog,
-            onDismissRequest = {
-                onSkip()
-                showDialog = false // Dismiss the dialog
-            },
-            onConfirmation = {
-                if (currentDialogIndex < dialogs.size - 1) {
-                    // Display the next dialog content
-                    currentDialogIndex++
-                } else {
-                    // If it's the last dialog, close the dialog
-                    showDialog = false
-                }
-            },
-            title = currentDialogContent.title,
-            info = currentDialogContent.info
-        )
-    }
-}
-
-
-data class BondOption(val title: String, val price: Double, val interestRate: Double)
-
-//add 12 instances of data class for each month, 3 for testing for now
-//data class setup for testing with Sowjan's timer functionality
-object TestData{
-    val testDataList = listOf(
-        BondOption(
-            title = "Treasury Notes",
-            price = 100.00,
-            interestRate = 2.00
-        ),
-        BondOption(
-            title = "Treasury Bonds",
-            price = 200.00,
-            interestRate = 3.00
-        ),
-        BondOption(
-            title = "Treasury Securities",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Federal Financing Bank",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Domestic Series",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Special Purpose Vehicle",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Foreign Series",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Government Account Series",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Treasury Bills",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Treasury Notes",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Treasury Bonds",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Total Marketable",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-    )
-}
-
-
 @Composable
 fun SimulatorCard(
     userInfo : usrInfo,
@@ -264,15 +140,27 @@ fun SimulatorCard(
     ) {
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Month Display
-        Text(
-            text = "Month $month of 24",
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 25.sp,
-            color = Color(0xFFDEB841),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(all = 5.dp),
-        )
+        Row(
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+
+            // Month Display
+            Text(
+                text = "Month $month of 24",
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 25.sp,
+                color = Color(0xFFDEB841),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(all = 5.dp),
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            IconButton(onClick = { startPortfolioScreen(navController,userInfo.investList)}) {
+                Icon(Icons.Filled.ShoppingCart, contentDescription = "Investment List")
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -446,6 +334,10 @@ fun BondCard(
                 numBonds = 0
                 userInfo.incrementTrades()
 
+                var bondInfo: List<Any> = listOf(bond.title,bond.price,bond.interestRate, numberOfBonds.toDouble())
+                //TODO: move BondOption data class to it's own file? AND track number bought
+                userInfo.investList.add(bondInfo)
+                Log.d("investList","{${userInfo.investList}}")
                 onInvestClicked()
             },
         ) {
@@ -478,18 +370,142 @@ fun NumericInputField(value: Int, onValueChange: (Int) -> Unit) {
     )
 }
 
+/*
 fun formatTime(time: Long): String {
     val seconds = (time / 1000).toInt()
     val minutes = seconds / 60
     val remainingSeconds = seconds % 60
     return "%02d:%02d".format(minutes, remainingSeconds)
 }
+*/
 
-//@Composable
-//@Preview
-//fun SimulatorScreenPreview() {
-//    SimulatorCard(userInfo = usrInfo(), bonds = TestData.testDataList)
-//}
+
+//add 12 instances of data class for each month, 3 for testing for now
+//data class setup for testing with Sowjan's timer functionality
+object TestData{
+    val testDataList = listOf(
+        BondOption(
+            title = "Treasury Notes",
+            price = 100.00,
+            interestRate = 2.00
+        ),
+        BondOption(
+            title = "Treasury Bonds",
+            price = 200.00,
+            interestRate = 3.00
+        ),
+        BondOption(
+            title = "Treasury Securities",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Federal Financing Bank",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Domestic Series",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Special Purpose Vehicle",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Foreign Series",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Government Account Series",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Treasury Bills",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Treasury Notes",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Treasury Bonds",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Total Marketable",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+    )
+}
+
+// Note (S.S.): For some reason, when the help button is pressed, the dialog shows up with the text
+// slightly bigger. Not sure why.
+@Composable
+private fun ShowDialog (
+    onSkip: () -> Unit,
+){
+    var showDialog by remember { mutableStateOf(true) }
+    var currentDialogIndex by remember { mutableIntStateOf(0) }
+    val dialogs = listOf(
+        DialogContent(
+            title = "Welcome to the FICS!",
+            info = "This is an investment simulation to help you learn about investing into the fixed income market.\n\nClick NEXT to learn how to use the simulator and to walk through some key financial terms."
+        ),
+        DialogContent(
+            title = "Instructions",
+            info = "Click START  to start the simulation and the timer.\nNote: Every 10 seconds is equivalent a month passing.\nand every month you get the option to invest in a new bond.\n\nIf you need more time to consider an investment, click PAUSE to pause the simulation.\n\nIf you would like to redo the simulation from the beginning, click RESTART to reset the simulation."
+        ),
+        DialogContent(
+            title = "Investing",
+            info = "You can choose how many bonds you want to invest in based on the price and interest rate of the bond and your wallet.\n\nYour wallet is the cash you have available to invest.\n\nYour Net Worth is the difference between what you own (assets) and what you owe (liabilities). It represents your overall financial value or wealth.\n\nThe Monthly Return is the periodic interest rate payment."
+        ),
+        DialogContent(
+            title = "Fixed Income",
+            info = "Fixed income is a type of investment that pays the investor a fixed amount on a fixed schedule."
+        ),
+        DialogContent(
+            title = "Bond",
+            info = "A bond is a debt security, which means borrowers issue bonds to raise money from investors willing to lend them money for a certain amount of time. \n\nWhen you buy a bond, you are lending to the issuer, which may be a government, municipality, or corporation. In return, the issuer promises to pay you a specified rate of interest during the life of the bond and to repay the principal, also known as face value or par value of the bond, when it matures or comes due after a set period of time."
+        ),
+        DialogContent(
+            title = "Treasury Bond",
+            info = "A Treasury bond is a long-term, low-risk government debt security issued by the U.S. Department of the Treasury.\nIt is considered one of the safest investments due to the backing of the U.S. government."
+        ),
+        // Add more dialog content here as needed
+    )
+
+    if (currentDialogIndex < dialogs.size) {
+        val currentDialogContent = dialogs[currentDialogIndex]
+
+        SimulatorDialog(
+            showDialog = showDialog,
+            onDismissRequest = {
+                onSkip()
+                showDialog = false // Dismiss the dialog
+            },
+            onConfirmation = {
+                if (currentDialogIndex < dialogs.size - 1) {
+                    // Display the next dialog content
+                    currentDialogIndex++
+                } else {
+                    // If it's the last dialog, close the dialog
+                    showDialog = false
+                }
+            },
+            title = currentDialogContent.title,
+            info = currentDialogContent.info
+        )
+    }
+}
 
 //TODO: Replace Toast Msg with Dialog Boxes 2in Final
 private fun toastMessages(context: Context, flg:String) {
@@ -503,4 +519,9 @@ private fun toastMessages(context: Context, flg:String) {
 fun startHistoryScreen(navController:NavController, portfolio:usrInfo){
     navController.currentBackStackEntry?.savedStateHandle?.set("port",portfolio)
     navController.navigate(BottomNavBar.History.route)
+}
+
+fun startPortfolioScreen(navController: NavController, portfolio: List<List<Any>>){
+    navController.currentBackStackEntry?.savedStateHandle?.set("portfolio", portfolio)
+    navController.navigate(InternalNav.Portfolio.route)
 }

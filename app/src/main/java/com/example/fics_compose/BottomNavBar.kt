@@ -38,3 +38,14 @@ sealed class BottomNavBar(
     )
 
 }
+
+sealed class InternalNav(
+    val route: String,
+    val title: String,
+){
+    object Portfolio: InternalNav(
+        route = "portfolio",
+        title = "Portfolio"
+    )
+
+}

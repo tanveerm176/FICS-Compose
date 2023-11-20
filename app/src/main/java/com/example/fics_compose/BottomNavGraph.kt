@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.fics_compose.screens.GlossaryTopAppBar
 import com.example.fics_compose.screens.HistoryTopAppBar
+import com.example.fics_compose.screens.PortfolioTopAppBar
 import com.example.fics_compose.screens.SimulatorTopAppBar
 
 @Composable
@@ -37,6 +38,11 @@ fun BottomNavGraph(navController: NavHostController){
             }
             HistoryTopAppBar(result)
 
+        }
+        
+        composable(route=InternalNav.Portfolio.route){
+            val result = navController.previousBackStackEntry?.savedStateHandle?.get<List<List<Any>>>("portfolio")
+            PortfolioTopAppBar(portfolio = result)
         }
     }
 
