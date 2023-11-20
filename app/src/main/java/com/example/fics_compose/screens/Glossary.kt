@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -82,58 +83,133 @@ fun GlossaryScreen() {
 data class Term(val termName: String, val termDef: String)
 data class Topic(val topicName: String, val terms: List<Term>)
 
+
 @Composable
+//fun DefinitionCard(term: Term) {
+//    var isExpanded by remember { mutableStateOf(false) }
+//    Row(modifier = Modifier.padding(all = 8.dp)) {
+//
+//        Spacer(modifier = Modifier.width(8.dp))
+//
+//        Column {
+//            Text(
+//                text = term.termName,
+//                color = MaterialTheme.colorScheme.primary,
+//                style = MaterialTheme.typography.titleMedium,
+//                maxLines = 1,
+//                overflow = TextOverflow.Ellipsis
+//            )
+//
+//            Spacer(modifier = Modifier.height(4.dp))
+//
+//            Surface(shape = MaterialTheme.shapes.medium, shadowElevation = 5.dp) {
+//                Column(
+//                    modifier = Modifier
+//                        .padding(all = 4.dp)
+//                        .animateContentSize()
+//                        .heightIn(min = if (isExpanded) 100.dp else 20.dp)
+//                ) {
+//                    Text(
+//                        text = term.termDef,
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        overflow = TextOverflow.Ellipsis,
+//                        maxLines = if (isExpanded) Int.MAX_VALUE else 2,
+//                        modifier = Modifier.clickable { isExpanded = !isExpanded }
+//                    )
+//                }
+//            }
+//
+//        }
+//    }
+//}
+
+@OptIn(ExperimentalMaterial3Api::class)
 fun DefinitionCard(term: Term) {
-    Row(modifier = Modifier.padding(all = 8.dp)) {
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Column {
-            Text(
-                text = term.termName,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Surface(shape = MaterialTheme.shapes.medium, shadowElevation = 5.dp) {
+    var expandedState by remember { mutableStateOf(false) }
+    val rotationState by animateFloatAsState(
+        targetValue = if (expandedState) 180f else 0f, label = "rotateState"
+    )
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize(
+                animationSpec = tween(
+                    durationMillis = 300,
+                    easing = LinearOutSlowInEasing
+                )
+            ),
+        shape = RoundedCornerShape(10.dp),
+        onClick = {
+            expandedState = !expandedState
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    text = term.termDef,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(all = 4.dp),
+                    modifier = Modifier
+                        .weight(6f),
+                    text = term.termName,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                IconButton(
+                    modifier = Modifier
+                        .weight(1f)
+                        .alpha(ContentAlpha.medium)
+                        .rotate(rotationState),
+                    onClick = {
+                        expandedState = !expandedState
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = "Drop-Down Arrow"
+                    )
+                }
             }
 
+            // Use the isExpanded property to decide whether to display the definition
+            if (expandedState) {
+                // Content of the term definition goes here
+                Text(text = term.termDef, modifier = Modifier.padding(1.dp))
+            }
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpandableCard(
     topic: Topic,
-    initiallyOpened: Boolean = false
 ) {
-    var isExpanded by remember { mutableStateOf(initiallyOpened) }
+    var expandedState by remember { mutableStateOf(false) }
     val rotationState by animateFloatAsState(
-        targetValue = if (isExpanded) 1f else 0f, label = "rotateState",
-        animationSpec = tween(
-            durationMillis = 300
-        )
+        targetValue = if (expandedState) 180f else 0f, label = "rotateState"
     )
 
     Card(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .animateContentSize(
+                animationSpec = tween(
+                    durationMillis = 300,
+                    easing = LinearOutSlowInEasing
+                )
+            ),
         shape = RoundedCornerShape(10.dp),
-        onClick = { isExpanded = !isExpanded }
+        onClick = {
+            expandedState = !expandedState
+        }
     ) {
-        Column(  //outer list item (topic)
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp)
@@ -150,17 +226,22 @@ fun ExpandableCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Open/Close drop-down",
+                IconButton(
                     modifier = Modifier
-                        .clickable { isExpanded = !isExpanded }
-                        .scale(if (isExpanded) -1f else 1f)
-                )
+                        .weight(1f)
+                        .alpha(ContentAlpha.medium)
+                        .rotate(rotationState),
+                    onClick = {
+                        expandedState = !expandedState
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = "Drop-Down Arrow"
+                    )
+                }
             }
-            Spacer(modifier = Modifier.height(5.dp))
-
-            if (isExpanded) {
+            if (expandedState) {
 //                Text("Expanded Content")
                 Column {
                     topic.terms.forEach { term ->
@@ -171,15 +252,6 @@ fun ExpandableCard(
         }
     }
 }
-
-//@Composable
-//fun TermsList(terms: List<Term>) {
-//    LazyColumn {
-//        items(terms) { term ->
-//            DefinitionCard(term)
-//        }
-//    }
-//}
 
 @Composable
 fun GlossaryList(glossary: List<Topic>) {
@@ -305,13 +377,3 @@ fun PreviewGlossary() {
         GlossaryScreen()
     }
 }
-
-
-
-
-/*
-@Composable
-@Preview
-fun GlossaryScreenPreview() {
-    GlossaryScreen()
-}*/
