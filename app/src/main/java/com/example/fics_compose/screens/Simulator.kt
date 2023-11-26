@@ -157,7 +157,7 @@ fun SimulatorCard(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            IconButton(onClick = { startPortfolioScreen(navController,userInfo.investList)}) {
+            IconButton(onClick = { startPortfolioScreen(navController,userInfo)}) {
                 Icon(Icons.Filled.ShoppingCart, contentDescription = "Investment List")
             }
         }
@@ -521,7 +521,7 @@ fun startHistoryScreen(navController:NavController, portfolio:usrInfo){
     navController.navigate(BottomNavBar.History.route)
 }
 
-fun startPortfolioScreen(navController: NavController, portfolio: List<List<Any>>){
+fun startPortfolioScreen(navController: NavController, portfolio: usrInfo){
     navController.currentBackStackEntry?.savedStateHandle?.set("portfolio", portfolio)
     navController.navigate(InternalNav.Portfolio.route)
 }
