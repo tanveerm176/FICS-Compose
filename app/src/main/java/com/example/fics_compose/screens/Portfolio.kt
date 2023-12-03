@@ -65,7 +65,9 @@ fun PortfolioTopAppBar(user: usrInfo?, navController:NavController) {
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            navController.popBackStack()
+                            if (user != null) {
+                                returnToSimulator(navController,user)
+                            }
                             if (user != null) {
                                 Log.d("current invest-list","${user.investList.toList()}")
                             }
@@ -79,6 +81,7 @@ fun PortfolioTopAppBar(user: usrInfo?, navController:NavController) {
                 }
             )
         },
+
     ) {innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)){
             if (user != null) {
@@ -100,7 +103,7 @@ fun PortfolioScreen(user: usrInfo?) {
 @Composable
 fun PortfolioList(portfolio: MutableList<List<Any>>, user: usrInfo) {
 //    var portfolio = remember { mutableIntStateOf<portfolio>()}
-
+    Spacer(modifier = Modifier.height(24.dp))
     LazyColumn {
         itemsIndexed(portfolio) {index, bondPurchased ->
             PortfolioCard(bondPurchased, index, user)
@@ -186,14 +189,7 @@ fun PortfolioCard(bondPurchased: List<Any>, index:Int, user: usrInfo){
 //    //change wallet, networth, and investments if sell button clicked
 //}
 
-@Preview
-@Composable
-fun previewPortfolio(){
-
-    val testList: List<List<Any>> = listOf(listOf("Treasury Notes", 100.0, 2.0, 5.0),listOf("Treasury Notes", 100.0, 2.0, 5.0),listOf("Treasury Notes", 100.0, 2.0, 5.0))
-
-    FICSComposeTheme {
-//        PortfolioScreen(testList)
-
-    }
+fun returnToSimulator(navController: NavController, user:usrInfo){
+    navController.currentBackStackEntry?.savedStateHandle?.set("user",user)
+    navController.navigate(InternalNav.Simulator.route)
 }

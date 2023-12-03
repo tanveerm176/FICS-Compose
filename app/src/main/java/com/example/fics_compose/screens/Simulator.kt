@@ -115,11 +115,11 @@ fun SimulatorCard(
 ) {
     // for traversing bonds list
     var i by remember { mutableIntStateOf(0) }
-    var numOfBonds by remember { mutableIntStateOf(0) }
+    var numOfBonds by remember { mutableIntStateOf(userInfo.numBonds) }
     var currentBond by remember { mutableStateOf(bonds[i]) }
 
     // Note (SS): removed timer functionality and associated variables
-    var month by remember { mutableIntStateOf(1) }
+    var month by remember { mutableIntStateOf(userInfo.month) }
     val currContext = LocalContext.current
 
     Spacer(modifier = Modifier.width(8.dp))
@@ -172,10 +172,12 @@ fun SimulatorCard(
                 onInvestClicked = {
                     // Update the month and current bond
                     month += 1
+                    userInfo.incrementMonth()
                     i = (i + 1) % bonds.size
                     currentBond = bonds[i]
                     if (month == 24) {
                         toastMessages(currContext, "finish")
+                        //TODO: Reset user and sim
 
                         //note:START HISTORY SCREEN WHEN SIM FINISHES
                         startHistoryScreen(navController, userInfo)

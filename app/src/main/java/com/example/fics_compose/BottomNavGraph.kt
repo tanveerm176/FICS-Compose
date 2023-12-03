@@ -46,7 +46,8 @@ fun BottomNavGraph(navController: NavHostController){
         }
 
         composable(route=InternalNav.Simulator.route){
-            SimulatorTopAppBar(navController)
+            val user = navController.previousBackStackEntry?.savedStateHandle?.get<usrInfo>("user")
+            SimulatorTopAppBar(navController, user)
         }
     }
 
