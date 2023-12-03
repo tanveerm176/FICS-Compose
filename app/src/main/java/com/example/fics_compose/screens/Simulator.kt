@@ -1,7 +1,5 @@
 package com.example.fics_compose.screens
 
-import android.R.attr.layout_alignLeft
-import android.R.attr.layout_alignRight
 import android.R.attr.value
 import android.content.Context
 import android.util.Log
@@ -34,43 +32,33 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.fics_compose.BondOption
 import com.example.fics_compose.BottomNavBar
-import com.example.fics_compose.DialogContent
 import com.example.fics_compose.InternalNav
 import com.example.fics_compose.usrInfo
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
-import java.io.Serializable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SimulatorTopAppBar(navController: NavController) {
     var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     var showHelp = remember { mutableStateOf(false) }
+    var simNumber = remember { mutableIntStateOf(0) }
 
     Scaffold(
         topBar = {
@@ -95,7 +83,7 @@ fun SimulatorTopAppBar(navController: NavController) {
                         }
                         // Note (S.S.): HelpDialog() returns the list of the dialog boxes for Help
                         if (showHelp.value) {
-                            ShowDialog(onSkip = {showHelp.value = false}, HelpDialog())
+                            ShowDialog(onSkip = {showHelp.value = false}, simNumber.value)
                         }
                     }
                 }
@@ -104,23 +92,23 @@ fun SimulatorTopAppBar(navController: NavController) {
         },
     ) {innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)){
-            SimulatorScreen(navController)
+            SimulatorScreen(navController, simNumber)
         }
     }
 }
 
 @Composable
-fun SimulatorScreen(navController: NavController){
+fun SimulatorScreen(navController: NavController, simNumber: MutableIntState){
     Spacer(modifier = Modifier.height(24.dp))
-    ShowDialog(onSkip = {}, IntroDialog())
-    SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController)
+    SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController, simNumber)
 }
 
 @Composable
 fun SimulatorCard(
     userInfo : usrInfo,
     bonds: List<BondOption>,
-    navController: NavController
+    navController: NavController,
+    simNumber: MutableIntState
 ) {
     // for traversing bonds list
     var i by remember { mutableIntStateOf(0) }
@@ -187,6 +175,11 @@ fun SimulatorCard(
 
                         //note:START HISTORY SCREEN WHEN SIM FINISHES
                         startHistoryScreen(navController, userInfo)
+                    }
+                    // note (ss): the help page gets updated every 3 bonds, since I assumed that's when the bond type changes,
+                    // but if that's not the case then this needs to be updated
+                    if (month % 3 == 0) {
+                        simNumber.value += 1
                     }
                 }
             )
@@ -450,22 +443,23 @@ object TestData{
 @Composable
 private fun ShowDialog (
     onSkip: () -> Unit,
-    dialogs: List<DialogContent>
+    simNumber: Int
 ){
     var showDialog by remember { mutableStateOf(true) }
-    var currentDialogIndex by remember { mutableIntStateOf(0) }
+    var currentDialogIndex by remember { mutableIntStateOf(simNumber) }
+    var dialogList = SimulatorContent
 
-    if (currentDialogIndex < dialogs.size) {
-        val currentDialogContent = dialogs[currentDialogIndex]
+    if (currentDialogIndex < dialogList.size) {
 
         SimulatorDialog(
             showDialog = showDialog,
             onDismissRequest = {
                 onSkip()
+                currentDialogIndex = simNumber
                 showDialog = false // Dismiss the dialog
             },
             onConfirmation = {
-                if (currentDialogIndex < dialogs.size - 1) {
+                if (currentDialogIndex < dialogList.size - 1) {
                     // Display the next dialog content
                     currentDialogIndex++
                 } else {
@@ -473,8 +467,7 @@ private fun ShowDialog (
                     showDialog = false
                 }
             },
-            title = currentDialogContent.title,
-            info = currentDialogContent.info
+            currentDialogIndex
         )
     }
 }
