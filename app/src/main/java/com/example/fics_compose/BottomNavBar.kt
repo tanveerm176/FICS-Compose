@@ -48,4 +48,9 @@ sealed class InternalNav(
         title = "Portfolio"
     )
 
+    object Simulator: InternalNav(
+        route = "simulator",
+        title = "Simulator"
+    )
+
 }

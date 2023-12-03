@@ -1,6 +1,7 @@
 package com.example.fics_compose
 
 import android.os.Parcelable
+import androidx.compose.runtime.mutableStateListOf
 import kotlinx.parcelize.Parcelize
 
 /*// class to hold the users portfolio, including wallet, net worth, investments, monthly ROI, number of bonds purchased*/
@@ -15,7 +16,8 @@ class usrInfo(
     var trades: Int = 0
 ) : Parcelable {
 
-    val investList = mutableListOf<List<Any>>()
+    //mutableStateListOf updates lazy column when list is modified
+    val investList = mutableStateListOf<List<Any>>()
 
     // functions to calculate users net worth, investments, and monthly ROI
     // note: made numBonds integer for all functions

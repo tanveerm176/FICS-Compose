@@ -14,8 +14,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -33,14 +37,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.example.fics_compose.BottomNavBar
+import com.example.fics_compose.InternalNav
 import com.example.fics_compose.ui.theme.FICSComposeTheme
 import com.example.fics_compose.usrInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PortfolioTopAppBar(user: usrInfo?) {
+fun PortfolioTopAppBar(user: usrInfo?, navController:NavController) {
     var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    Scaffold(
+        Scaffold(
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.smallTopAppBarColors(
@@ -50,6 +59,22 @@ fun PortfolioTopAppBar(user: usrInfo?) {
                 title = {
                     Box(modifier = Modifier.fillMaxWidth()) {
                         Text("Current Portfolio")
+                    }
+                },
+
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            navController.popBackStack()
+                            if (user != null) {
+                                Log.d("current invest-list","${user.investList.toList()}")
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = null
+                        )
                     }
                 }
             )
@@ -142,7 +167,7 @@ fun PortfolioCard(bondPurchased: List<Any>, index:Int, user: usrInfo){
 
                             Log.d("bondSold","Bond Sold: $bondTitle at index $index")
 
-                            Log.d("sellBond","{${user.investList}}")
+                            Log.d("sellBond","{${user.investList.toList()}}")
                         }
                     ) {
                         Text(

@@ -1,7 +1,5 @@
 package com.example.fics_compose.screens
 
-import android.R.attr.layout_alignLeft
-import android.R.attr.layout_alignRight
 import android.R.attr.value
 import android.content.Context
 import android.util.Log
@@ -36,40 +34,28 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.fics_compose.BondOption
 import com.example.fics_compose.BottomNavBar
 import com.example.fics_compose.InternalNav
 import com.example.fics_compose.usrInfo
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
-import java.io.Serializable
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SimulatorTopAppBar(navController: NavController) {
+fun SimulatorTopAppBar(navController: NavController, user: usrInfo? = null) {
     var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     var showHelp = remember { mutableStateOf(false) }
 
@@ -94,9 +80,9 @@ fun SimulatorTopAppBar(navController: NavController) {
                         ) {
                             Text(text = "Help")
                         }
-                        if (showHelp.value) {
-                            ShowDialog(onSkip = {showHelp.value = false})
-                        }
+//                        if (showHelp.value) {
+//                            ShowDialog(onSkip = {showHelp.value = false})
+//                        }
                     }
                 }
             )
@@ -104,16 +90,21 @@ fun SimulatorTopAppBar(navController: NavController) {
         },
     ) {innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)){
-            SimulatorScreen(navController)
+            SimulatorScreen(navController, user)
         }
     }
 }
 
 @Composable
-fun SimulatorScreen(navController: NavController){
+fun SimulatorScreen(navController: NavController, user: usrInfo? = null){
     Spacer(modifier = Modifier.height(24.dp))
-    ShowDialog(onSkip = {})
-    SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController)
+//    ShowDialog(onSkip = {})
+    if (user == null) {
+        SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController)
+    }
+    else{
+        SimulatorCard(user, bonds = TestData.testDataList, navController)
+    }
 }
 
 @Composable
@@ -336,7 +327,7 @@ fun BondCard(
 
                 var bondInfo: List<Any> = mutableListOf(bond.title,bond.price,bond.interestRate, numberOfBonds.toDouble())
                 userInfo.investList.add(bondInfo)
-                Log.d("investList","{${userInfo.investList}}")
+                Log.d("investList","{${userInfo.investList.toList()}}")
                 onInvestClicked()
             },
         ) {
@@ -446,7 +437,7 @@ object TestData{
     )
 }
 
-// Note (S.S.): For some reason, when the help button is pressed, the dialog shows up with the text
+/*// Note (S.S.): For some reason, when the help button is pressed, the dialog shows up with the text
 // slightly bigger. Not sure why.
 @Composable
 private fun ShowDialog (
@@ -504,7 +495,7 @@ private fun ShowDialog (
             info = currentDialogContent.info
         )
     }
-}
+}*/
 
 //TODO: Replace Toast Msg with Dialog Boxes 2in Final
 private fun toastMessages(context: Context, flg:String) {

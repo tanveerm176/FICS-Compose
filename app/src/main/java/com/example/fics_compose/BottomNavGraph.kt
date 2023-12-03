@@ -42,7 +42,11 @@ fun BottomNavGraph(navController: NavHostController){
         
         composable(route=InternalNav.Portfolio.route){
             val result = navController.previousBackStackEntry?.savedStateHandle?.get<usrInfo>("portfolio")
-            PortfolioTopAppBar(result)
+            PortfolioTopAppBar(result, navController)
+        }
+
+        composable(route=InternalNav.Simulator.route){
+            SimulatorTopAppBar(navController)
         }
     }
 
