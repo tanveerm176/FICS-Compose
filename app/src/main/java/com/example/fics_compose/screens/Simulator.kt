@@ -330,12 +330,11 @@ fun BondCard(
                 userInfo.calcNetWorth(userInfo.wallet, userInfo.investment)
 
                 // note (S.S.): This does not change what the user sees in the input field, but it does allow
-                // user to keep investing the same number of bonds
+                //  user to keep investing the same number of bonds
                 numBonds = 0
                 userInfo.incrementTrades()
 
-                var bondInfo: List<Any> = listOf(bond.title,bond.price,bond.interestRate, numberOfBonds.toDouble())
-                //TODO: move BondOption data class to it's own file? AND track number bought
+                var bondInfo: List<Any> = mutableListOf(bond.title,bond.price,bond.interestRate, numberOfBonds.toDouble())
                 userInfo.investList.add(bondInfo)
                 Log.d("investList","{${userInfo.investList}}")
                 onInvestClicked()

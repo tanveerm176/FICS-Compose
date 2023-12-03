@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +24,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,7 +53,6 @@ fun PortfolioTopAppBar(user: usrInfo?) {
                     }
                 }
             )
-            scrollBehavior = scrollBehavior
         },
     ) {innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)){
@@ -62,41 +66,30 @@ fun PortfolioTopAppBar(user: usrInfo?) {
 @Composable
 fun PortfolioScreen(user: usrInfo?) {
     Spacer(modifier = Modifier.height(24.dp))
-//    addToPortfolio(portfolio)
     if (user != null) {
         PortfolioList(portfolio = user.investList, user)
     }
 }
 
-/*@Composable
-fun addToPortfolio(portfolio: List<Any>){
-    var portfolioList = mutableListOf<Any>()
-
-    if (portfolio != null) {
-        portfolioList.add(portfolio)
-    }
-
-//    Log.d("portfolioList","${portfolioList[0]}")
-
-    PortfolioList(portfolio = portfolioList)
-}*/
 
 @Composable
-fun PortfolioList(portfolio: List<List<Any>>, user: usrInfo) {
+fun PortfolioList(portfolio: MutableList<List<Any>>, user: usrInfo) {
+//    var portfolio = remember { mutableIntStateOf<portfolio>()}
+
     LazyColumn {
-        items(portfolio) {portfolio ->
-            PortfolioCard(portfolio, user)
+        itemsIndexed(portfolio) {index, bondPurchased ->
+            PortfolioCard(bondPurchased, index, user)
         }
     }
 }
 
 @Composable
-fun PortfolioCard(portfolio: List<Any>, user: usrInfo){
+fun PortfolioCard(bondPurchased: List<Any>, index:Int, user: usrInfo){
 
-    val bondTitle:String = portfolio[0].toString()
-    val bondPrice:Double = portfolio[1].toString().toDouble()
-    val bondRate = portfolio[2].toString().toDouble()
-    val numBonds = portfolio[3].toString().toDouble()
+    val bondTitle:String = bondPurchased[0].toString()
+    val bondPrice:Double = bondPurchased[1].toString().toDouble()
+    val bondRate = bondPurchased[2].toString().toDouble()
+    val numBonds = bondPurchased[3].toString().toDouble()
 
     Row(modifier = Modifier.fillMaxWidth()){
         Spacer(modifier = Modifier.width(8.dp))
@@ -119,8 +112,9 @@ fun PortfolioCard(portfolio: List<Any>, user: usrInfo){
                     Column{
                         Text(
                             text = "Bond Title: $bondTitle",
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.titleMedium
+                            color = Color.Black,
+                            style = MaterialTheme.typography.titleMedium,
+
                         );
                         Text(
                             text = "Price: $$bondPrice",
@@ -144,8 +138,10 @@ fun PortfolioCard(portfolio: List<Any>, user: usrInfo){
                         onClick = {
                             user.wallet += (bondPrice * numBonds)
                             user.incrementTrades()
-                            val idxRemove = portfolio.indexOf(bondTitle)
-                            user.investList.removeAt(idxRemove)
+                            user.investList.removeAt(index)
+
+                            Log.d("bondSold","Bond Sold: $bondTitle at index $index")
+
                             Log.d("sellBond","{${user.investList}}")
                         }
                     ) {
@@ -160,10 +156,10 @@ fun PortfolioCard(portfolio: List<Any>, user: usrInfo){
     }
 }
 
-fun sellBond(user: usrInfo, bondTitle: String){
-//    user.investList
-    //change wallet, networth, and investments if sell button clicked
-}
+//fun sellBond(user: usrInfo, bondTitle: String){
+////    user.investList
+//    //change wallet, networth, and investments if sell button clicked
+//}
 
 @Preview
 @Composable
