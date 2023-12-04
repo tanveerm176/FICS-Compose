@@ -99,10 +99,10 @@ fun SimulatorTopAppBar(navController: NavController, user: usrInfo? = null) {
 fun SimulatorScreen(navController: NavController, user: usrInfo? = null){
     Spacer(modifier = Modifier.height(24.dp))
 //    ShowDialog(onSkip = {})
-    if (user == null) {
+    if (user == null) { //when first starting the sim
         SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController)
     }
-    else{
+    else{ //when returning from portfolio screen
         SimulatorCard(user, bonds = TestData.testDataList, navController)
     }
 }
@@ -114,7 +114,7 @@ fun SimulatorCard(
     navController: NavController
 ) {
     // for traversing bonds list
-    var i by remember { mutableIntStateOf(0) }
+    var i by remember { mutableIntStateOf(userInfo.month) }
     var numOfBonds by remember { mutableIntStateOf(userInfo.numBonds) }
     var currentBond by remember { mutableStateOf(bonds[i]) }
 
