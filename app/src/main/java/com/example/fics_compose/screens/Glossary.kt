@@ -48,6 +48,12 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.fics_compose.ui.theme.FICSComposeTheme
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.TextField
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,11 +81,61 @@ fun GlossaryTopAppBar() {
     }
 }
 
+//@Composable
+//fun GlossaryScreen() {
+//
+//    GlossaryList(GlossaryData.glossaryTopics)
+//}
+
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun GlossaryScreen() {
-    GlossaryList(GlossaryData.glossaryTopics)
-}
+    var searchTerm by remember { mutableStateOf("") }
+    var glossary by remember { mutableStateOf(GlossaryData.glossaryTopics) }
 
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    // Filter glossary based on search term
+    val filteredGlossary = glossary.filter { topic ->
+        topic.topicName.contains(searchTerm, ignoreCase = true) ||
+                topic.terms.any { term -> term.termName.contains(searchTerm, ignoreCase = true) }
+    }
+
+    // Display the filtered glossary
+    Column {
+        // Add a search bar
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            value = searchTerm,
+            onValueChange = {
+                searchTerm = it
+                // Update glossary when the search term changes
+                glossary = if (it.isEmpty()) {
+                    GlossaryData.glossaryTopics
+                } else {
+                    filteredGlossary
+                }
+            },
+            placeholder = { Text("Search Glossary") },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Search
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    // Perform search action if needed
+                    // For example, you can trigger a network request to search for the term
+                    // or update the glossary based on the local data.
+                    keyboardController?.hide()
+                }
+            )
+        )
+
+        // Display the glossary based on the search results
+        GlossaryList(filteredGlossary)
+    }
+}
 data class Term(val termName: String, val termDef: String)
 data class Topic(val topicName: String, val terms: List<Term>)
 
