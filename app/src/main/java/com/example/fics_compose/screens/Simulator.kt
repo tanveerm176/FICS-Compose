@@ -175,7 +175,7 @@ fun SimulatorCard(
                     userInfo.incrementMonth()
                     i = (i + 1) % bonds.size
                     currentBond = bonds[i]
-                    if (month == 24) {
+                    if (month == 12) {
                         toastMessages(currContext, "finish")
                         //TODO: Reset user and sim
 
