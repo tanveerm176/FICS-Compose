@@ -138,7 +138,7 @@ fun SimulatorCard(
 
             // Month Display
             Text(
-                text = "Month $month of 24",
+                text = "Month $month of 12",
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 25.sp,
                 color = Color(0xFFDEB841),
@@ -377,62 +377,62 @@ fun formatTime(time: Long): String {
 object TestData{
     val testDataList = listOf(
         BondOption(
-            title = "Treasury Notes",
+            title = "Treasury Bills",
             price = 100.00,
             interestRate = 2.00
         ),
         BondOption(
-            title = "Treasury Bonds",
+            title = "Treasury Notes",
             price = 200.00,
             interestRate = 3.00
         ),
         BondOption(
-            title = "Treasury Securities",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Federal Financing Bank",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Domestic Series",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Special Purpose Vehicle",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Foreign Series",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Government Account Series",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Treasury Bills",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
-            title = "Treasury Notes",
-            price = 500.00,
-            interestRate = 0.5
-        ),
-        BondOption(
             title = "Treasury Bonds",
             price = 500.00,
             interestRate = 0.5
         ),
         BondOption(
-            title = "Total Marketable",
+            title = "Apple",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Twitter",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "AT&T",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "FTX",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Asset Backed",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "TIPS",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Municipal Bond",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "Munis",
+            price = 500.00,
+            interestRate = 0.5
+        ),
+        BondOption(
+            title = "ETFs",
             price = 500.00,
             interestRate = 0.5
         ),
