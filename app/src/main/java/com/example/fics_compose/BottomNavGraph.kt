@@ -41,8 +41,13 @@ fun BottomNavGraph(navController: NavHostController){
         }
         
         composable(route=InternalNav.Portfolio.route){
-            val result = navController.previousBackStackEntry?.savedStateHandle?.get<List<List<Any>>>("portfolio")
-            PortfolioTopAppBar(portfolio = result)
+            val result = navController.previousBackStackEntry?.savedStateHandle?.get<usrInfo>("portfolio")
+            PortfolioTopAppBar(result, navController)
+        }
+
+        composable(route=InternalNav.Simulator.route){
+            val user = navController.previousBackStackEntry?.savedStateHandle?.get<usrInfo>("user")
+            SimulatorTopAppBar(navController, user)
         }
     }
 

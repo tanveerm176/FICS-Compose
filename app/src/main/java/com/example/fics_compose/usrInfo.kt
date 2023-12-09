@@ -1,6 +1,7 @@
 package com.example.fics_compose
 
 import android.os.Parcelable
+import androidx.compose.runtime.mutableStateListOf
 import kotlinx.parcelize.Parcelize
 
 /*// class to hold the users portfolio, including wallet, net worth, investments, monthly ROI, number of bonds purchased*/
@@ -12,10 +13,12 @@ class usrInfo(
     var monthlyReturn: Double = 0.0,
     var totalGains: Double = 0.0,
     var numBonds: Int = 0,
-    var trades: Int = 0
+    var trades: Int = 0,
+    var month: Int = 1
 ) : Parcelable {
 
-    val investList = mutableListOf<List<Any>>()
+    //mutableStateListOf updates lazy column when list is modified
+    val investList = mutableStateListOf<List<Any>>()
 
     // functions to calculate users net worth, investments, and monthly ROI
     // note: made numBonds integer for all functions
@@ -58,6 +61,11 @@ class usrInfo(
         return this.trades
     }
 
+    fun incrementMonth():Int{
+        this.month+=1
+        return this.month
+    }
+
     // reset user info to default state
     fun reset(): usrInfo {
         this.wallet = 10000.00
@@ -65,6 +73,7 @@ class usrInfo(
         this.investment = 0.0
         this.monthlyReturn = 0.0
         this.numBonds = 0
+        this.month = 0
         return this
     }
 }

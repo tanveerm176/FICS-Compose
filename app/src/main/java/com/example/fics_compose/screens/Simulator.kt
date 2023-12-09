@@ -1,7 +1,5 @@
 package com.example.fics_compose.screens
 
-import android.R.attr.layout_alignLeft
-import android.R.attr.layout_alignRight
 import android.R.attr.value
 import android.content.Context
 import android.util.Log
@@ -36,40 +34,28 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.fics_compose.BondOption
 import com.example.fics_compose.BottomNavBar
 import com.example.fics_compose.InternalNav
 import com.example.fics_compose.usrInfo
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
-import java.io.Serializable
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SimulatorTopAppBar(navController: NavController) {
+fun SimulatorTopAppBar(navController: NavController, user: usrInfo? = null) {
     var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     var showHelp = remember { mutableStateOf(false) }
 
@@ -94,9 +80,9 @@ fun SimulatorTopAppBar(navController: NavController) {
                         ) {
                             Text(text = "Help")
                         }
-                        if (showHelp.value) {
-                            ShowDialog(onSkip = {showHelp.value = false})
-                        }
+//                        if (showHelp.value) {
+//                            ShowDialog(onSkip = {showHelp.value = false})
+//                        }
                     }
                 }
             )
@@ -104,16 +90,21 @@ fun SimulatorTopAppBar(navController: NavController) {
         },
     ) {innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)){
-            SimulatorScreen(navController)
+            SimulatorScreen(navController, user)
         }
     }
 }
 
 @Composable
-fun SimulatorScreen(navController: NavController){
+fun SimulatorScreen(navController: NavController, user: usrInfo? = null){
     Spacer(modifier = Modifier.height(24.dp))
-    ShowDialog(onSkip = {})
-    SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController)
+//    ShowDialog(onSkip = {})
+    if (user == null) { //when first starting the sim
+        SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController)
+    }
+    else{ //when returning from portfolio screen
+        SimulatorCard(user, bonds = TestData.testDataList, navController)
+    }
 }
 
 @Composable
@@ -123,12 +114,12 @@ fun SimulatorCard(
     navController: NavController
 ) {
     // for traversing bonds list
-    var i by remember { mutableIntStateOf(0) }
-    var numOfBonds by remember { mutableIntStateOf(0) }
+    var i by remember { mutableIntStateOf(userInfo.month) }
+    var numOfBonds by remember { mutableIntStateOf(userInfo.numBonds) }
     var currentBond by remember { mutableStateOf(bonds[i]) }
 
     // Note (SS): removed timer functionality and associated variables
-    var month by remember { mutableIntStateOf(1) }
+    var month by remember { mutableIntStateOf(userInfo.month) }
     val currContext = LocalContext.current
 
     Spacer(modifier = Modifier.width(8.dp))
@@ -157,7 +148,7 @@ fun SimulatorCard(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            IconButton(onClick = { startPortfolioScreen(navController,userInfo.investList)}) {
+            IconButton(onClick = { startPortfolioScreen(navController,userInfo)}) {
                 Icon(Icons.Filled.ShoppingCart, contentDescription = "Investment List")
             }
         }
@@ -181,10 +172,12 @@ fun SimulatorCard(
                 onInvestClicked = {
                     // Update the month and current bond
                     month += 1
+                    userInfo.incrementMonth()
                     i = (i + 1) % bonds.size
                     currentBond = bonds[i]
-                    if (month == 24) {
+                    if (month == 12) {
                         toastMessages(currContext, "finish")
+                        //TODO: Reset user and sim
 
                         //note:START HISTORY SCREEN WHEN SIM FINISHES
                         startHistoryScreen(navController, userInfo)
@@ -330,14 +323,13 @@ fun BondCard(
                 userInfo.calcNetWorth(userInfo.wallet, userInfo.investment)
 
                 // note (S.S.): This does not change what the user sees in the input field, but it does allow
-                // user to keep investing the same number of bonds
+                //  user to keep investing the same number of bonds
                 numBonds = 0
                 userInfo.incrementTrades()
 
-                var bondInfo: List<Any> = listOf(bond.title,bond.price,bond.interestRate, numberOfBonds.toDouble())
-                //TODO: move BondOption data class to it's own file? AND track number bought
+                var bondInfo: List<Any> = mutableListOf(bond.title,bond.price,bond.interestRate, numberOfBonds.toDouble())
                 userInfo.investList.add(bondInfo)
-                Log.d("investList","{${userInfo.investList}}")
+                Log.d("investList","{${userInfo.investList.toList()}}")
                 onInvestClicked()
             },
         ) {
@@ -447,7 +439,7 @@ object TestData{
     )
 }
 
-// Note (S.S.): For some reason, when the help button is pressed, the dialog shows up with the text
+/*// Note (S.S.): For some reason, when the help button is pressed, the dialog shows up with the text
 // slightly bigger. Not sure why.
 @Composable
 private fun ShowDialog (
@@ -505,7 +497,7 @@ private fun ShowDialog (
             info = currentDialogContent.info
         )
     }
-}
+}*/
 
 //TODO: Replace Toast Msg with Dialog Boxes 2in Final
 private fun toastMessages(context: Context, flg:String) {
@@ -521,7 +513,7 @@ fun startHistoryScreen(navController:NavController, portfolio:usrInfo){
     navController.navigate(BottomNavBar.History.route)
 }
 
-fun startPortfolioScreen(navController: NavController, portfolio: List<List<Any>>){
+fun startPortfolioScreen(navController: NavController, portfolio: usrInfo){
     navController.currentBackStackEntry?.savedStateHandle?.set("portfolio", portfolio)
     navController.navigate(InternalNav.Portfolio.route)
 }
