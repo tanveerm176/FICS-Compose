@@ -13,11 +13,6 @@ sealed class BottomNavBar(
     val title: String,
     val icon: ImageVector
 ) {
-    /*object Welcome:BottomNavBar(
-        route = "welcome",
-        title = "Welcome",
-        icon = Icons.Default.Home
-    )*/
 
     object Simulator:BottomNavBar(
         route = "simulator",
@@ -35,6 +30,36 @@ sealed class BottomNavBar(
         route = "history",
         title = "History",
         icon = Icons.Default.DateRange
+    )
+
+}
+
+sealed class WelcomeNav(
+    val route: String,
+    val title: String
+){
+    object Welcome: WelcomeNav(
+        route = "welcome",
+        title = "Welcome"
+    )
+
+    object Tutorial:WelcomeNav(
+        route = "tutorial",
+        title = "Tutorial"
+    )
+
+    object Introduction:WelcomeNav(
+        route = "introduction",
+        title = "Introduction"
+    )
+
+    object LetsInvest:WelcomeNav(
+        route = "invest",
+        title = "invest"
+    )
+    object GoTime:WelcomeNav(
+        route = "go",
+        title = "Go"
     )
 
 }

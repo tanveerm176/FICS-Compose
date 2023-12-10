@@ -17,52 +17,102 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.fics_compose.WelcomeNav
 
 @Composable
-fun IntroductionScreen(
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "What is FICS?"
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            Button(
-                onClick = {
-                    // go to tutorial screen
-                },
-                modifier = Modifier.padding(8.dp),
-            ) {
-                Text("SKIP")
-            }
-            Button(
-                onClick = {
-                    // go to next slide
-                },
-                modifier = Modifier.padding(8.dp),
-            ) {
-                Text("NEXT")
-            }
-        }
-    }
+fun IntroductionScreen(navController: NavController) {
+    IntroCard(navController = navController, displayText = introText.introTextList)
+
 }
+
+@Composable
+fun IntroCard(
+    navController: NavController,
+    displayText:List<introInfo>,
+){
+    val maxSlides = displayText.size-1
+    var i by remember {
+        mutableIntStateOf(0)
+    }
+    var currentText by remember {
+        mutableStateOf(displayText[i])
+    }
+
+    Column {
+        Text(text = currentText.title)
+        Text(text = currentText.description)
+
+        Row {
+            Button(onClick = { startLetsInvestScreen(navController) }) {
+                Text(text = "SKIP")
+            }
+
+            Button(onClick = {
+                if (i==maxSlides)
+                {
+                    startLetsInvestScreen(navController)
+
+                }
+                else{
+                    i += 1
+                    currentText = displayText[i]
+                }
+
+            })
+            { Text(text = "NEXT") }
+
+
+        }
+
+
+    }
+
+}
+
+
+
+data class introInfo(
+    val title:String,
+    val description:String,
+//    val img:ImageVector
+)
+
+object introText{
+    val introTextList = listOf(
+        introInfo(
+            title = "What is FICS?",
+            description = "Welcome to the new way for college students to learn about the biggest investment market in the world: the Fixed Income market."
+        ),
+        introInfo(
+            title = "Why Now?",
+            description = "With the global fixed income market reaching almost $130 trillion, there is more opportunity than ever for you to generate income from investing."
+        ),
+
+    )
+
+}
+
+
+
+
+
+
+
+fun startLetsInvestScreen(navController: NavController){
+    navController.navigate(WelcomeNav.LetsInvest.route)
+}
+
+
 
 @Composable
 @Preview
 fun IntroPreview() {
-    IntroductionScreen()
+//    IntroductionScreen()
 }
