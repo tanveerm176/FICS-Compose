@@ -17,86 +17,96 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.fics_compose.WelcomeNav
 
 @Composable
-fun TutorialScreen(
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Tutorial"
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            Button(
-                onClick = {
-                    // go to end of tutorial screen
-                },
-                modifier = Modifier.padding(8.dp),
-            ) {
-                Text("SKIP")
-            }
-            Button(
-                onClick = {
-                    // go to next slide
-                },
-                modifier = Modifier.padding(8.dp),
-            ) {
-                Text("NEXT")
-            }
-        }
-    }
+fun TutorialScreen(navController: NavController) {
+    TutorialCard(navController = navController, displayText = tutorialText.tutorialTextList)
+
+
 }
 
 @Composable
-fun EndTutorialScreen(
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Ready to Play?"
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            Button(
-                onClick = {
-                    // go to simulator screen
-                },
-                modifier = Modifier.padding(8.dp),
-            ) {
-                Text("Let's Invest")
-            }
-        }
+fun TutorialCard(
+    navController: NavController,
+    displayText:List<tutorialInfo>
+){
+    val maxSlides = displayText.size-1
+    var i by remember {
+        mutableIntStateOf(0)
     }
+    var currentText by remember {
+        mutableStateOf(displayText[i])
+    }
+    Column {
+        Text(text = currentText.title)
+        Text(text = currentText.description)
+
+        Row {
+            Button(onClick = { startGoTimeScreen(navController) }) {
+                Text(text = "SKIP")
+            }
+
+            Button(onClick = {
+                if (i==maxSlides)
+                {
+                    startGoTimeScreen(navController)
+
+                }
+                else{
+                    i += 1
+                    currentText = displayText[i]
+                }
+
+            })
+            { Text(text = "NEXT") }
+
+
+        }
+
+
+    }
+
+
 }
+
+data class tutorialInfo(
+    val title:String,
+    val description:String,
+//    val img:ImageVector
+)
+
+object tutorialText{
+    val tutorialTextList = listOf(
+        tutorialInfo(
+            title = "How to Play",
+            description = "Follow the tutorial to learn about the buttons and metrics to make your experience smooth"
+        ),
+        tutorialInfo(
+            title = "Net Worth",
+            description = "Net worth is the value of you!\n" +
+                    "Net worth = your wallet + portfolio value"
+        ),
+
+        )
+
+}
+
+fun startGoTimeScreen(navController: NavController){
+    navController.navigate(WelcomeNav.GoTime.route)
+}
+
 
 @Composable
 @Preview
 fun TutorialPreview() {
-    TutorialScreen()
+//    TutorialScreen()
 }
