@@ -17,86 +17,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 
 @Composable
-fun TutorialScreen(
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Tutorial"
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            Button(
-                onClick = {
-                    // go to end of tutorial screen
-                },
-                modifier = Modifier.padding(8.dp),
-            ) {
-                Text("SKIP")
-            }
-            Button(
-                onClick = {
-                    // go to next slide
-                },
-                modifier = Modifier.padding(8.dp),
-            ) {
-                Text("NEXT")
-            }
-        }
-    }
+fun TutorialScreen(navController: NavController) {
+
+
 }
 
-@Composable
-fun EndTutorialScreen(
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Ready to Play?"
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            Button(
-                onClick = {
-                    // go to simulator screen
-                },
-                modifier = Modifier.padding(8.dp),
-            ) {
-                Text("Let's Invest")
-            }
-        }
-    }
-}
+
 
 @Composable
 @Preview
 fun TutorialPreview() {
-    TutorialScreen()
+//    TutorialScreen()
 }

@@ -8,25 +8,41 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.fics_compose.screens.GlossaryTopAppBar
 import com.example.fics_compose.screens.HistoryTopAppBar
+import com.example.fics_compose.screens.IntroductionScreen
+import com.example.fics_compose.screens.LetsInvestScreen
 import com.example.fics_compose.screens.PortfolioTopAppBar
 import com.example.fics_compose.screens.SimulatorTopAppBar
+import com.example.fics_compose.screens.TutorialScreen
+import com.example.fics_compose.screens.WelcomeScreen
 
 @Composable
 fun BottomNavGraph(navController: NavHostController){
     NavHost(
         navController = navController,
-        startDestination = BottomNavBar.Simulator.route
+        startDestination = WelcomeNav.Welcome.route
+
     ){
         composable(route=BottomNavBar.Glossary.route){
             GlossaryTopAppBar()
         }
 
-        /*composable(route=BottomNavBar.Welcome.route){
-            WelcomeScreen()
-        }*/
-
         composable(route=BottomNavBar.Simulator.route){
             SimulatorTopAppBar(navController)
+        }
+
+        composable(route=WelcomeNav.Welcome.route){
+            WelcomeScreen(navController)
+        }
+        
+        composable(route = WelcomeNav.Tutorial.route){
+            TutorialScreen(navController)
+        }
+        composable(route = WelcomeNav.Introduction.route){
+            IntroductionScreen(navController)
+        }
+
+        composable(route = WelcomeNav.LetsInvest.route){
+            LetsInvestScreen(navController)
         }
 
 
