@@ -37,6 +37,7 @@ fun IntroCard(
     navController: NavController,
     displayText:List<introInfo>,
 ){
+    val maxSlides = displayText.size-1
     var i by remember {
         mutableIntStateOf(0)
     }
@@ -54,7 +55,7 @@ fun IntroCard(
             }
 
             Button(onClick = {
-                if (i==1)
+                if (i==maxSlides)
                 {
                     startLetsInvestScreen(navController)
 

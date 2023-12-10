@@ -8,11 +8,18 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
+import com.example.fics_compose.R
 import com.example.fics_compose.WelcomeNav
 
 @Composable
 fun LetsInvestScreen(navController: NavController){
+    LetsInvestCard(navController)
+}
+
+@Composable
+fun LetsInvestCard(navController: NavController):Int{
     Column {
         Text(text = "Let's Invest")
         Text(text = "You got this!")
@@ -22,6 +29,7 @@ fun LetsInvestScreen(navController: NavController){
 //            Icon(painter = Icons.Filled.ArrowForward, contentDescription = )
         }
     }
+    return 1
 
 }
 

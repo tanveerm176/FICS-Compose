@@ -7,6 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.fics_compose.screens.GlossaryTopAppBar
+import com.example.fics_compose.screens.GoTimeCard
+import com.example.fics_compose.screens.GoTimeScreen
 import com.example.fics_compose.screens.HistoryTopAppBar
 import com.example.fics_compose.screens.IntroductionScreen
 import com.example.fics_compose.screens.LetsInvestScreen
@@ -43,6 +45,9 @@ fun BottomNavGraph(navController: NavHostController){
 
         composable(route = WelcomeNav.LetsInvest.route){
             LetsInvestScreen(navController)
+        }
+        composable(route = WelcomeNav.GoTime.route){
+            GoTimeScreen(navController)
         }
 
 

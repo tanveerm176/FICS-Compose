@@ -57,6 +57,10 @@ sealed class WelcomeNav(
         route = "invest",
         title = "invest"
     )
+    object GoTime:WelcomeNav(
+        route = "go",
+        title = "Go"
+    )
 
 }
 
