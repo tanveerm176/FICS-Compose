@@ -329,7 +329,10 @@ fun BondCard(
 
                 var bondInfo: List<Any> = mutableListOf(bond.title,bond.price,bond.interestRate, numberOfBonds.toDouble())
                 userInfo.investList.add(bondInfo)
-                Log.d("investList","{${userInfo.investList.toList()}}")
+                Log.d("investList","${userInfo.investList.toList()}")
+
+                userInfo.netWorthList.add(userInfo.netWorth)
+                Log.d("netWorthList","${userInfo.netWorthList}")
                 onInvestClicked()
             },
         ) {
