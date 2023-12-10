@@ -119,7 +119,7 @@ fun SimulatorCard(
     var currentBond by remember { mutableStateOf(bonds[i]) }
 
     // Note (SS): removed timer functionality and associated variables
-    var month by remember { mutableIntStateOf(userInfo.month) }
+    var month by remember { mutableIntStateOf(userInfo.month+1) }
     val currContext = LocalContext.current
 
     Spacer(modifier = Modifier.width(8.dp))
@@ -175,7 +175,7 @@ fun SimulatorCard(
                     userInfo.incrementMonth()
                     i = (i + 1) % bonds.size
                     currentBond = bonds[i]
-                    if (month == 12) {
+                    if (month == 13) {
                         toastMessages(currContext, "finish")
                         //TODO: Reset user and sim
 
