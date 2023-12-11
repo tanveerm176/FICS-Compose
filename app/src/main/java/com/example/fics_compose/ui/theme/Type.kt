@@ -23,7 +23,7 @@ val Typography = Typography(
     titleMedium = TextStyle(
         fontFamily = fenixFont,
         fontWeight = FontWeight(400),
-        fontSize = 48.sp,
+        fontSize = 36.sp,
         lineHeight = 62.4.sp,
     )
 )
