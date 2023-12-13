@@ -23,9 +23,15 @@ val Typography = Typography(
     titleMedium = TextStyle(
         fontFamily = fenixFont,
         fontWeight = FontWeight(400),
-        fontSize = 36.sp,
+        fontSize = 38.sp,
         lineHeight = 62.4.sp,
-    )
+    ),
+    titleLarge = TextStyle(
+        fontFamily = fenixFont,
+        fontWeight = FontWeight(400),
+        fontSize = 52.sp,
+        lineHeight = 62.4.sp,
+)
 )
 
 /* Other default text styles to override

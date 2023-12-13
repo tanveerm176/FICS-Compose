@@ -39,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
@@ -81,8 +82,7 @@ fun IntroCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             Text(
-                modifier = Modifier
-                    .padding(top=10.dp),
+                modifier = Modifier.padding(top=6.dp),
                 text = currentText.title,
                 style = MaterialTheme.typography.titleMedium
             )
@@ -97,26 +97,26 @@ fun IntroCard(
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .background(color = yellow,shape = RectangleShape)
                     .absolutePadding(top = 6.dp, bottom = 13.dp)
+                    .border(1.5.dp, Color.White)
             ) {
                 Box(
                     modifier = Modifier
-                        .background(color = yellow, shape = MaterialTheme.shapes.medium)
-                        .absolutePadding(left = 8.dp, top = 31.dp, bottom = 31.dp)
+//                        .background(color = yellow)
+                        .absolutePadding(left = 8.dp, top = 28.dp, bottom = 28.dp)
                         .wrapContentWidth(Alignment.Start)
                 ) {
                     Text(
                         text = currentText.description,
-                        modifier = Modifier
-                            .padding(5.dp)
+                        modifier = Modifier.padding(5.dp)
                     )
                 }
             }
 
             // Page Indicator
             Row(
-                modifier = Modifier
-                    .padding(top = 10.dp, bottom= 26.dp),
+                modifier = Modifier.padding(top = 17.dp, bottom= 26.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 // Previous Page Button
@@ -266,7 +266,7 @@ object introText{
         introInfo(
             title = "Glossary",
             img = R.drawable.intro4,
-            description = "With the global fixed income market reaching almost $130 trillion, there is more opportunity than ever for you to generate income from investing."
+            description = "Check out the glossary page anytime to read about key terms to help you in our simulator or after you’ve started investing (for real) for a refresher."
         ),
     )
 
