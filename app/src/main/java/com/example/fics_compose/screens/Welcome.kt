@@ -79,8 +79,6 @@ fun WelcomeScreen(navController: NavController) {
                     contentColor = Color.White,
                 )
             ) {
-                // You can customize the content of the button here
-                // For example, you can add Text, Icon, or any other Composables
                 Text(
                     text = "Get Started",
                     style = MaterialTheme.typography.bodyLarge

@@ -12,14 +12,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -38,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fics_compose.R
@@ -77,7 +82,7 @@ fun IntroCard(
         ){
             Text(
                 modifier = Modifier
-                    .padding(top=10.dp, bottom = 5.dp),
+                    .padding(top=10.dp),
                 text = currentText.title,
                 style = MaterialTheme.typography.titleMedium
             )
@@ -85,25 +90,33 @@ fun IntroCard(
                 painter = painterResource(id = currentText.img),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(250.dp)
+                    .size(252.dp)
                     .clip(MaterialTheme.shapes.medium)
             )
 
-            Box(
+            BoxWithConstraints(
                 modifier = Modifier
-                    .background(color = yellow, shape = MaterialTheme.shapes.medium)
-                    .padding(20.dp)
+                    .fillMaxWidth()
+                    .absolutePadding(top = 6.dp, bottom = 13.dp)
             ) {
-                Text(
-                    text = currentText.description,
-                    modifier = Modifier.padding(start = 5.dp, top = 15.dp, bottom = 15.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .background(color = yellow, shape = MaterialTheme.shapes.medium)
+                        .absolutePadding(left = 8.dp, top = 31.dp, bottom = 31.dp)
+                        .wrapContentWidth(Alignment.Start)
+                ) {
+                    Text(
+                        text = currentText.description,
+                        modifier = Modifier
+                            .padding(5.dp)
+                    )
+                }
             }
 
-// Page Indicator
+            // Page Indicator
             Row(
                 modifier = Modifier
-                    .padding(vertical = 16.dp),
+                    .padding(top = 10.dp, bottom= 26.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 // Previous Page Button
@@ -120,7 +133,7 @@ fun IntroCard(
                             shape = RectangleShape // Use RectangleShape for square buttons
                         )
                         .border(1.dp, Color.White, RectangleShape) // Add white border
-                        .size(50.dp, 50.dp),
+                        .size(42.dp, 50.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack, // Use built-in icon for previous
@@ -139,11 +152,11 @@ fun IntroCard(
                                 currentText = displayText[currentPage]
                             }
                             .background(
-                                color = if (page == currentPage) Color.Blue else Color(0xFFDEB841),
+                                color = if (page == currentPage) Color(0xFF8A191D) else Color(0xFFDEB841),
                                 shape = RectangleShape // Use RectangleShape for square buttons
                             )
                             .border(1.dp, Color.White, RectangleShape) // Add white border
-                            .size(50.dp),
+                            .size(42.dp, 50.dp),
                     ) {
                         Text(
                             text = (page + 1).toString(),
@@ -169,7 +182,7 @@ fun IntroCard(
                             shape = RectangleShape // Use RectangleShape for square buttons
                         )
                         .border(1.dp, Color.White, RectangleShape) // Add white border
-                        .size(50.dp, 50.dp),
+                        .size(42.dp, 50.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowForward, // Use built-in icon for next
@@ -180,22 +193,29 @@ fun IntroCard(
                 }
             }
 
-            // Skip Button
-            Row(
+            Button(
+                onClick = { startLetsInvestScreen(navController) },
                 modifier = Modifier
-                    .padding(top = 16.dp)
-                    .clickable {
-                        startLetsInvestScreen(navController)
-                    }
-
-            ) {
-                Text(text = "Skip", color = Color(0xFFDEB841))
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight,
-                    contentDescription = null,
-                    tint = Color(0xFFDEB841),
-//                    modifier = Modifier.padding(start = 4.dp)
+                    .border(1.5.dp, Color(0xFF8A191D), RoundedCornerShape(30.dp))
+                    .align(Alignment.End),
+                elevation = ButtonDefaults.buttonElevation(
+                    pressedElevation = 6.dp
+                ),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
                 )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Skip", color = Color(0xFF8A191D), fontWeight = FontWeight.Bold)
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = Color(0xFF8A191D),
+                    )
+                }
             }
 
 
@@ -216,13 +236,9 @@ fun IntroCard(
 //                })
 //                { Text(text = "NEXT") }
 //            }
-
         }
     }
-
 }
-
-
 
 data class introInfo(
     val title:String,
@@ -268,56 +284,3 @@ fun startLetsInvestScreen(navController: NavController){
 fun IntroPreview() {
 //    IntroductionScreen()
 }
-
-/*
-    Box(
-        modifier = Modifier
-            .background(color = lightGray)
-            .fillMaxHeight()
-            .fillMaxWidth(),
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                painterResource(id = R.drawable.welcomelogo),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(top = 40.dp)
-                    .size(280.dp))
-            Text(
-                text = "Welcome!",
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                modifier = Modifier
-                    .padding(start=30.dp, top = 15.dp, bottom = 60.dp),
-                text = "Let’s work on your fixed income investing future, together!",
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Button(
-                onClick = { startIntroductionScreen(navController) },
-                shape = RoundedCornerShape(7.dp),
-                modifier = Modifier.height(60.dp).width(150.dp),
-                elevation = ButtonDefaults.buttonElevation(
-                    defaultElevation = 10.dp,
-                    pressedElevation = 6.dp
-                ),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFDEB841),
-                    contentColor = Color.White,
-                )
-            ) {
-                // You can customize the content of the button here
-                // For example, you can add Text, Icon, or any other Composables
-                Text(
-                    text = "Get Started",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-        }
-    }
- */
