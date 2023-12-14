@@ -26,6 +26,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +57,8 @@ import com.example.fics_compose.BondOption
 import com.example.fics_compose.BottomNavBar
 import com.example.fics_compose.InternalNav
 import com.example.fics_compose.usrInfo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,8 +67,13 @@ fun SimulatorTopAppBar(navController: NavController, user: usrInfo? = null) {
     var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     var showHelp = remember { mutableStateOf(false) }
     var simNumber = remember { mutableIntStateOf(0) }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.smallTopAppBarColors(
@@ -92,20 +104,26 @@ fun SimulatorTopAppBar(navController: NavController, user: usrInfo? = null) {
         },
     ) {innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)){
-            SimulatorScreen(navController, user, simNumber)
+            SimulatorScreen(navController, user, simNumber, scope, snackbarHostState)
         }
     }
 }
 
 @Composable
-fun SimulatorScreen(navController: NavController, user: usrInfo? = null, simNumber: MutableIntState){
+fun SimulatorScreen(
+    navController: NavController,
+    user: usrInfo? = null,
+    simNumber: MutableIntState,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+){
     Spacer(modifier = Modifier.height(24.dp))
 //    ShowDialog(onSkip = {})
     if (user == null) { //when first starting the sim
-        SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController, simNumber)
+        SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController, simNumber, scope, snackbarHostState)
     }
     else{ //when returning from portfolio screen
-        SimulatorCard(user, bonds = TestData.testDataList, navController, simNumber)
+        SimulatorCard(user, bonds = TestData.testDataList, navController, simNumber, scope, snackbarHostState)
     }
 }
 
@@ -114,7 +132,9 @@ fun SimulatorCard(
     userInfo : usrInfo,
     bonds: List<BondOption>,
     navController: NavController,
-    simNumber: MutableIntState
+    simNumber: MutableIntState,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
 ) {
     // for traversing bonds list
     var i by remember { mutableIntStateOf(userInfo.month) }
@@ -187,8 +207,21 @@ fun SimulatorCard(
                     }
                     if (month % 3 == 0) {
                         simNumber.value += 1
+                        scope.launch {
+                            val result = snackbarHostState
+                                .showSnackbar(
+                                    message = "New Bond Category! Click the help button to learn some key information!",
+                                    actionLabel = "Dismiss",
+                                    duration = SnackbarDuration.Short
+                                )
+                            when (result) {
+                                SnackbarResult.ActionPerformed -> {}
+                                SnackbarResult.Dismissed -> {}
+                            }
+                        }
                     }
-                }
+                },
+                snackbarHostState
             )
         }
 
@@ -273,6 +306,7 @@ fun BondCard(
     onNumberOfBondsChanged: (Int) -> Unit,
     userInfo: usrInfo,
     onInvestClicked: () -> Unit,
+    snackbarHostState: SnackbarHostState,
 ) {
 
     var numBonds by remember { mutableIntStateOf(numberOfBonds) }
