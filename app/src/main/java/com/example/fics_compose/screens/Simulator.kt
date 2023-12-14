@@ -53,12 +53,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavController
+import com.example.fics_compose.BondInfo
 import com.example.fics_compose.BondOption
 import com.example.fics_compose.BottomNavBar
 import com.example.fics_compose.InternalNav
 import com.example.fics_compose.usrInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -219,25 +221,22 @@ fun SimulatorCard(
                         }
                     }
                     if (month == 5) {
+                        val randomInt = Random.nextInt(1, userInfo.investList.size)
+                        val randomBondTitle = userInfo.investList[randomInt].bondTitle
                         scope.launch {
                             val result = snackbarHostState
                                 .showSnackbar(
-                                    message = "Hold on – the Fed is noticing a spike in inflation and needs " +
-                                            "to tamper down the flow of money in the economy, so they just increased " +
-                                            "federal interest rates.",
+                                    message = "Oh no! In a shocking turn of events, $randomBondTitle has " +
+                                            "encountered a credit risk crisis and must default on their bonds. Their bonds " +
+                                            "are worth basically nothing now, so let’s take it off of your hands and out of " +
+                                            "your portfolio value.",
                                     actionLabel = "OK",
                                     duration = SnackbarDuration.Indefinite
                                 )
                             when (result) {
                                 SnackbarResult.ActionPerformed -> {
-                                    snackbarHostState.showSnackbar(
-                                        message = "Fed interest rates have an inverse relationship with bond prices, " +
-                                                "which means your bonds are worth less than when you bought them. " +
-                                                "Let’s try to sell some of them so you don’t lose any more money.",
-                                        duration = SnackbarDuration.Short,
-                                        actionLabel = "Let's Sell",
-                                    )
-                                    startPortfolioScreen(navController,userInfo)
+                                    startPortfolioScreen(navController, userInfo)
+                                    userInfo.defaultRisk(randomInt)
                                 }
                                 SnackbarResult.Dismissed -> {}
                             }
@@ -381,7 +380,8 @@ fun BondCard(
                 numBonds = 0
                 userInfo.incrementTrades()
 
-                var bondInfo: List<Any> = mutableListOf(bond.title,bond.price,bond.interestRate, numberOfBonds.toDouble())
+//                var bondInfo: List<Any> = mutableListOf(bond.title,bond.price,bond.interestRate, numberOfBonds.toDouble())
+                var bondInfo = BondInfo(bond.title, bond.price, bond.interestRate, numberOfBonds)
                 userInfo.investList.add(bondInfo)
                 Log.d("investList","{${userInfo.investList.toList()}}")
                 onInvestClicked()
@@ -533,6 +533,11 @@ fun startHistoryScreen(navController:NavController, portfolio:usrInfo){
 }
 
 fun startPortfolioScreen(navController: NavController, portfolio: usrInfo){
+    navController.currentBackStackEntry?.savedStateHandle?.set("portfolio", portfolio)
+    navController.navigate(InternalNav.Portfolio.route)
+}
+
+fun startRiskPortfolioScreen(navController: NavController, portfolio: usrInfo) {
     navController.currentBackStackEntry?.savedStateHandle?.set("portfolio", portfolio)
     navController.navigate(InternalNav.Portfolio.route)
 }
