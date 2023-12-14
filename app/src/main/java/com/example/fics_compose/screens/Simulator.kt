@@ -169,7 +169,7 @@ fun SimulatorCard(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            IconButton(onClick = { startPortfolioScreen(navController,userInfo)}) {
+            IconButton(onClick = { startPortfolioScreen(navController,userInfo) }) {
                 Icon(Icons.Filled.ShoppingCart, contentDescription = "Investment List")
             }
         }
@@ -214,6 +214,31 @@ fun SimulatorCard(
                                 )
                             when (result) {
                                 SnackbarResult.ActionPerformed -> {}
+                                SnackbarResult.Dismissed -> {}
+                            }
+                        }
+                    }
+                    if (month == 5) {
+                        scope.launch {
+                            val result = snackbarHostState
+                                .showSnackbar(
+                                    message = "Hold on – the Fed is noticing a spike in inflation and needs " +
+                                            "to tamper down the flow of money in the economy, so they just increased " +
+                                            "federal interest rates.",
+                                    actionLabel = "OK",
+                                    duration = SnackbarDuration.Indefinite
+                                )
+                            when (result) {
+                                SnackbarResult.ActionPerformed -> {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Fed interest rates have an inverse relationship with bond prices, " +
+                                                "which means your bonds are worth less than when you bought them. " +
+                                                "Let’s try to sell some of them so you don’t lose any more money.",
+                                        duration = SnackbarDuration.Short,
+                                        actionLabel = "Let's Sell",
+                                    )
+                                    startPortfolioScreen(navController,userInfo)
+                                }
                                 SnackbarResult.Dismissed -> {}
                             }
                         }
