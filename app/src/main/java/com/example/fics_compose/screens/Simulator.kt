@@ -118,7 +118,6 @@ fun SimulatorScreen(
     snackbarHostState: SnackbarHostState,
 ){
     Spacer(modifier = Modifier.height(24.dp))
-//    ShowDialog(onSkip = {})
     if (user == null) { //when first starting the sim
         SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController, simNumber, scope, snackbarHostState)
     }
@@ -141,7 +140,6 @@ fun SimulatorCard(
     var numOfBonds by remember { mutableIntStateOf(userInfo.numBonds) }
     var currentBond by remember { mutableStateOf(bonds[i]) }
 
-    // Note (SS): removed timer functionality and associated variables
     var month by remember { mutableIntStateOf(userInfo.month+1) }
     val currContext = LocalContext.current
 
@@ -220,8 +218,7 @@ fun SimulatorCard(
                             }
                         }
                     }
-                },
-                snackbarHostState
+                }
             )
         }
 
@@ -237,9 +234,7 @@ fun SimulatorCard(
                 text = "Wallet: $${userInfo.wallet}",
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 15.sp,
-                //add color to text
                 color = Color(0xFFDEB841),
-                //change size of text
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(all = 5.dp),
                 textAlign = TextAlign.Center
@@ -255,9 +250,7 @@ fun SimulatorCard(
                 color = Color(0xFFDEB841),
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 15.sp,
-                //change size of text
                 style = MaterialTheme.typography.titleMedium,
-                //add padding to body text
                 modifier = Modifier.padding(all = 5.dp),
                 textAlign = TextAlign.Center
             )
@@ -272,9 +265,7 @@ fun SimulatorCard(
                 color = Color(0xFFDEB841),
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 15.sp,
-                //change size of text
                 style = MaterialTheme.typography.titleMedium,
-                //add padding to body text
                 modifier = Modifier.padding(all = 5.dp),
                 textAlign = TextAlign.Center
             )
@@ -306,7 +297,6 @@ fun BondCard(
     onNumberOfBondsChanged: (Int) -> Unit,
     userInfo: usrInfo,
     onInvestClicked: () -> Unit,
-    snackbarHostState: SnackbarHostState,
 ) {
 
     var numBonds by remember { mutableIntStateOf(numberOfBonds) }
@@ -350,7 +340,6 @@ fun BondCard(
             }
         )
         // Invest Button
-        // Note (S.S.): Moved Invest Button here for smoother functioning
         Button(
             modifier = Modifier
                 .padding(all = 5.dp),
@@ -495,7 +484,7 @@ private fun ShowDialog (
             },
             onPrev = {
                 if (currentDialogIndex > 0) {
-                    // Display the next dialog content
+                    // Display the previous dialog content
                     currentDialogIndex--
                 }
             },

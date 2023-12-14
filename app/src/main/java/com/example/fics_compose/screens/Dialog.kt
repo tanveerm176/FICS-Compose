@@ -3,7 +3,6 @@ package com.example.fics_compose.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,21 +44,6 @@ fun SimulatorDialog(
         Dialog(
             onDismissRequest = { onDismissRequest() },
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 8.dp, top = 8.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.Top,
-            ) {
-                // Move the 'Exit' button to the top right corner
-                Button(
-                    onClick = { onDismissRequest() },
-                    modifier = Modifier.padding(8.dp),
-                ) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Exit")
-                }
-            }
             // Draw a rectangle shape with rounded corners inside the dialog
             Card(
                 modifier = Modifier
@@ -78,7 +62,6 @@ fun SimulatorDialog(
                         horizontalArrangement = Arrangement.End,
                         verticalAlignment = Alignment.Top,
                     ) {
-                        // Move the 'Exit' button to the top right corner
                         Button(
                             onClick = { onDismissRequest() },
                             modifier = Modifier.padding(8.dp),
@@ -179,11 +162,9 @@ fun PreviewDialog() {
                 showDialog = true,
                 onDismissRequest = { showDialog = false },
                 onConfirmation = {
-                    // Increment the currentDialog index to show the next dialog
                     currentDialog++
                 },
                 onPrev = {
-                    // Increment the currentDialog index to show the next dialog
                     currentDialog--
                 },
                 currentDialog
