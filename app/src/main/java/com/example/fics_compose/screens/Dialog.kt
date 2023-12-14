@@ -7,8 +7,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,13 +35,31 @@ fun SimulatorDialog(
     showDialog: Boolean,
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
-    title: String,
-    info: String,
+    onPrev: () -> Unit,
+    simNumber: Int,
 ) {
+    var title = SimulatorContent[simNumber].title
+    var info = SimulatorContent[simNumber].info
+
     if (showDialog) {
         Dialog(
             onDismissRequest = { onDismissRequest() },
         ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 8.dp, top = 8.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.Top,
+            ) {
+                // Move the 'Exit' button to the top right corner
+                Button(
+                    onClick = { onDismissRequest() },
+                    modifier = Modifier.padding(8.dp),
+                ) {
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "Exit")
+                }
+            }
             // Draw a rectangle shape with rounded corners inside the dialog
             Card(
                 modifier = Modifier
@@ -45,11 +68,24 @@ fun SimulatorDialog(
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 8.dp, top = 8.dp),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.Top,
+                    ) {
+                        // Move the 'Exit' button to the top right corner
+                        Button(
+                            onClick = { onDismissRequest() },
+                            modifier = Modifier.padding(8.dp),
+                        ) {
+                            Icon(imageVector = Icons.Default.Close, contentDescription = "Exit")
+                        }
+                    }
                     Text(
                         text = title,
                         fontWeight = FontWeight.Bold,
@@ -68,16 +104,16 @@ fun SimulatorDialog(
                         verticalAlignment = Alignment.Bottom,
                     ) {
                         Button(
-                            onClick = { onDismissRequest() },
+                            onClick = { onPrev() },
                             modifier = Modifier.padding(8.dp),
                         ) {
-                            Text("SKIP")
+                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Prev")
                         }
                         Button(
                             onClick = { onConfirmation() },
                             modifier = Modifier.padding(8.dp),
                         ) {
-                            Text("NEXT")
+                            Icon(imageVector = Icons.Default.ArrowForward, contentDescription = "Next")
                         }
                     }
                 }
@@ -89,6 +125,34 @@ fun SimulatorDialog(
 data class DialogContent(
     val title: String,
     val info: String
+)
+
+val SimulatorContent = listOf(
+    DialogContent(
+        title = "Treasury Bonds",
+        info = "This is an investment simulation to help you learn about investing into the fixed income market.\n\nClick NEXT to learn how to use the simulator and to walk through some key financial terms."
+    ),
+    DialogContent(
+        title = "Corporate Bonds",
+        info = "Click START  to start the simulation and the timer.\nNote: Every 10 seconds is equivalent a month passing.\nand every month you get the option to invest in a new bond.\n\nIf you need more time to consider an investment, click PAUSE to pause the simulation.\n\nIf you would like to redo the simulation from the beginning, click RESTART to reset the simulation."
+    ),
+    DialogContent(
+        title = "Asset-Backed Bonds",
+        info = "You can choose how many bonds you want to invest in based on the price and interest rate of the bond and your wallet.\n\nYour wallet is the cash you have available to invest.\n\nYour Net Worth is the difference between what you own (assets) and what you owe (liabilities). It represents your overall financial value or wealth.\n\nThe Monthly Return is the periodic interest rate payment."
+    ),
+    DialogContent(
+        title = "TIPS",
+        info = "Fixed income is a type of investment that pays the investor a fixed amount on a fixed schedule."
+    ),
+    DialogContent(
+        title = "Mutual Funds",
+        info = "A bond is a debt security, which means borrowers issue bonds to raise money from investors willing to lend them money for a certain amount of time. \n\nWhen you buy a bond, you are lending to the issuer, which may be a government, municipality, or corporation. In return, the issuer promises to pay you a specified rate of interest during the life of the bond and to repay the principal, also known as face value or par value of the bond, when it matures or comes due after a set period of time."
+    ),
+    DialogContent(
+        title = "ETFs",
+        info = "A Treasury bond is a long-term, low-risk government debt security issued by the U.S. Department of the Treasury.\nIt is considered one of the safest investments due to the backing of the U.S. government."
+    ),
+    // Add more dialog content here as needed
 )
 
 @Preview
@@ -110,7 +174,6 @@ fun PreviewDialog() {
     FICSComposeTheme {
 
         if (currentDialog < dialogs.size) {
-            val currentDialogContent = dialogs[currentDialog]
 
             SimulatorDialog(
                 showDialog = true,
@@ -119,8 +182,11 @@ fun PreviewDialog() {
                     // Increment the currentDialog index to show the next dialog
                     currentDialog++
                 },
-                title = currentDialogContent.title,
-                info = currentDialogContent.info
+                onPrev = {
+                    // Increment the currentDialog index to show the next dialog
+                    currentDialog--
+                },
+                currentDialog
             )
         }
     }
