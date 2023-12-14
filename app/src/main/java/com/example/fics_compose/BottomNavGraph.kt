@@ -6,7 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import com.example.fics_compose.screens.GlossaryTopAppBar
+import com.example.fics_compose.screens.GlossaryScreen
 import com.example.fics_compose.screens.GoTimeCard
 import com.example.fics_compose.screens.GoTimeScreen
 import com.example.fics_compose.screens.HistoryTopAppBar
@@ -25,7 +25,7 @@ fun BottomNavGraph(navController: NavHostController){
 
     ){
         composable(route=BottomNavBar.Glossary.route){
-            GlossaryTopAppBar()
+            GlossaryScreen()
         }
 
         composable(route=BottomNavBar.Simulator.route){

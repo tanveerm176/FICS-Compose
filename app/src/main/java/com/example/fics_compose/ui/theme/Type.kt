@@ -14,12 +14,6 @@ val fenixFont = FontFamily(
 
 // Set of Material typography styles to start with
 val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = fenixFont,
-        fontWeight = FontWeight(400),
-        fontSize = 20.sp,
-        lineHeight = 25.sp,
-    ),
     titleMedium = TextStyle(
         fontFamily = fenixFont,
         fontWeight = FontWeight(400),
@@ -31,7 +25,19 @@ val Typography = Typography(
         fontWeight = FontWeight(400),
         fontSize = 52.sp,
         lineHeight = 62.4.sp,
-)
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = fenixFont,
+        fontWeight = FontWeight(400),
+        fontSize = 20.sp,
+        lineHeight = 25.sp,
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = fenixFont,
+        fontWeight = FontWeight(400),
+        fontSize = 18.sp,
+        lineHeight = 25.sp,
+    ),
 )
 
 /* Other default text styles to override

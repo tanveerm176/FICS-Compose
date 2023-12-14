@@ -54,7 +54,7 @@ fun LetsInvestCard(navController: NavController):Int{
     ) {
         Text(
             text = "Let's Invest",
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(top = 150.dp, bottom = 40.dp),
         )
         Text(
@@ -90,7 +90,7 @@ fun LetsInvestCard(navController: NavController):Int{
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 90.dp)
+                .padding(top = 110.dp)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.letsinvest),
@@ -98,7 +98,7 @@ fun LetsInvestCard(navController: NavController):Int{
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .height(310.dp)
                     .background(Color.Transparent) // Adjust the background color as needed
                     .align(Alignment.BottomCenter)
             )

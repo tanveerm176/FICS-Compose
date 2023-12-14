@@ -191,7 +191,7 @@ fun TutorialCard(
             }
 
             Button(
-                onClick = { startLetsInvestScreen(navController) },
+                onClick = { startGoTimeScreen(navController) },
                 modifier = Modifier
                     .border(1.5.dp, Color(0xFF8A191D), RoundedCornerShape(30.dp))
                     .align(Alignment.End),
