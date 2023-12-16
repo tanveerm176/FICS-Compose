@@ -26,16 +26,22 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,10 +53,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavController
+import com.example.fics_compose.BondInfo
 import com.example.fics_compose.BondOption
 import com.example.fics_compose.BottomNavBar
 import com.example.fics_compose.InternalNav
 import com.example.fics_compose.usrInfo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,8 +68,14 @@ import com.example.fics_compose.usrInfo
 fun SimulatorTopAppBar(navController: NavController, user: usrInfo? = null) {
     var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     var showHelp = remember { mutableStateOf(false) }
+    var simNumber = remember { mutableIntStateOf(0) }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.smallTopAppBarColors(
@@ -80,9 +96,9 @@ fun SimulatorTopAppBar(navController: NavController, user: usrInfo? = null) {
                         ) {
                             Text(text = "Help")
                         }
-//                        if (showHelp.value) {
-//                            ShowDialog(onSkip = {showHelp.value = false})
-//                        }
+                        if (showHelp.value) {
+                            ShowDialog(onSkip = {showHelp.value = false}, simNumber.value)
+                        }
                     }
                 }
             )
@@ -90,20 +106,25 @@ fun SimulatorTopAppBar(navController: NavController, user: usrInfo? = null) {
         },
     ) {innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)){
-            SimulatorScreen(navController, user)
+            SimulatorScreen(navController, user, simNumber, scope, snackbarHostState)
         }
     }
 }
 
 @Composable
-fun SimulatorScreen(navController: NavController, user: usrInfo? = null){
+fun SimulatorScreen(
+    navController: NavController,
+    user: usrInfo? = null,
+    simNumber: MutableIntState,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+){
     Spacer(modifier = Modifier.height(24.dp))
-//    ShowDialog(onSkip = {})
     if (user == null) { //when first starting the sim
-        SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController)
+        SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController, simNumber, scope, snackbarHostState)
     }
     else{ //when returning from portfolio screen
-        SimulatorCard(user, bonds = TestData.testDataList, navController)
+        SimulatorCard(user, bonds = TestData.testDataList, navController, simNumber, scope, snackbarHostState)
     }
 }
 
@@ -111,14 +132,16 @@ fun SimulatorScreen(navController: NavController, user: usrInfo? = null){
 fun SimulatorCard(
     userInfo : usrInfo,
     bonds: List<BondOption>,
-    navController: NavController
+    navController: NavController,
+    simNumber: MutableIntState,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
 ) {
     // for traversing bonds list
     var i by remember { mutableIntStateOf(userInfo.month) }
     var numOfBonds by remember { mutableIntStateOf(userInfo.numBonds) }
     var currentBond by remember { mutableStateOf(bonds[i]) }
 
-    // Note (SS): removed timer functionality and associated variables
     var month by remember { mutableIntStateOf(userInfo.month+1) }
     val currContext = LocalContext.current
 
@@ -148,7 +171,7 @@ fun SimulatorCard(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            IconButton(onClick = { startPortfolioScreen(navController,userInfo)}) {
+            IconButton(onClick = { startPortfolioScreen(navController,userInfo) }) {
                 Icon(Icons.Filled.ShoppingCart, contentDescription = "Investment List")
             }
         }
@@ -182,6 +205,43 @@ fun SimulatorCard(
                         //note:START HISTORY SCREEN WHEN SIM FINISHES
                         startHistoryScreen(navController, userInfo)
                     }
+                    if (month % 3 == 0) {
+                        simNumber.value += 1
+                        scope.launch {
+                            val result = snackbarHostState
+                                .showSnackbar(
+                                    message = "New Bond Category! Click the help button to learn some key information!",
+                                    actionLabel = "Dismiss",
+                                    duration = SnackbarDuration.Short
+                                )
+                            when (result) {
+                                SnackbarResult.ActionPerformed -> {}
+                                SnackbarResult.Dismissed -> {}
+                            }
+                        }
+                    }
+                    if (month == 5) {
+                        val randomInt = Random.nextInt(1, userInfo.investList.size)
+                        val randomBondTitle = userInfo.investList[randomInt].bondTitle
+                        scope.launch {
+                            val result = snackbarHostState
+                                .showSnackbar(
+                                    message = "Oh no! In a shocking turn of events, $randomBondTitle has " +
+                                            "encountered a credit risk crisis and must default on their bonds. Their bonds " +
+                                            "are worth basically nothing now, so let’s take it off of your hands and out of " +
+                                            "your portfolio value.",
+                                    actionLabel = "OK",
+                                    duration = SnackbarDuration.Indefinite
+                                )
+                            when (result) {
+                                SnackbarResult.ActionPerformed -> {
+                                    startPortfolioScreen(navController, userInfo)
+                                    userInfo.defaultRisk(randomInt)
+                                }
+                                SnackbarResult.Dismissed -> {}
+                            }
+                        }
+                    }
                 }
             )
         }
@@ -198,9 +258,7 @@ fun SimulatorCard(
                 text = "Wallet: $${userInfo.wallet}",
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 15.sp,
-                //add color to text
                 color = Color(0xFFDEB841),
-                //change size of text
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(all = 5.dp),
                 textAlign = TextAlign.Center
@@ -216,9 +274,7 @@ fun SimulatorCard(
                 color = Color(0xFFDEB841),
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 15.sp,
-                //change size of text
                 style = MaterialTheme.typography.titleMedium,
-                //add padding to body text
                 modifier = Modifier.padding(all = 5.dp),
                 textAlign = TextAlign.Center
             )
@@ -233,9 +289,7 @@ fun SimulatorCard(
                 color = Color(0xFFDEB841),
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 15.sp,
-                //change size of text
                 style = MaterialTheme.typography.titleMedium,
-                //add padding to body text
                 modifier = Modifier.padding(all = 5.dp),
                 textAlign = TextAlign.Center
             )
@@ -310,7 +364,6 @@ fun BondCard(
             }
         )
         // Invest Button
-        // Note (S.S.): Moved Invest Button here for smoother functioning
         Button(
             modifier = Modifier
                 .padding(all = 5.dp),
@@ -327,7 +380,8 @@ fun BondCard(
                 numBonds = 0
                 userInfo.incrementTrades()
 
-                var bondInfo: List<Any> = mutableListOf(bond.title,bond.price,bond.interestRate, numberOfBonds.toDouble())
+//                var bondInfo: List<Any> = mutableListOf(bond.title,bond.price,bond.interestRate, numberOfBonds.toDouble())
+                var bondInfo = BondInfo(bond.title, bond.price, bond.interestRate, numberOfBonds)
                 userInfo.investList.add(bondInfo)
                 Log.d("investList","{${userInfo.investList.toList()}}")
                 onInvestClicked()
@@ -361,16 +415,6 @@ fun NumericInputField(value: Int, onValueChange: (Int) -> Unit) {
         singleLine = true,
     )
 }
-
-/*
-fun formatTime(time: Long): String {
-    val seconds = (time / 1000).toInt()
-    val minutes = seconds / 60
-    val remainingSeconds = seconds % 60
-    return "%02d:%02d".format(minutes, remainingSeconds)
-}
-*/
-
 
 //add 12 instances of data class for each month, 3 for testing for now
 //data class setup for testing with Sowjan's timer functionality
@@ -439,65 +483,40 @@ object TestData{
     )
 }
 
-/*// Note (S.S.): For some reason, when the help button is pressed, the dialog shows up with the text
-// slightly bigger. Not sure why.
 @Composable
 private fun ShowDialog (
     onSkip: () -> Unit,
-){
+    simNumber: Int
+) {
     var showDialog by remember { mutableStateOf(true) }
-    var currentDialogIndex by remember { mutableIntStateOf(0) }
-    val dialogs = listOf(
-        DialogContent(
-            title = "Welcome to the FICS!",
-            info = "This is an investment simulation to help you learn about investing into the fixed income market.\n\nClick NEXT to learn how to use the simulator and to walk through some key financial terms."
-        ),
-        DialogContent(
-            title = "Instructions",
-            info = "Click START  to start the simulation and the timer.\nNote: Every 10 seconds is equivalent a month passing.\nand every month you get the option to invest in a new bond.\n\nIf you need more time to consider an investment, click PAUSE to pause the simulation.\n\nIf you would like to redo the simulation from the beginning, click RESTART to reset the simulation."
-        ),
-        DialogContent(
-            title = "Investing",
-            info = "You can choose how many bonds you want to invest in based on the price and interest rate of the bond and your wallet.\n\nYour wallet is the cash you have available to invest.\n\nYour Net Worth is the difference between what you own (assets) and what you owe (liabilities). It represents your overall financial value or wealth.\n\nThe Monthly Return is the periodic interest rate payment."
-        ),
-        DialogContent(
-            title = "Fixed Income",
-            info = "Fixed income is a type of investment that pays the investor a fixed amount on a fixed schedule."
-        ),
-        DialogContent(
-            title = "Bond",
-            info = "A bond is a debt security, which means borrowers issue bonds to raise money from investors willing to lend them money for a certain amount of time. \n\nWhen you buy a bond, you are lending to the issuer, which may be a government, municipality, or corporation. In return, the issuer promises to pay you a specified rate of interest during the life of the bond and to repay the principal, also known as face value or par value of the bond, when it matures or comes due after a set period of time."
-        ),
-        DialogContent(
-            title = "Treasury Bond",
-            info = "A Treasury bond is a long-term, low-risk government debt security issued by the U.S. Department of the Treasury.\nIt is considered one of the safest investments due to the backing of the U.S. government."
-        ),
-        // Add more dialog content here as needed
-    )
+    var currentDialogIndex by remember { mutableIntStateOf(simNumber) }
+    var dialogList = SimulatorContent
 
-    if (currentDialogIndex < dialogs.size) {
-        val currentDialogContent = dialogs[currentDialogIndex]
+    if (currentDialogIndex < dialogList.size) {
 
         SimulatorDialog(
             showDialog = showDialog,
             onDismissRequest = {
                 onSkip()
+                currentDialogIndex = simNumber
                 showDialog = false // Dismiss the dialog
             },
             onConfirmation = {
-                if (currentDialogIndex < dialogs.size - 1) {
+                if (currentDialogIndex < dialogList.size - 1) {
                     // Display the next dialog content
                     currentDialogIndex++
-                } else {
-                    // If it's the last dialog, close the dialog
-                    showDialog = false
                 }
             },
-            title = currentDialogContent.title,
-            info = currentDialogContent.info
+            onPrev = {
+                if (currentDialogIndex > 0) {
+                    // Display the previous dialog content
+                    currentDialogIndex--
+                }
+            },
+            currentDialogIndex
         )
     }
-}*/
+}
 
 //TODO: Replace Toast Msg with Dialog Boxes 2in Final
 private fun toastMessages(context: Context, flg:String) {
@@ -514,6 +533,11 @@ fun startHistoryScreen(navController:NavController, portfolio:usrInfo){
 }
 
 fun startPortfolioScreen(navController: NavController, portfolio: usrInfo){
+    navController.currentBackStackEntry?.savedStateHandle?.set("portfolio", portfolio)
+    navController.navigate(InternalNav.Portfolio.route)
+}
+
+fun startRiskPortfolioScreen(navController: NavController, portfolio: usrInfo) {
     navController.currentBackStackEntry?.savedStateHandle?.set("portfolio", portfolio)
     navController.navigate(InternalNav.Portfolio.route)
 }
