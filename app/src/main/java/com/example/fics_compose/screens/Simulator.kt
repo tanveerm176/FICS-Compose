@@ -384,6 +384,7 @@ fun BondCard(
                 var bondInfo = BondInfo(bond.title, bond.price, bond.interestRate, numberOfBonds)
                 userInfo.investList.add(bondInfo)
                 Log.d("investList","{${userInfo.investList.toList()}}")
+                userInfo.netWorthList.add(userInfo.netWorth)
                 onInvestClicked()
             },
         ) {
