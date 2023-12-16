@@ -32,6 +32,7 @@ class usrInfo(
     //mutableStateListOf updates lazy column when list is modified
 //    val investList = mutableStateListOf<List<Any>>()
     val investList = mutableStateListOf<BondInfo>()
+    val netWorthList = mutableListOf<Double>()
 
     // functions to calculate users net worth, investments, and monthly ROI
     // note: made numBonds integer for all functions
