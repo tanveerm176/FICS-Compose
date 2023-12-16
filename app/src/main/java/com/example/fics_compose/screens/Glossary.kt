@@ -15,18 +15,25 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absolutePadding
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
@@ -50,41 +57,43 @@ import androidx.compose.ui.unit.dp
 import com.example.fics_compose.ui.theme.FICSComposeTheme
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.TextField
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
+import com.example.fics_compose.ui.theme.lightGray
+import com.example.fics_compose.ui.theme.yellow
+import androidx.compose.material3.Divider
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun GlossaryTopAppBar() {
-    var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.smallTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.secondary,
-                ),
-                title = {
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        Text("Glossary")
-                    }
-                }
-            )
-            scrollBehavior = scrollBehavior
-        },
-    ) {innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)){
-            GlossaryScreen()
-        }
-    }
-}
-
+//@OptIn(ExperimentalMaterial3Api::class)
 //@Composable
-//fun GlossaryScreen() {
-//
-//    GlossaryList(GlossaryData.glossaryTopics)
+//fun GlossaryTopAppBar() {
+//    var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+//    Scaffold(
+//        topBar = {
+//            TopAppBar(
+//                colors = TopAppBarDefaults.smallTopAppBarColors(
+//                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+//                    titleContentColor = MaterialTheme.colorScheme.secondary,
+//                ),
+//                title = {
+//                    Box(modifier = Modifier.fillMaxWidth()) {
+//                        Text("Glossary")
+//                    }
+//                }
+//            )
+//            scrollBehavior = scrollBehavior
+//        },
+//    ) {innerPadding ->
+//        Box(modifier = Modifier.padding(innerPadding)){
+//            GlossaryScreen()
+//        }
+//    }
 //}
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
@@ -102,86 +111,85 @@ fun GlossaryScreen() {
     }
 
     // Display the filtered glossary
-    Column {
-        // Add a search bar
-        TextField(
+    Column (
+        modifier = Modifier
+            .background(color = lightGray)
+//            .fillMaxHeight()
+            .fillMaxWidth()
+            .padding(start=20.dp, top=40.dp, bottom = 40.dp, end=20.dp),
+    ){
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
-            value = searchTerm,
-            onValueChange = {
-                searchTerm = it
-                // Update glossary when the search term changes
-                glossary = if (it.isEmpty()) {
-                    GlossaryData.glossaryTopics
-                } else {
-                    filteredGlossary
-                }
-            },
-            placeholder = { Text("Search Glossary") },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Search
-            ),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    // Perform search action if needed
-                    // For example, you can trigger a network request to search for the term
-                    // or update the glossary based on the local data.
-                    keyboardController?.hide()
-                }
-            )
+                .background(color = yellow, shape = RectangleShape)
+                .border(1.5.dp, Color.White)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Glossary",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(top=30.dp, bottom = 20.dp)
+                )
+                Text(
+                    text = "Search for key terms",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 30.dp)
+                )
+                TextField(
+                    value = searchTerm,
+                    onValueChange = {
+                        searchTerm = it
+                        // Update glossary when the search term changes
+                        glossary = if (it.isEmpty()) {
+                            GlossaryData.glossaryTopics
+                        } else {
+                            filteredGlossary
+                        }
+                    },
+                    placeholder = { Text("Search Glossary") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Search
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            // Perform search action if needed
+                            // For example, you can trigger a network request to search for the term
+                            // or update the glossary based on the local data.
+                            keyboardController?.hide()
+                        }
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start=20.dp, end=20.dp, bottom=30.dp)
+                )
+            }
+        }
+        Text(
+            text = "Key Terms",
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .padding(top = 18.dp, bottom=20.dp)
         )
-
-        // Display the glossary based on the search results
-        GlossaryList(filteredGlossary)
+            // Display the glossary based on the search results
+            GlossaryList(filteredGlossary)
     }
 }
-data class Term(val termName: String, val termDef: String)
+data class Term(val termName: String, val formalDefinition: String, val informalDefinition: String)
 data class Topic(val topicName: String, val terms: List<Term>)
 
-
 @Composable
-//fun DefinitionCard(term: Term) {
-//    var isExpanded by remember { mutableStateOf(false) }
-//    Row(modifier = Modifier.padding(all = 8.dp)) {
-//
-//        Spacer(modifier = Modifier.width(8.dp))
-//
-//        Column {
-//            Text(
-//                text = term.termName,
-//                color = MaterialTheme.colorScheme.primary,
-//                style = MaterialTheme.typography.titleMedium,
-//                maxLines = 1,
-//                overflow = TextOverflow.Ellipsis
-//            )
-//
-//            Spacer(modifier = Modifier.height(4.dp))
-//
-//            Surface(shape = MaterialTheme.shapes.medium, shadowElevation = 5.dp) {
-//                Column(
-//                    modifier = Modifier
-//                        .padding(all = 4.dp)
-//                        .animateContentSize()
-//                        .heightIn(min = if (isExpanded) 100.dp else 20.dp)
-//                ) {
-//                    Text(
-//                        text = term.termDef,
-//                        style = MaterialTheme.typography.bodyMedium,
-//                        overflow = TextOverflow.Ellipsis,
-//                        maxLines = if (isExpanded) Int.MAX_VALUE else 2,
-//                        modifier = Modifier.clickable { isExpanded = !isExpanded }
-//                    )
-//                }
-//            }
-//
-//        }
-//    }
-//}
-
 @OptIn(ExperimentalMaterial3Api::class)
 fun DefinitionCard(term: Term) {
     var expandedState by remember { mutableStateOf(false) }
+    var showInformalDefinition by remember { mutableStateOf(false) }
+
     val rotationState by animateFloatAsState(
         targetValue = if (expandedState) 180f else 0f, label = "rotateState"
     )
@@ -202,8 +210,11 @@ fun DefinitionCard(term: Term) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(5.dp)
+//                .padding(5.dp)
         ) {
+            // Add a Divider between terms
+            Divider(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom=9.dp))
+
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -211,8 +222,9 @@ fun DefinitionCard(term: Term) {
                     modifier = Modifier
                         .weight(6f),
                     text = term.termName,
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleSmall,
+                    color = Color(0xFF8A191D),
+                    style = MaterialTheme.typography.bodyMedium,
+//                    fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -227,15 +239,41 @@ fun DefinitionCard(term: Term) {
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
+                        tint = Color(0xFF8A191D),
                         contentDescription = "Drop-Down Arrow"
                     )
                 }
             }
-
             // Use the isExpanded property to decide whether to display the definition
             if (expandedState) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Switch(
+                        checked = showInformalDefinition,
+                        onCheckedChange = { showInformalDefinition = it },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color(0xFFDEB841),
+                            checkedTrackColor = Color(0xFFEEE1B9),
+                            uncheckedThumbColor = Color(0xFFDEB841),
+                            uncheckedTrackColor = Color(0xFFEEE1B9),
+                        ),
+                    )
+                    // Display some text indicating the current definition
+                    val definitionLabel =
+                        if (showInformalDefinition) "FICS Definition" else "Formal Definition"
+                    Text(text = definitionLabel,
+                        style = MaterialTheme.typography.bodyMedium,
+////                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
                 // Content of the term definition goes here
-                Text(text = term.termDef, modifier = Modifier.padding(1.dp))
+                val definition =
+                    if (showInformalDefinition) term.informalDefinition else term.formalDefinition
+                Text(text = definition, style = MaterialTheme.typography.bodyMedium,)
             }
         }
     }
@@ -252,8 +290,11 @@ fun ExpandableCard(
     )
 
     Card(
+        onClick = { expandedState = !expandedState },
         modifier = Modifier
             .fillMaxWidth()
+            .border(1.5.dp, Color(0xFF8A191D), RoundedCornerShape(10.dp))
+            .padding(3.dp)
             .animateContentSize(
                 animationSpec = tween(
                     durationMillis = 300,
@@ -261,24 +302,23 @@ fun ExpandableCard(
                 )
             ),
         shape = RoundedCornerShape(10.dp),
-        onClick = {
-            expandedState = !expandedState
-        }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp)
+                .padding(10.dp)
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(5.dp)
             ) {
                 Text(
                     modifier = Modifier
                         .weight(6f),
                     text = topic.topicName,
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleMedium,
+                    color = Color(0xFF8A191D),
+                    style = MaterialTheme.typography.bodyLarge,
+//                    fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -293,7 +333,8 @@ fun ExpandableCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = "Drop-Down Arrow"
+                        contentDescription = "Drop-Down Arrow",
+                        tint = Color(0xFF8A191D),
                     )
                 }
             }
@@ -318,113 +359,167 @@ fun GlossaryList(glossary: List<Topic>) {
     }
 }
 
+
 object GlossaryData {
     val glossaryTopics = listOf(
         Topic(
-            "Topic 1",
+            "General",
             listOf(
-                Term("Fixed Income",
-                    "Fixed income is a type of investment that pays the investor a fixed amount on a fixed schedule."
+                Term(
+                    "Securities",
+                    "Tradable financial instruments that represent ownership or a creditor relationship with an entity. Securities are used by governments, corporations, and other organizations to raise capital. They can be bought, sold, and traded on financial markets.",
+                    "Agreements that allow ownership of a tradable asset, such as a loan or a stock."
                 ),
-                Term("Fixed Income",
-                    "Fixed income is a type of investment that pays the investor a fixed amount on a fixed schedule."
+                Term(
+                    "Fixed Income",
+                    "A type of investment in which an investor receives regular interest payments from a principal value of a loan until its maturity date.",
+                    "Think of “fixed income” as just what the name implies: a set amount of income that comes in on a regular schedule (could be weekly, quarterly, annually)."
                 ),
                 Term(
                     "Bond",
-                    "In finance, a bond is a type of security under which the issuer owes the holder a debt, " +
-                            "and is obliged – depending on the terms – to provide cash flow to the creditor."
-                ),
-            )
-        ),
-        Topic(
-            "Topic 2",
-            listOf(
-                Term("Roth IRA",
-                    "A Roth IRA is an individual retirement account under United States law that is generally " +
-                            "not taxed upon distribution, provided certain conditions are met."
-                ),
-                Term("Vehicles",
-                    "a financial account or product used to create returns. In other words, it generally refers to any " +
-                            "container investors use to grow their money. This includes individual securities such as stocks and bonds or pooled investments like mutual funds and ETFS."
-                ),
-                Term(
-                    "Mutual Fund",
-                    "A mutual fund is a type of investment vehicle consisting of a portfolio of stocks, bonds, or " +
-                            "other securities. It gives small or individual investors access to diversified, professionally managed portfolios. Instead of investing in a single stock or bond, by purchasing shares of a mutual fund, the investor can reap the benefits of a diversified portfolio."
-                ),
-            )
-        ),
-        Topic(
-            "Topic 3",
-            listOf(
-                Term("ETF (Exchange-Traded Fund)",
-                    "a type of pooled investment security that operates much like a mutual fund, but unlike mutual funds, " +
-                            "ETFs can be purchased or sold on a stock exchange the same way that a regular stock can. " +
-                            "This means that ETF share prices fluctuate all day as the ETF is bought and sold; this is different from mutual funds, which only trade once a day after the market closes. " +
-                            "ETFs generally also have less fees associated with it than mutual funds."
-                ),
-                Term("Bond",
-                    ("A bond is a debt security, which means borrowers issue bonds to raise money from investors willing to " +
-                            "lend them money for a certain amount of time. When you buy a bond, you are lending to the issuer, " +
-                            "which may be a government, municipality, or corporation. In return, the issuer promises to pay you a " +
-                            "specified rate of interest during the life of the bond and to repay the principal, also known as " +
-                            "face value or par value of the bond, when it \"matures,\" or comes due after a set period of time.".trim())
-                ),
-                Term(
-                    "Coupon Payment",
-                    ("A coupon or coupon payment is the annual interest rate paid on a bond.".trim())
+                    "A debt security that represents a loan made by an investor to a borrower.",
+                    "A bond is a loan.  A bond will have a few characteristics: a principal value, interest rate, and a maturity date."
                 ),
                 Term(
                     "Principal",
-                    ("The principal refers to the face value of the bond, that is, the money the investor lent " +
-                            "to the bond issuer, which the issuer promises to pay back at the maturity date.").trim()
+                    "This is the amount of money the bondholder will receive when the bond matures. It is also known as the 'par value' or 'face amount.'",
+                    "It is the value of the loan, or the amount of money being lent out."
                 ),
                 Term(
-                    "Maturity Date",
-                    ("the date on which the final payment is due on the bond, at which point the principal " +
-                            "(and all remaining interest) is due to be paid.").trim()
+                    "Interest rate (AKA coupon rate)",
+                    "The fixed annual interest rate that the issuer pays to the bondholder. It is expressed as a percentage of the bond's face value. For example, a bond with a face value of $1,000 and a coupon rate of 5% would pay $50 in annual interest ($1,000 * 0.05).",
+                    "It is the “fee” associated with borrowing money. The issuer of the bond will give this amount to the bondholder to incentivize them to loan the money to them. The higher the interest rate, the more money will be given to the bondholder, and the more attractive investment to the bondholder."
                 ),
+                Term(
+                    "Coupon Payments",
+                    "The interest payments made by the issuer to the bondholder at regular intervals",
+                    "The “fee” that the borrower of the bond must pay to the bondholder at set times. Calculated by multiplying the interest rate by the principal amount – but it does NOT decrease the principal that must be paid back at the end of the bond term!"
+                ),
+                Term(
+                    "Issuer",
+                    "The entity (government, corporation, or other organization) that borrows money by issuing the bond.",
+                    "The one who needed the loan – and got it!"
+                ),
+                Term(
+                    "Bondholder",
+                    "Individual or institution that owns one or more bonds issued by a government, municipality, or corporation. When an entity issues a bond, it essentially borrows money from bondholders.",
+                    "The one providing money for the loan – they’ll expect an interest rate"
+                ),
+                Term(
+                    "Credit rating",
+                    "Bonds are often assigned credit ratings by credit rating agencies. These ratings reflect the issuer's creditworthiness and the likelihood of the issuer defaulting on its debt obligations.",
+                    "The general feeling about the bond’s potential to default. The highest credit rating is AAA (the issuer will almost certainly be able to pay back their loan at the end of the term). It can go down to C, which means the bond is nearing default, or D, meaning that the issuer has gone bankrupt"
+                ),
+                Term(
+                    "Portfolio",
+                    "Collection of financial assets such as stocks, bonds, cash, and other investments held by an individual, institution, or investment fund. The purpose of creating a portfolio is to diversify risk, optimize returns, and achieve specific financial objectives. Portfolios are managed with the goal of balancing risk and return based on an investor's preferences and investment strategy.",
+                    "The current list of investments you’ve made"
+                )
             )
         ),
         Topic(
-            "Topic 4",
+            "Vehicles",
             listOf(
                 Term(
-                    "Interest Rate Risk",
-                    ("Interest rate risk is the potential that a change in overall interest rates " +
-                            "(determined by the Federal Reserve) will reduce the value of a bond or other fixed-rate investment. " +
-                            "As interest rates rise, bond prices fall, and vice versa.").trim()
+                    "Vehicles",
+                    "Various investment instruments or structures through which investors can gain exposure to bonds. These vehicles provide a way for investors to buy and sell bonds in the financial markets on a large scale of exposure",
+                    "Baskets of bonds picked by portfolio managers"
                 ),
                 Term(
-                    "Treasury Bond (T-bonds)",
-                    ("Treasury bonds (T-bonds) are fixed-rate U.S. government debt securities with a maturity of 20 or 30 years. " +
-                            "They are regarded as virtually risk-free since they are backed by the U.S. government's ability to tax its citizens.").trim()
+                    "Mutual Fund",
+                    "Bond mutual funds invest in a diversified portfolio of bonds. Investors buy shares in the mutual fund, and the fund manager makes decisions on behalf of the investors. Bond mutual funds can focus on specific types of bonds, such as government bonds, corporate bonds, or municipal bonds.",
+                    "Vehicle made up of bonds for people to invest in a lot of different bonds without needing to buy them one by one"
                 ),
+                Term(
+                    "ETF (Exchange-Traded Fund)",
+                    "Bond ETFs are similar to bond mutual funds but are traded on stock exchanges like individual stocks. They provide investors with an opportunity to buy and sell bond exposure throughout the trading day at market prices.",
+                    "Just like mutual funds, except you can buy/sell them throughout the trading day whereas MF can only be bought/sold at the end of the day. They also follow an index like the S&P 500 or Nasdaq"
+                )
+            )
+        ),
+        Topic(
+            "Risks",
+            listOf(
+                Term(
+                    "Duration risk (Interest Rate Risk)",
+                    "Measure of the sensitivity of the price of a fixed-income security, such as a bond, to changes in interest rates.",
+                    "Risk of bond depreciating in value due to changes in the federal interest rate. Federal interest rates and bond prices have an inverse relationship. The higher the interest rate, the lower the price of the bond."
+                ),
+                Term(
+                    "Credit risk (default risk)",
+                    "Risk that a borrower may fail to meet its debt obligations, resulting in the non-payment or delayed payment of interest and principal on a loan or debt security.",
+                    "Risk of a borrower defaulting, which means they will not be able to pay the bondholder interest payments or principal payments on time or at all"
+                )
+            )
+        ),
+        Topic(
+            "Treasuries",
+            listOf(
+                Term(
+                    "Treasury bills (T-bills)",
+                    "T-Bills are short-term treasuries with maturities ranging from a few days to one year. They are sold at a discount to their face value, and the investor receives the face value when the T-Bill matures. The difference between the purchase price and the face value represents the interest earned.",
+                    "Treasuries that mature anywhere from a few days to 52 weeks. Good for quicker money with interest rate payments that come earlier."
+                ),
+                Term(
+                    "Treasury notes (T-notes)",
+                    "T-Notes have maturities ranging from two to ten years. They pay a fixed interest rate, also known as the coupon rate, every six months until maturity. At the end of the term, the investor receives the face value of the note.",
+                    "Treasuries that mature anywhere from a few days to 52 weeks. Good for moderately quick money with interest rate payments that come earlier"
+                ),
+                Term(
+                    "Treasury bonds (T-bonds)",
+                    "T-Bonds have maturities exceeding ten years, typically up to 30 years. Like T-Notes, they pay a fixed interest rate every six months, and the investor receives the face value at maturity.",
+                    "Treasuries that mature anywhere from a few days to 52 weeks. Good for slower-paced consistent income with comparatively higher interest rates than bills or notes."
+                ),
+                Term(
+                    "TIPS",
+                    "TIPS are designed to protect investors from inflation. The principal amount of TIPS increases with inflation and decreases with deflation, while interest payments are calculated based on the adjusted principal.",
+                    "TIPS are the safer investments during times of high inflation. Invest in TIPS during times of volatility or inflated economic conditions."
+                )
+            )
+        ),
+        Topic(
+            "Other Bonds",
+            listOf(
                 Term(
                     "Corporate Bond",
-                    ("A corporate bond is debt issued by a company in order for it to raise capital. They are generally seen as riskier than " +
-                            "US government bonds and often have higher interest rates to compensate for the higher risk.").trim()
+                    "Bonds issued by corporations to raise capital for various purposes, such as financing operations, expansion, or acquisitions.",
+                    "Loans that companies need to pay for their operations or new developments"
                 ),
+                Term(
+                    "Asset-Backed Securities (ABS)",
+                    "Asset-backed securities (ABS) are financial instruments that represent an ownership interest in a pool of assets, typically loans or receivables. These assets can include auto loans, credit card receivables, mortgages, student loans, and other types of debt. The cash flows from the underlying assets are used to make payments to the holders of the asset-backed securities.",
+                    "Bonds with collateral attached. If you default on the money amount of the loan, the asset can be seized."
+                ),
+                Term(
+                    "Municipal Bonds (“munis”)",
+                    "Bonds issued by local, county and state governments to pay for capital improvements",
+                    "Bonds issued by local government and organizations like schools and firehouses to improve operations, like buying new school buses"
+                )
             )
         ),
         Topic(
-            "Topic 5",
+            "Economy",
             listOf(
                 Term(
-                    "Asset-Backed Securities (ABS)",
-                    "Asset-backed securities (ABSs) are financial securities backed by a pool of income-generating assets such as credit card receivables, " +
-                            "home equity loans, student loans, and auto loans. Mortgage-backed securities (MBS) are a type of asset-backed securities " +
-                            "where the assets are mortgages. Collateral debt obligations (CDOs) are also a type of asset-backed securities in which the assets are debt obligations."
+                    "Inflation",
+                    "Inflation is the rate at which the general level of prices for goods and services is rising, leading to a decrease in the purchasing power of a currency. In other words, when inflation occurs, each unit of currency buys fewer goods and services than it did before. Inflation is typically expressed as a percentage, representing the annual increase in the average price level of a basket of goods and services.",
+                    "Inflation is when the general prices of everything goes higher. Inflation will affect the value of a bond and make it cheaper because the buying power of a dollar has decreased compared to previous times."
                 ),
                 Term(
-                    "Inflation",
-                    "Inflation is the rise in prices for goods and services, which can be translated as the decline of purchasing power over time. " +
-                            "This means that a unit of currency effectively buys less than it did in prior periods."
+                    "Federal Reserve (“fed”)",
+                    "Central banking system of the United States. It was created by the U.S. Congress with the passage of the Federal Reserve Act in 1913. The Federal Reserve operates as an independent entity within the government, tasked with several key responsibilities aimed at fostering a stable and effective monetary and financial system in the United States.",
+                    "Central bank that controls the flow of money throughout the country. They have control over the federal interest rates, which dictates the rates of treasury instruments."
                 ),
+                Term(
+                    "Federal Interest Rates",
+                    "Central banking system of the United States. It was created by the U.S. Congress with the passage of the Federal Reserve Act in 1913. The Federal Reserve operates as an independent entity within the government, tasked with several key responsibilities aimed at fostering a stable and effective monetary and financial system in the United States.",
+                    "National bank that controls the flow of money throughout the country. They have control over the federal interest rates, which dictates the rates of treasury instruments."
+                )
             )
         )
     )
 }
+
 
 @Preview
 @Composable

@@ -2,7 +2,19 @@ package com.example.fics_compose
 
 import android.os.Parcelable
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class BondInfo(
+    val bondTitle: String,
+    var bondPrice: Double,
+    var interestRate: Double,
+    val numberOfBonds: Int,
+) : Parcelable {
+    val monthlyReturn: Double
+        get() = numberOfBonds * bondPrice * (interestRate/100)
+}
 
 /*// class to hold the users portfolio, including wallet, net worth, investments, monthly ROI, number of bonds purchased*/
 @Parcelize
@@ -18,7 +30,8 @@ class usrInfo(
 ) : Parcelable {
 
     //mutableStateListOf updates lazy column when list is modified
-    val investList = mutableStateListOf<List<Any>>()
+//    val investList = mutableStateListOf<List<Any>>()
+    val investList = mutableStateListOf<BondInfo>()
 
     // functions to calculate users net worth, investments, and monthly ROI
     // note: made numBonds integer for all functions
@@ -64,6 +77,24 @@ class usrInfo(
     fun incrementMonth():Int{
         this.month+=1
         return this.month
+    }
+
+    fun interestRisk(rate: Double) {
+        for (bondInfo in investList) {
+            bondInfo.bondPrice *= rate
+            calcInvestments(bondInfo.numberOfBonds, bondInfo.bondPrice)
+            monthlyReturn(bondInfo.numberOfBonds, bondInfo.bondPrice, bondInfo.interestRate)
+        }
+        calcNetWorth(this.wallet, this.investment)
+    }
+
+    fun defaultRisk(i: Int) {
+        this.monthlyReturn -= investList[i].monthlyReturn
+        this.investment +=  investList[i].numberOfBonds * investList[i].bondPrice
+        this.netWorth = calcNetWorth(wallet, investment)
+
+        investList[i].bondPrice = 0.0
+        investList[i].interestRate = 0.0
     }
 
     // reset user info to default state
