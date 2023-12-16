@@ -171,7 +171,7 @@ fun TutorialCard(
                                 currentPage += 1
                                 currentText = displayText[currentPage]
                             } else {
-                                startLetsInvestScreen(navController)
+                                startGoTimeScreen(navController)
                             }
                         }
                         .background(
