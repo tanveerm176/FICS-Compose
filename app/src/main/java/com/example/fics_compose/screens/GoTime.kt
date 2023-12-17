@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -55,10 +56,15 @@ fun GoTimeCard(navController: NavController){
             )
             Text(text = "You have 24 months to make as much money as you can.",
                 style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .padding(bottom = 35.dp)
+                    .padding(bottom = 20.dp)
             )
+
+            Text(text = "Good Luck!", style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier
+                    .padding(bottom = 20.dp))
 
             Button(
                 onClick = { startSimulatorScreen(navController) },
