@@ -36,7 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.fics_compose.DatabaseBuilder
 import com.example.fics_compose.HistoryItem
-import com.example.fics_compose.usrInfo
+import com.example.fics_compose.UserInfo
 import kotlinx.coroutines.CoroutineScope
 
 
@@ -84,9 +84,7 @@ fun addToHistory(context: Context){
 
     LaunchedEffect(true){
         historyList = dao.getAllPortfolios()
-
     }
-
 
     Log.d("portfolioList","$historyList")
 

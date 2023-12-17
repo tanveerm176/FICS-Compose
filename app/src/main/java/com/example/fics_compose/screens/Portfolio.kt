@@ -38,7 +38,9 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableDoubleState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,14 +57,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.fics_compose.BondInfo
 import com.example.fics_compose.InternalNav
-import com.example.fics_compose.usrInfo
+import com.example.fics_compose.UserInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PortfolioTopAppBar(user: usrInfo?, navController:NavController) {
+fun PortfolioTopAppBar(user: UserInfo?, navController:NavController) {
     var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    var observedUser by remember { mutableStateOf(user) }
 
     Scaffold(
         topBar = {
@@ -101,21 +104,55 @@ fun PortfolioTopAppBar(user: usrInfo?, navController:NavController) {
         ) { innerPadding ->
         if (user != null) {
             Column(modifier = Modifier.padding(innerPadding)) {
-
-                userCard(user = user)
                 PortfolioScreen(user)
-
             }
         }
     }
 }
 
+@Composable
+fun PortfolioScreen(user: UserInfo) {
+    val wallet = remember {
+        mutableDoubleStateOf(user.wallet)
+    }
+    val investments = remember {
+        mutableDoubleStateOf(user.investments)
+    }
+    val netWorth = remember {
+        mutableDoubleStateOf(user.netWorth)
+    }
+    val monthlyReturn = remember {
+        mutableDoubleStateOf(user.monthlyReturn)
+    }
+    userCard(wallet, investments, netWorth, monthlyReturn)
+    LazyColumn {
+        itemsIndexed(user.investList) {index, bondPurchased ->
+            PortfolioCard(bondPurchased, index, user, wallet, investments, netWorth, monthlyReturn)
+        }
+    }
+}
+
+
+//@Composable
+//fun PortfolioList(portfolio: SnapshotStateList<BondInfo>, user: UserInfo) {
+//    LazyColumn {
+//        itemsIndexed(portfolio) {index, bondPurchased ->
+//            PortfolioCard(bondPurchased, index, user)
+//        }
+//    }
+//}
+
 
 @Composable
-fun userCard(user:usrInfo) {
+fun userCard(
+    wallet: MutableDoubleState,
+    investments: MutableDoubleState,
+    netWorth: MutableDoubleState,
+    monthlyReturn: MutableDoubleState
+) {
     Column {
         Text(
-            text = "Wallet: $${user.wallet}",
+            text = "Wallet: $${wallet.value}",
             fontWeight = FontWeight.ExtraBold,
             fontSize = 15.sp,
             //add color to text
@@ -127,9 +164,7 @@ fun userCard(user:usrInfo) {
         )
 
         Text(
-            text = "Investments: $${
-                user.investment
-            }",
+            text = "Investments: $${investments.value}",
             color = Color(0xFFDEB841),
             fontWeight = FontWeight.ExtraBold,
             fontSize = 15.sp,
@@ -141,9 +176,7 @@ fun userCard(user:usrInfo) {
         )
 
         Text(
-            text = "Net Worth: $${
-                user.calcNetWorth(user.wallet, user.investment)
-            }",
+            text = "Net Worth: $${netWorth.value}",
             color = Color(0xFFDEB841),
             fontWeight = FontWeight.ExtraBold,
             fontSize = 15.sp,
@@ -155,9 +188,7 @@ fun userCard(user:usrInfo) {
         )
 
         Text(
-            text = "Monthly Return: $${
-                user.monthlyReturn
-            }",
+            text = "Monthly Return: $${monthlyReturn.value}",
             color = Color(0xFFDEB841),
             fontWeight = FontWeight.ExtraBold,
             fontSize = 15.sp,
@@ -169,31 +200,15 @@ fun userCard(user:usrInfo) {
 }
 
 @Composable
-fun PortfolioScreen(user: usrInfo?) {
-    if (user != null) {
-        PortfolioList(portfolio = user.investList, user)
-    }
-}
-
-
-@Composable
-fun PortfolioList(portfolio: SnapshotStateList<BondInfo>, user: usrInfo) {
-    LazyColumn {
-        itemsIndexed(portfolio) {index, bondPurchased ->
-            PortfolioCard(bondPurchased, index, user)
-        }
-    }
-}
-
-@Composable
-fun PortfolioCard(bondPurchased: BondInfo, index:Int, user: usrInfo){
-//    var reloadUserCard by remember {
-//        mutableStateOf(false)
-//    }
-//
-//    var reloadUser by remember {
-//        mutableStateOf(user)
-//    }
+fun PortfolioCard(
+    bondPurchased: BondInfo,
+    index:Int,
+    user: UserInfo,
+    wallet: MutableDoubleState,
+    investments: MutableDoubleState,
+    netWorth: MutableDoubleState,
+    monthlyReturn: MutableDoubleState
+){
 
     val bondTitle = bondPurchased.bondTitle
     val bondPrice = bondPurchased.bondPrice
@@ -212,10 +227,6 @@ fun PortfolioCard(bondPurchased: BondInfo, index:Int, user: usrInfo){
         Color.LightGray
     }
 
-//
-//    if (reloadUserCard){
-//        userCard(user = reloadUser)
-//    }
     Row(modifier = Modifier.fillMaxWidth()){
         Spacer(modifier = Modifier.width(8.dp))
         Column {
@@ -266,17 +277,15 @@ fun PortfolioCard(bondPurchased: BondInfo, index:Int, user: usrInfo){
                                 showAlert.value = true
                             }
                             user.wallet += (bondPrice * numBonds)
+                            wallet.value = user.wallet
+                            user.monthlyReturn -= bondPurchased.monthlyReturn
+                            monthlyReturn.value = user.monthlyReturn
+                            user.investments -= bondPurchased.investment
+                            investments.value = user.investments
+                            netWorth.value = user.netWorth
                             user.investList.removeAt(index)
-
                             Log.d("bondSold", "Bond Sold: $bondTitle at index $index")
                             Log.d("sellBond", "{${user.investList.toList()}}")
-
-//                            user.wallet += (bondPrice*numBonds)
-//                            user.investList.removeAt(index)
-
-//                            val newUser = modifyUser(user,bondPrice,numBonds)
-//                            reloadUser = newUser
-//                            reloadUserCard = !reloadUserCard
 
                         }
                     ) {
@@ -331,13 +340,7 @@ private fun ShowAlertDialog() {
     }
 }
 
-fun modifyUser(user: usrInfo, bondPrice:Double, numBonds:Double): usrInfo{
-    user.wallet += (bondPrice * numBonds)
-    user.incrementTrades()
-    return user
-}
-
-fun returnToSimulator(navController: NavController, user:usrInfo){
+fun returnToSimulator(navController: NavController, user:UserInfo){
     navController.currentBackStackEntry?.savedStateHandle?.set("user",user)
     navController.navigate(InternalNav.Simulator.route)
 }
