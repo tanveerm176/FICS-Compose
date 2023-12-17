@@ -158,6 +158,9 @@ fun SimulatorCard(
     val dao = database.historyDAO()
 
     var showAlertDialog by remember { mutableStateOf(false) }
+    var showCompletionDialog by remember {
+        mutableStateOf(false)
+    }
 
     if (showAlertDialog) {
         val randomInt = Random.nextInt(3, userInfo.investList.size - 1)
@@ -168,6 +171,15 @@ fun SimulatorCard(
                 startPortfolioScreen(navController, userInfo)
                 userInfo.defaultRisk(randomInt)
                 showAlertDialog = false
+            }
+        )
+    }
+
+    if (showCompletionDialog) {
+        ShowFinishedDialog(
+            onSkip = {
+                startHistoryScreen(navController)
+                showCompletionDialog = false
             }
         )
     }
@@ -226,7 +238,6 @@ fun SimulatorCard(
                     i = (i + 1) % bonds.size
                     currentBond = bonds[i]
                     if (month == 13) {
-                        toastMessages(currContext, "finish")
                         //TODO: Reset user and sim
 
                         val usrHistory = HistoryItem(
@@ -237,13 +248,11 @@ fun SimulatorCard(
                         )
                         scope.launch {
                             insertHistory(usrHistory, dao)
+                            showCompletionDialog = true
                         }
 
-                        //note:START HISTORY SCREEN WHEN SIM FINISHES
-                        startHistoryScreen(navController)
-
                     }
-                    if (month % 3 == 0) {
+                    if (month % 3 == 0 && month != 12) {
                         simNumber.value += 1
                         scope.launch {
                             val result = snackbarHostState
@@ -567,6 +576,44 @@ private fun ShowAlertDialog(randomBondTitle: String, onSkip: () -> Unit) {
                     },
                 ) {
                     Text("Ok")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun ShowFinishedDialog(onSkip: () -> Unit) {
+    val showDialog = remember { mutableStateOf(true) }
+
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                showDialog.value = false
+                onSkip()
+            },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Simulation Finished!")
+                }
+            },
+            text = {
+                Text(
+                    text = "Let's go to your history for a summary of your investment history. Remember that " +
+                            "goal was to generate a higher net worth than your initial wallet ($10k). If the return " +
+                            "on investment exceeded your initial wallet, you're on your way to become a successful investor. " +
+                            "If your return on investment was less than the initial wallet, that means you lost money. "
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDialog.value = false
+                        onSkip()
+                    },
+                ) {
+                    Text("Let's Go!")
                 }
             }
         )
