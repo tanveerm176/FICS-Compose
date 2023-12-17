@@ -50,15 +50,8 @@ fun BottomNavGraph(navController: NavHostController){
             GoTimeScreen(navController)
         }
 
-
         composable(route=BottomNavBar.History.route){
-            val result = navController.previousBackStackEntry?.savedStateHandle?.get<usrInfo>("port")
-            LaunchedEffect(key1 = it ){
-                Log.d("wallet", "${result?.wallet}")
-
-            }
-            HistoryTopAppBar(result)
-
+            HistoryTopAppBar()
         }
         
         composable(route=InternalNav.Portfolio.route){

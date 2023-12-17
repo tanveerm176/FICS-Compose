@@ -1,5 +1,7 @@
 package com.example.fics_compose.screens
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,15 +26,27 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.fics_compose.DatabaseBuilder
+import com.example.fics_compose.HistoryItem
 import com.example.fics_compose.usrInfo
+import kotlinx.coroutines.CoroutineScope
 
 
 //TODO: parcelable can't be persistent, need to create an internal data class and set results to its attr
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryTopAppBar(result: usrInfo?) {
+fun HistoryTopAppBar() {
     var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val context = LocalContext.current
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -50,32 +64,37 @@ fun HistoryTopAppBar(result: usrInfo?) {
         },
     ) {innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)){
-            HistoryScreen(result)
+            HistoryScreen(context)
         }
     }
 }
 
 @Composable
-fun HistoryScreen(result: usrInfo?) {
+fun HistoryScreen(context: Context) {
     Spacer(modifier = Modifier.height(24.dp))
-    addToHistory(result)
+    addToHistory(context)
 }
 
 @Composable
-fun addToHistory(result: usrInfo?){
-    var historyList = mutableListOf<usrInfo>() //TODO:
+fun addToHistory(context: Context){
 
-    if (result != null) {
-        historyList.add(result)
+    var historyList by remember { mutableStateOf(emptyList<HistoryItem>()) }
+    val database = DatabaseBuilder.getDatabase(context)
+    val dao = database.historyDAO()
+
+    LaunchedEffect(true){
+        historyList = dao.getAllPortfolios()
+
     }
 
-//    Log.d("portfolioList","${portfolioList[0]}")
+
+    Log.d("portfolioList","$historyList")
 
     HistoryList(history = historyList)
 }
 
 @Composable
-fun HistoryList(history: List<usrInfo>) {
+fun HistoryList(history: List<HistoryItem>) {
     LazyColumn {
         items(history) {history ->
             HistoryCard(history)
@@ -85,7 +104,7 @@ fun HistoryList(history: List<usrInfo>) {
 
 
 @Composable
-fun HistoryCard(history: usrInfo){
+fun HistoryCard(history: HistoryItem){
     Row(modifier = Modifier.fillMaxWidth()){
         Spacer(modifier = Modifier.width(8.dp))
         Column {
@@ -119,7 +138,7 @@ fun HistoryCard(history: usrInfo){
                             modifier = Modifier.padding(all = 3.dp),
                         );
                         Text(
-                            text = "Total Gains: ${history.calcGains(history.netWorth)}",
+                            text = "Total Gains: ${history.gains}",
                             color = Color.Black,
                             modifier = Modifier.padding(all = 3.dp),
                         )

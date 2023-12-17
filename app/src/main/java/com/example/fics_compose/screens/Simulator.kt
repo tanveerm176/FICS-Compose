@@ -56,9 +56,13 @@ import androidx.navigation.NavController
 import com.example.fics_compose.BondInfo
 import com.example.fics_compose.BondOption
 import com.example.fics_compose.BottomNavBar
+import com.example.fics_compose.DatabaseBuilder
+import com.example.fics_compose.HistoryDAO
+import com.example.fics_compose.HistoryItem
 import com.example.fics_compose.InternalNav
 import com.example.fics_compose.usrInfo
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -145,6 +149,9 @@ fun SimulatorCard(
     var month by remember { mutableIntStateOf(userInfo.month+1) }
     val currContext = LocalContext.current
 
+    val database = DatabaseBuilder.getDatabase(currContext)
+    val dao = database.historyDAO()
+
     Spacer(modifier = Modifier.width(8.dp))
 
     Column(
@@ -202,8 +209,20 @@ fun SimulatorCard(
                         toastMessages(currContext, "finish")
                         //TODO: Reset user and sim
 
+                        val usrHistory = HistoryItem(
+                            netWorth = userInfo.netWorth,
+                            wallet = userInfo.wallet,
+                            gains = userInfo.totalGains,
+                            trades = userInfo.trades
+                        )
+                        scope.launch{
+                            insertHistory(usrHistory,dao)
+                        }
+
+
                         //note:START HISTORY SCREEN WHEN SIM FINISHES
-                        startHistoryScreen(navController, userInfo)
+                        startHistoryScreen(navController)
+
                     }
                     if (month % 3 == 0) {
                         simNumber.value += 1
@@ -528,8 +547,7 @@ private fun toastMessages(context: Context, flg:String) {
     }
 }
 
-fun startHistoryScreen(navController:NavController, portfolio:usrInfo){
-    navController.currentBackStackEntry?.savedStateHandle?.set("port",portfolio)
+fun startHistoryScreen(navController:NavController){
     navController.navigate(BottomNavBar.History.route)
 }
 
@@ -541,4 +559,8 @@ fun startPortfolioScreen(navController: NavController, portfolio: usrInfo){
 fun startRiskPortfolioScreen(navController: NavController, portfolio: usrInfo) {
     navController.currentBackStackEntry?.savedStateHandle?.set("portfolio", portfolio)
     navController.navigate(InternalNav.Portfolio.route)
+}
+
+suspend fun insertHistory(item:HistoryItem, dao:HistoryDAO){
+    dao.insert(item)
 }
