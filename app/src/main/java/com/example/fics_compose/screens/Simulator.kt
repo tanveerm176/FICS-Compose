@@ -233,7 +233,8 @@ fun SimulatorCard(
                             netWorth = userInfo.netWorth,
                             wallet = userInfo.wallet,
                             gains = userInfo.totalGains,
-                            trades = userInfo.trades
+                            trades = userInfo.trades,
+
                         )
                         scope.launch {
                             insertHistory(usrHistory, dao)
