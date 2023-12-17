@@ -65,16 +65,15 @@ import com.example.fics_compose.DatabaseBuilder
 import com.example.fics_compose.HistoryDAO
 import com.example.fics_compose.HistoryItem
 import com.example.fics_compose.InternalNav
-import com.example.fics_compose.usrInfo
+import com.example.fics_compose.UserInfo
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SimulatorTopAppBar(navController: NavController, user: usrInfo? = null) {
+fun SimulatorTopAppBar(navController: NavController, user: UserInfo? = null) {
     var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     var showHelp = remember { mutableStateOf(false) }
     var simNumber = remember { mutableIntStateOf(0) }
@@ -123,23 +122,25 @@ fun SimulatorTopAppBar(navController: NavController, user: usrInfo? = null) {
 @Composable
 fun SimulatorScreen(
     navController: NavController,
-    user: usrInfo? = null,
+    user: UserInfo? = null,
     simNumber: MutableIntState,
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
 ){
     Spacer(modifier = Modifier.height(24.dp))
-    if (user == null) { //when first starting the sim
-        SimulatorCard(usrInfo(), bonds = TestData.testDataList, navController, simNumber, scope, snackbarHostState)
+    //when first starting the sim
+    if (user == null) {
+        SimulatorCard(UserInfo(), bonds = TestData.testDataList, navController, simNumber, scope, snackbarHostState)
     }
-    else{ //when returning from portfolio screen
+    //when returning from portfolio screen
+    else{
         SimulatorCard(user, bonds = TestData.testDataList, navController, simNumber, scope, snackbarHostState)
     }
 }
 
 @Composable
 fun SimulatorCard(
-    userInfo : usrInfo,
+    userInfo : UserInfo,
     bonds: List<BondOption>,
     navController: NavController,
     simNumber: MutableIntState,
@@ -158,7 +159,6 @@ fun SimulatorCard(
     val dao = database.historyDAO()
 
     var showAlertDialog by remember { mutableStateOf(false) }
-
     if (showAlertDialog) {
         val randomInt = Random.nextInt(3, userInfo.investList.size - 1)
         val randomBondTitle = userInfo.investList[randomInt].bondTitle
@@ -220,15 +220,19 @@ fun SimulatorCard(
                 },
                 userInfo = userInfo,
                 onInvestClicked = {
-                    // Update the month and current bond
+                    // increment month
                     month += 1
                     userInfo.incrementMonth()
+                    userInfo.wallet += userInfo.monthlyReturn
+
+                    // increment bond
                     i = (i + 1) % bonds.size
                     currentBond = bonds[i]
+
+                    // end simulation, go to history screen
                     if (month == 13) {
                         toastMessages(currContext, "finish")
                         //TODO: Reset user and sim
-
                         val usrHistory = HistoryItem(
                             netWorth = userInfo.netWorth,
                             wallet = userInfo.wallet,
@@ -238,11 +242,10 @@ fun SimulatorCard(
                         scope.launch {
                             insertHistory(usrHistory, dao)
                         }
-
-                        //note:START HISTORY SCREEN WHEN SIM FINISHES
                         startHistoryScreen(navController)
-
                     }
+
+                    // new bond category
                     if (month % 3 == 0) {
                         simNumber.value += 1
                         scope.launch {
@@ -258,78 +261,16 @@ fun SimulatorCard(
                             }
                         }
                     }
+
+                    // default risk
                     if (month == 7) {
                         showAlertDialog = true
                     }
                 }
             )
         }
-
         Spacer(modifier = Modifier.height(8.dp))
-
-
-        //User Portfolio Info
-        //TODO: Create Card Around User Portfolio --> Better UI
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Wallet: $${userInfo.wallet}",
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 15.sp,
-                color = Color(0xFFDEB841),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(all = 5.dp),
-                textAlign = TextAlign.Center
-            )
-
-            Text(
-                text = "Investments: $${
-                    userInfo.calcInvestments(
-                        userInfo.numBonds,
-                        bonds[i].price
-                    )
-                }",
-                color = Color(0xFFDEB841),
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 15.sp,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(all = 5.dp),
-                textAlign = TextAlign.Center
-            )
-
-            Text(
-                text = "Net Worth: $${
-                    userInfo.calcNetWorth(
-                        userInfo.wallet,
-                        userInfo.investment
-                    )
-                }",
-                color = Color(0xFFDEB841),
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 15.sp,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(all = 5.dp),
-                textAlign = TextAlign.Center
-            )
-
-            Text(
-                text = "Monthly Return: $${
-                    userInfo.monthlyReturn(
-                        userInfo.numBonds,
-                        bonds[i].price,
-                        bonds[i].interestRate
-                    )
-                }",
-                color = Color(0xFFDEB841),
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 15.sp,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(all = 5.dp),
-                textAlign = TextAlign.Center
-            )
-
-        }
+        UserCard(userInfo = userInfo)
     }
 }
 
@@ -338,7 +279,7 @@ fun BondCard(
     bond: BondOption,
     numberOfBonds: Int,
     onNumberOfBondsChanged: (Int) -> Unit,
-    userInfo: usrInfo,
+    userInfo: UserInfo,
     onInvestClicked: () -> Unit,
 ) {
 
@@ -384,25 +325,23 @@ fun BondCard(
         )
         // Invest Button
         Button(
-            modifier = Modifier
-                .padding(all = 5.dp),
+            modifier = Modifier.padding(all = 5.dp),
             onClick = {
-                // decrease price of bond from wallet
-                userInfo.wallet -= (bond.price * numberOfBonds)
-                // update monthlyReturn, investment, and net worth
-                userInfo.monthlyReturn(numberOfBonds, bond.price, bond.interestRate)
-                userInfo.calcInvestments(numberOfBonds, bond.price)
-                userInfo.calcNetWorth(userInfo.wallet, userInfo.investment)
-
-                // note (S.S.): This does not change what the user sees in the input field, but it does allow
-                //  user to keep investing the same number of bonds
-                numBonds = 0
-                userInfo.incrementTrades()
-
+                // add bond to investment list
                 var bondInfo = BondInfo(bond.title, bond.price, bond.interestRate, numberOfBonds)
                 userInfo.investList.add(bondInfo)
-                Log.d("investList","{${userInfo.investList.toList()}}")
+                Log.d("investList","{${userInfo.investList.toList()}}") // log new list
+
+                // update trades, wallet, total monthly ROI, invesments, and net worth list
+                userInfo.incrementTrades()
+                userInfo.wallet -= (bond.price * numberOfBonds)
+                userInfo.monthlyReturn += bondInfo.monthlyReturn
+                userInfo.investments += bondInfo.investment
                 userInfo.netWorthList.add(userInfo.netWorth)
+
+                // note (S.S.): This does not change what the user sees in the input field, but it does allow
+                // user to keep investing the same number of bonds
+                numBonds = 0
                 onInvestClicked()
             },
         ) {
@@ -410,6 +349,62 @@ fun BondCard(
                 text = "Invest",
             )
         }
+    }
+}
+
+@Composable
+fun UserCard(
+    userInfo: UserInfo,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Wallet: $${userInfo.wallet}",
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 15.sp,
+            color = Color(0xFFDEB841),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(all = 5.dp),
+            textAlign = TextAlign.Center
+        )
+
+        Text(
+            text = "Investments: $${
+                userInfo.investments
+            }",
+            color = Color(0xFFDEB841),
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 15.sp,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(all = 5.dp),
+            textAlign = TextAlign.Center
+        )
+
+        Text(
+            text = "Net Worth: $${
+                userInfo.netWorth
+            }",
+            color = Color(0xFFDEB841),
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 15.sp,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(all = 5.dp),
+            textAlign = TextAlign.Center
+        )
+
+        Text(
+            text = "Monthly Return: $${
+                userInfo.monthlyReturn
+            }",
+            color = Color(0xFFDEB841),
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 15.sp,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(all = 5.dp),
+            textAlign = TextAlign.Center
+        )
+
     }
 }
 
@@ -586,7 +581,7 @@ fun startHistoryScreen(navController:NavController){
     navController.navigate(BottomNavBar.History.route)
 }
 
-fun startPortfolioScreen(navController: NavController, portfolio: usrInfo){
+fun startPortfolioScreen(navController: NavController, portfolio: UserInfo){
     navController.currentBackStackEntry?.savedStateHandle?.set("portfolio", portfolio)
     navController.navigate(InternalNav.Portfolio.route)
 }
