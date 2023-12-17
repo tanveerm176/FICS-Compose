@@ -38,7 +38,9 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableDoubleState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -102,19 +104,55 @@ fun PortfolioTopAppBar(user: UserInfo?, navController:NavController) {
         ) { innerPadding ->
         if (user != null) {
             Column(modifier = Modifier.padding(innerPadding)) {
-                userCard(user = user)
                 PortfolioScreen(user)
             }
         }
     }
 }
 
+@Composable
+fun PortfolioScreen(user: UserInfo) {
+    val wallet = remember {
+        mutableDoubleStateOf(user.wallet)
+    }
+    val investments = remember {
+        mutableDoubleStateOf(user.investments)
+    }
+    val netWorth = remember {
+        mutableDoubleStateOf(user.netWorth)
+    }
+    val monthlyReturn = remember {
+        mutableDoubleStateOf(user.monthlyReturn)
+    }
+    userCard(wallet, investments, netWorth, monthlyReturn)
+    LazyColumn {
+        itemsIndexed(user.investList) {index, bondPurchased ->
+            PortfolioCard(bondPurchased, index, user, wallet, investments, netWorth, monthlyReturn)
+        }
+    }
+}
+
+
+//@Composable
+//fun PortfolioList(portfolio: SnapshotStateList<BondInfo>, user: UserInfo) {
+//    LazyColumn {
+//        itemsIndexed(portfolio) {index, bondPurchased ->
+//            PortfolioCard(bondPurchased, index, user)
+//        }
+//    }
+//}
+
 
 @Composable
-fun userCard(user:UserInfo) {
+fun userCard(
+    wallet: MutableDoubleState,
+    investments: MutableDoubleState,
+    netWorth: MutableDoubleState,
+    monthlyReturn: MutableDoubleState
+) {
     Column {
         Text(
-            text = "Wallet: $${user.wallet}",
+            text = "Wallet: $${wallet.value}",
             fontWeight = FontWeight.ExtraBold,
             fontSize = 15.sp,
             //add color to text
@@ -126,7 +164,7 @@ fun userCard(user:UserInfo) {
         )
 
         Text(
-            text = "Investments: $${user.investments}",
+            text = "Investments: $${investments.value}",
             color = Color(0xFFDEB841),
             fontWeight = FontWeight.ExtraBold,
             fontSize = 15.sp,
@@ -138,7 +176,7 @@ fun userCard(user:UserInfo) {
         )
 
         Text(
-            text = "Net Worth: $${user.netWorth}",
+            text = "Net Worth: $${netWorth.value}",
             color = Color(0xFFDEB841),
             fontWeight = FontWeight.ExtraBold,
             fontSize = 15.sp,
@@ -150,7 +188,7 @@ fun userCard(user:UserInfo) {
         )
 
         Text(
-            text = "Monthly Return: $${user.monthlyReturn}",
+            text = "Monthly Return: $${monthlyReturn.value}",
             color = Color(0xFFDEB841),
             fontWeight = FontWeight.ExtraBold,
             fontSize = 15.sp,
@@ -162,22 +200,15 @@ fun userCard(user:UserInfo) {
 }
 
 @Composable
-fun PortfolioScreen(user: UserInfo) {
-    PortfolioList(portfolio = user.investList, user)
-}
-
-
-@Composable
-fun PortfolioList(portfolio: SnapshotStateList<BondInfo>, user: UserInfo) {
-    LazyColumn {
-        itemsIndexed(portfolio) {index, bondPurchased ->
-            PortfolioCard(bondPurchased, index, user)
-        }
-    }
-}
-
-@Composable
-fun PortfolioCard(bondPurchased: BondInfo, index:Int, user: UserInfo){
+fun PortfolioCard(
+    bondPurchased: BondInfo,
+    index:Int,
+    user: UserInfo,
+    wallet: MutableDoubleState,
+    investments: MutableDoubleState,
+    netWorth: MutableDoubleState,
+    monthlyReturn: MutableDoubleState
+){
 
     val bondTitle = bondPurchased.bondTitle
     val bondPrice = bondPurchased.bondPrice
@@ -246,9 +277,13 @@ fun PortfolioCard(bondPurchased: BondInfo, index:Int, user: UserInfo){
                                 showAlert.value = true
                             }
                             user.wallet += (bondPrice * numBonds)
-                            user.investList.removeAt(index)
+                            wallet.value = user.wallet
                             user.monthlyReturn -= bondPurchased.monthlyReturn
+                            monthlyReturn.value = user.monthlyReturn
                             user.investments -= bondPurchased.investment
+                            investments.value = user.investments
+                            netWorth.value = user.netWorth
+                            user.investList.removeAt(index)
                             Log.d("bondSold", "Bond Sold: $bondTitle at index $index")
                             Log.d("sellBond", "{${user.investList.toList()}}")
 
