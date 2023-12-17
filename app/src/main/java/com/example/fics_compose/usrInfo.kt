@@ -33,7 +33,6 @@ class usrInfo(
 //    val investList = mutableStateListOf<List<Any>>()
     val investList = mutableStateListOf<BondInfo>()
     val netWorthList = mutableListOf<Double>()
-
     // functions to calculate users net worth, investments, and monthly ROI
     // note: made numBonds integer for all functions
     // note: updated wallet and investment so that new bonds add on to old bonds
