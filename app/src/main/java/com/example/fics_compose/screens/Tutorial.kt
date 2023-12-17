@@ -79,226 +79,190 @@ fun TutorialCard(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (currentText.description != null && currentText.img != null) {
-                Text(
-                    modifier = Modifier.padding(top=6.dp),
-                    text = currentText.title,
-                    style = MaterialTheme.typography.titleMedium,
+            Text(
+                modifier = Modifier.padding(top=6.dp),
+                text = currentText.title,
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .size(width = 200.dp, height = 200.dp)
+                    .background(Color.Transparent) // Optional: Add a background color for clarity
+            ) {
+                Image(
+                    painter = painterResource(id = currentText.img!!),
+                    contentDescription = "Image",
+                    modifier = Modifier
+                        .fillMaxSize() // Fill the entire Box with the Image
                 )
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+            }
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = yellow, shape = RectangleShape)
+                    .absolutePadding(top = 4.dp, bottom = 4.dp)
+                    .border(1.5.dp, Color.White)
+                    .size(width = 200.dp, height = 260.dp)
+            ) {
+                Box(
                     modifier = Modifier
-                        .size(width = 200.dp, height = 200.dp)
-                        .background(Color.Transparent) // Optional: Add a background color for clarity
+                        .fillMaxSize()
+                        .absolutePadding(left = 10.dp, right = 10.dp),
+                    contentAlignment = Alignment.CenterStart
                 ) {
-                    Image(
-                        painter = painterResource(id = currentText.img!!),
-                        contentDescription = "Image",
-                        modifier = Modifier
-                            .fillMaxSize() // Fill the entire Box with the Image
+                    Text(
+                        text = currentText.description!!,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(5.dp)
                     )
-                }
-                BoxWithConstraints(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = yellow, shape = RectangleShape)
-                        .absolutePadding(top = 4.dp, bottom = 4.dp)
-                        .border(1.5.dp, Color.White)
-                        .size(width = 200.dp, height = 260.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .absolutePadding(left = 10.dp, right = 10.dp),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        Text(
-                            text = currentText.description!!,
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(5.dp)
-                        )
-                    }
-                }
-
-                // Page Indicator
-                Row(
-                    modifier = Modifier.padding(top = 15.dp, bottom = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    // Previous Page Button
-                    Box(
-                        modifier = Modifier
-                            .clickable {
-                                if (currentPage > 0) {
-                                    currentPage -= 1
-                                    currentText = displayText[currentPage]
-                                }
-                            }
-                            .background(
-                                color = Color(0xFFDEB841),
-                                shape = RectangleShape // Use RectangleShape for square buttons
-                            )
-                            .border(0.5.dp, Color.White, RectangleShape) // Add white border
-                            .size(50.dp, 35.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack, // Use built-in icon for previous
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
-
-                    // Page Number Buttons
-                    val visiblePageNumbers = 3
-                    val startPage = max(0, currentPage - visiblePageNumbers / 2)
-                    val endPage = min(maxSlides, startPage + visiblePageNumbers - 1)
-
-                    if (startPage > 0) {
-                        // Display "..." if there are more pages to the left
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    color = if (currentPage == endPage) Color(0xFF8A191D) else Color(
-                                        0xFFDEB841
-                                    ),
-                                    shape = RectangleShape // Use RectangleShape for square buttons
-                                )
-                                .border(0.5.dp, Color.White, RectangleShape) // Add white border
-                                .size(35.dp, 35.dp),
-                        ) {
-                            Text(
-                                text = "...",
-                                color = Color.White,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                    }
-
-                    for (page in startPage..endPage) {
-                        Box(
-                            modifier = Modifier
-                                .clickable {
-                                    currentPage = page
-                                    currentText = displayText[currentPage]
-                                }
-                                .background(
-                                    color = if (page == currentPage) Color(0xFF8A191D) else Color(
-                                        0xFFDEB841
-                                    ),
-                                    shape = RectangleShape // Use RectangleShape for square buttons
-                                )
-                                .border(0.5.dp, Color.White, RectangleShape) // Add white border
-                                .size(30.dp, 35.dp),
-                        ) {
-                            Text(
-                                text = (page + 1).toString(),
-                                color = Color.White,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                    }
-
-                    // "..." Box with Border
-                    if (endPage < maxSlides - 0.5) {
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    color = Color(0xFFDEB841),
-                                    shape = RectangleShape // Use RectangleShape for square buttons
-                                )
-                                .border(0.5.dp, Color.White, RectangleShape) // Add white border
-                                .size(35.dp, 35.dp),
-                        ) {
-                            Text(
-                                text = "...",
-                                color = Color.White,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                    }
-
-                    // Next Page Button
-                    Box(
-                        modifier = Modifier
-                            // Add logging statements in the "Next Page Button" click listener
-                            .clickable {
-                                if (currentPage < maxSlides) {
-                                    currentPage += 1
-                                    currentText = displayText[currentPage]
-                                    Log.d("NextPageButton", "Navigating to page $currentPage")
-                                } else {
-                                    startGoTimeScreen(navController)
-                                    Log.d("NextPageButton", "Navigating to GoTimeScreen")
-                                }
-                            }
-                            .background(
-                                color = Color(0xFFDEB841),
-                                shape = RectangleShape // Use RectangleShape for square buttons
-                            )
-                            .border(0.5.dp, Color.White, RectangleShape) // Add white border
-                            .size(50.dp, 35.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowForward, // Use built-in icon for next
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
-                }
-
-                Button(
-                    onClick = { startGoTimeScreen(navController) },
-                    modifier = Modifier
-                        .border(1.5.dp, Color(0xFF8A191D), RoundedCornerShape(30.dp))
-                        .align(Alignment.End),
-                    elevation = ButtonDefaults.buttonElevation(
-                        pressedElevation = 6.dp
-                    ),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                    )
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = "Skip", color = Color(0xFF8A191D), fontWeight = FontWeight.Bold)
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowRight,
-                            contentDescription = null,
-                            tint = Color(0xFF8A191D),
-                        )
-                    }
                 }
             }
-            else {
-                Text(
-                    text = currentText.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(bottom = 50.dp)
-                )
-                Button(
-                    onClick = { startGoTimeScreen(navController) },
-                    shape = RoundedCornerShape(7.dp),
+
+            // Page Indicator
+            Row(
+                modifier = Modifier.padding(top = 15.dp, bottom = 20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Previous Page Button
+                Box(
                     modifier = Modifier
-                        .border(1.5.dp, Color(0xFF8A191D), RoundedCornerShape(30.dp))
-                        .height(60.dp)
-                        .width(150.dp),
-                    elevation = ButtonDefaults.buttonElevation(
-                        pressedElevation = 6.dp
-                    ),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = Color(0xFF8A191D)
+                        .clickable {
+                            if (currentPage > 0) {
+                                currentPage -= 1
+                                currentText = displayText[currentPage]
+                            }
+                        }
+                        .background(
+                            color = Color(0xFFDEB841),
+                            shape = RectangleShape // Use RectangleShape for square buttons
+                        )
+                        .border(0.5.dp, Color.White, RectangleShape) // Add white border
+                        .size(50.dp, 35.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack, // Use built-in icon for previous
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.align(Alignment.Center)
                     )
-                ){
-                    Text(text = "Next",
-                        style = MaterialTheme.typography.bodyLarge,
-//                        fontWeight = FontWeight.Bold
+                }
+
+                // Page Number Buttons
+                val visiblePageNumbers = 3
+                val startPage = max(0, currentPage - visiblePageNumbers / 2)
+                val endPage = min(maxSlides, startPage + visiblePageNumbers - 1)
+
+                if (startPage > 0) {
+                    // Display "..." if there are more pages to the left
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = Color(0xFFDEB841),
+                                shape = RectangleShape // Use RectangleShape for square buttons
+                            )
+                            .border(0.5.dp, Color.White, RectangleShape) // Add white border
+                            .size(35.dp, 35.dp),
+                    ) {
+                        Text(
+                            text = "...",
+                            color = Color.White,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                }
+
+                for (page in startPage..endPage) {
+                    Box(
+                        modifier = Modifier
+                            .clickable {
+                                currentPage = page
+                                currentText = displayText[currentPage]
+                            }
+                            .background(
+                                color = if (page == currentPage) Color(0xFF8A191D) else Color(
+                                    0xFFDEB841
+                                ),
+                                shape = RectangleShape // Use RectangleShape for square buttons
+                            )
+                            .border(0.5.dp, Color.White, RectangleShape) // Add white border
+                            .size(30.dp, 35.dp),
+                    ) {
+                        Text(
+                            text = (page + 1).toString(),
+                            color = Color.White,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                }
+
+                // "..." Box with Border
+                if (endPage < maxSlides - 0.5) {
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = Color(0xFFDEB841),
+                                shape = RectangleShape // Use RectangleShape for square buttons
+                            )
+                            .border(0.5.dp, Color.White, RectangleShape) // Add white border
+                            .size(35.dp, 35.dp),
+                    ) {
+                        Text(
+                            text = "...",
+                            color = Color.White,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                }
+
+                // Next Page Button
+                Box(
+                    modifier = Modifier
+                        // Add logging statements in the "Next Page Button" click listener
+                        .clickable {
+                            if (currentPage < maxSlides) {
+                                currentPage += 1
+                                currentText = displayText[currentPage]
+                                Log.d("NextPageButton", "Navigating to page $currentPage")
+                            } else {
+                                startGoTimeScreen(navController)
+                                Log.d("NextPageButton", "Navigating to GoTimeScreen")
+                            }
+                        }
+                        .background(
+                            color = Color(0xFFDEB841),
+                            shape = RectangleShape // Use RectangleShape for square buttons
+                        )
+                        .border(0.5.dp, Color.White, RectangleShape) // Add white border
+                        .size(50.dp, 35.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowForward, // Use built-in icon for next
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.align(Alignment.Center)
                     )
+                }
+            }
+
+            Button(
+                onClick = { startGoTimeScreen(navController) },
+                modifier = Modifier
+                    .border(1.5.dp, Color(0xFF8A191D), RoundedCornerShape(30.dp))
+                    .align(Alignment.End),
+                elevation = ButtonDefaults.buttonElevation(
+                    pressedElevation = 6.dp
+                ),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Skip", color = Color(0xFF8A191D), fontWeight = FontWeight.Bold)
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowRight,
                         contentDescription = null,
@@ -381,11 +345,6 @@ object tutorialText{
             "Need Help?",
             R.drawable.tutorial13,
             "Click on the help button if you want to learn more or return to the tutorial."
-        ),
-        tutorialInfo(
-            "Good Luck!",
-            null,
-            null
         )
     )
 }

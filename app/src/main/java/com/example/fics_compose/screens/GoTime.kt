@@ -67,9 +67,6 @@ fun GoTimeCard(navController: NavController){
                     .border(1.5.dp, Color(0xFF8A191D), RoundedCornerShape(30.dp))
                     .height(60.dp)
                     .width(150.dp),
-                elevation = ButtonDefaults.buttonElevation(
-                    pressedElevation = 6.dp
-                ),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = Color(0xFF8A191D)
