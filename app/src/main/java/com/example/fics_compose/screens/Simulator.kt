@@ -14,12 +14,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -146,11 +151,26 @@ fun SimulatorCard(
     var numOfBonds by remember { mutableIntStateOf(userInfo.numBonds) }
     var currentBond by remember { mutableStateOf(bonds[i]) }
 
-    var month by remember { mutableIntStateOf(userInfo.month+1) }
+    var month by remember { mutableIntStateOf(userInfo.month + 1) }
     val currContext = LocalContext.current
 
     val database = DatabaseBuilder.getDatabase(currContext)
     val dao = database.historyDAO()
+
+    var showAlertDialog by remember { mutableStateOf(false) }
+
+    if (showAlertDialog) {
+        val randomInt = Random.nextInt(3, userInfo.investList.size - 1)
+        val randomBondTitle = userInfo.investList[randomInt].bondTitle
+        ShowAlertDialog(
+            randomBondTitle = randomBondTitle,
+            onSkip = {
+                startPortfolioScreen(navController, userInfo)
+                userInfo.defaultRisk(randomInt)
+                showAlertDialog = false
+            }
+        )
+    }
 
     Spacer(modifier = Modifier.width(8.dp))
 
@@ -178,7 +198,7 @@ fun SimulatorCard(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            IconButton(onClick = { startPortfolioScreen(navController,userInfo) }) {
+            IconButton(onClick = { startPortfolioScreen(navController, userInfo) }) {
                 Icon(Icons.Filled.ShoppingCart, contentDescription = "Investment List")
             }
         }
@@ -215,10 +235,9 @@ fun SimulatorCard(
                             gains = userInfo.totalGains,
                             trades = userInfo.trades
                         )
-                        scope.launch{
-                            insertHistory(usrHistory,dao)
+                        scope.launch {
+                            insertHistory(usrHistory, dao)
                         }
-
 
                         //note:START HISTORY SCREEN WHEN SIM FINISHES
                         startHistoryScreen(navController)
@@ -239,27 +258,8 @@ fun SimulatorCard(
                             }
                         }
                     }
-                    if (month == 5) {
-                        val randomInt = Random.nextInt(1, userInfo.investList.size)
-                        val randomBondTitle = userInfo.investList[randomInt].bondTitle
-                        scope.launch {
-                            val result = snackbarHostState
-                                .showSnackbar(
-                                    message = "Oh no! In a shocking turn of events, $randomBondTitle has " +
-                                            "encountered a credit risk crisis and must default on their bonds. Their bonds " +
-                                            "are worth basically nothing now, so let’s take it off of your hands and out of " +
-                                            "your portfolio value.",
-                                    actionLabel = "OK",
-                                    duration = SnackbarDuration.Indefinite
-                                )
-                            when (result) {
-                                SnackbarResult.ActionPerformed -> {
-                                    startPortfolioScreen(navController, userInfo)
-                                    userInfo.defaultRisk(randomInt)
-                                }
-                                SnackbarResult.Dismissed -> {}
-                            }
-                        }
+                    if (month == 7) {
+                        showAlertDialog = true
                     }
                 }
             )
@@ -399,7 +399,6 @@ fun BondCard(
                 numBonds = 0
                 userInfo.incrementTrades()
 
-//                var bondInfo: List<Any> = mutableListOf(bond.title,bond.price,bond.interestRate, numberOfBonds.toDouble())
                 var bondInfo = BondInfo(bond.title, bond.price, bond.interestRate, numberOfBonds)
                 userInfo.investList.add(bondInfo)
                 Log.d("investList","{${userInfo.investList.toList()}}")
@@ -436,8 +435,6 @@ fun NumericInputField(value: Int, onValueChange: (Int) -> Unit) {
     )
 }
 
-//add 12 instances of data class for each month, 3 for testing for now
-//data class setup for testing with Sowjan's timer functionality
 object TestData{
     val testDataList = listOf(
         BondOption(
@@ -538,6 +535,44 @@ private fun ShowDialog (
     }
 }
 
+@Composable
+private fun ShowAlertDialog(randomBondTitle: String, onSkip: () -> Unit) {
+    val showDialog = remember { mutableStateOf(true) }
+
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                showDialog.value = false
+                onSkip()
+            },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Uh Oh!")
+                }
+            },
+            text = {
+                Text(
+                    text = "Oh no! In a shocking turn of events, $randomBondTitle has " +
+                            "encountered a credit risk crisis and must default on their bonds. Their bonds " +
+                            "are worth basically nothing now, so let’s take it off of your hands and out of " +
+                            "your portfolio value."
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDialog.value = false
+                        onSkip()
+                    },
+                ) {
+                    Text("Ok")
+                }
+            }
+        )
+    }
+}
+
 //TODO: Replace Toast Msg with Dialog Boxes 2in Final
 private fun toastMessages(context: Context, flg:String) {
     when (flg) {
@@ -552,11 +587,6 @@ fun startHistoryScreen(navController:NavController){
 }
 
 fun startPortfolioScreen(navController: NavController, portfolio: usrInfo){
-    navController.currentBackStackEntry?.savedStateHandle?.set("portfolio", portfolio)
-    navController.navigate(InternalNav.Portfolio.route)
-}
-
-fun startRiskPortfolioScreen(navController: NavController, portfolio: usrInfo) {
     navController.currentBackStackEntry?.savedStateHandle?.set("portfolio", portfolio)
     navController.navigate(InternalNav.Portfolio.route)
 }
