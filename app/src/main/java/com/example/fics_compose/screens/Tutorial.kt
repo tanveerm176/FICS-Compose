@@ -1,5 +1,6 @@
 package com.example.fics_compose.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,11 +20,11 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absolutePadding
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -37,16 +38,17 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fics_compose.R
 import com.example.fics_compose.WelcomeNav
 import com.example.fics_compose.ui.theme.lightGray
 import com.example.fics_compose.ui.theme.yellow
+import kotlin.math.max
+import kotlin.math.min
 
 @Composable
 fun TutorialScreen(navController: NavController) {
@@ -68,42 +70,51 @@ fun TutorialCard(
     Box(
         modifier = Modifier
             .background(color = lightGray)
-            .fillMaxHeight()
             .fillMaxWidth(),
     ) {
         Column(
             modifier = Modifier
-                .padding(30.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(30.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                modifier = Modifier.padding(top = 6.dp),
+                modifier = Modifier.padding(top=6.dp),
                 text = currentText.title,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
-            Image(
-                painter = painterResource(id = currentText.img),
-                contentDescription = null,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .size(252.dp)
-                    .clip(MaterialTheme.shapes.medium)
-            )
-
+                    .size(width = 200.dp, height = 200.dp)
+                    .background(Color.Transparent) // Optional: Add a background color for clarity
+            ) {
+                Image(
+                    painter = painterResource(id = currentText.img!!),
+                    contentDescription = "Image",
+                    modifier = Modifier
+                        .fillMaxSize() // Fill the entire Box with the Image
+                )
+            }
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(color = yellow, shape = RectangleShape)
-                    .absolutePadding(top = 6.dp, bottom = 13.dp)
+                    .absolutePadding(top = 4.dp, bottom = 4.dp)
                     .border(1.5.dp, Color.White)
+                    .size(width = 200.dp, height = 260.dp)
             ) {
                 Box(
                     modifier = Modifier
-//                        .background(color = yellow)
-                        .absolutePadding(left = 8.dp, top = 28.dp, bottom = 28.dp)
-                        .wrapContentWidth(Alignment.Start)
+                        .fillMaxSize()
+                        .absolutePadding(left = 10.dp, right = 10.dp),
+                    contentAlignment = Alignment.CenterStart
                 ) {
                     Text(
-                        text = currentText.description,
+                        text = currentText.description!!,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(5.dp)
                     )
                 }
@@ -111,7 +122,7 @@ fun TutorialCard(
 
             // Page Indicator
             Row(
-                modifier = Modifier.padding(top = 17.dp, bottom = 26.dp),
+                modifier = Modifier.padding(top = 15.dp, bottom = 20.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 // Previous Page Button
@@ -127,8 +138,8 @@ fun TutorialCard(
                             color = Color(0xFFDEB841),
                             shape = RectangleShape // Use RectangleShape for square buttons
                         )
-                        .border(1.dp, Color.White, RectangleShape) // Add white border
-                        .size(42.dp, 50.dp),
+                        .border(0.5.dp, Color.White, RectangleShape) // Add white border
+                        .size(50.dp, 35.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack, // Use built-in icon for previous
@@ -139,7 +150,30 @@ fun TutorialCard(
                 }
 
                 // Page Number Buttons
-                for (page in 0 until maxSlides + 1) {
+                val visiblePageNumbers = 3
+                val startPage = max(0, currentPage - visiblePageNumbers / 2)
+                val endPage = min(maxSlides, startPage + visiblePageNumbers - 1)
+
+                if (startPage > 0) {
+                    // Display "..." if there are more pages to the left
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = Color(0xFFDEB841),
+                                shape = RectangleShape // Use RectangleShape for square buttons
+                            )
+                            .border(0.5.dp, Color.White, RectangleShape) // Add white border
+                            .size(35.dp, 35.dp),
+                    ) {
+                        Text(
+                            text = "...",
+                            color = Color.White,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                }
+
+                for (page in startPage..endPage) {
                     Box(
                         modifier = Modifier
                             .clickable {
@@ -152,8 +186,8 @@ fun TutorialCard(
                                 ),
                                 shape = RectangleShape // Use RectangleShape for square buttons
                             )
-                            .border(1.dp, Color.White, RectangleShape) // Add white border
-                            .size(42.dp, 50.dp),
+                            .border(0.5.dp, Color.White, RectangleShape) // Add white border
+                            .size(30.dp, 35.dp),
                     ) {
                         Text(
                             text = (page + 1).toString(),
@@ -163,23 +197,45 @@ fun TutorialCard(
                     }
                 }
 
+                // "..." Box with Border
+                if (endPage < maxSlides - 0.5) {
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = Color(0xFFDEB841),
+                                shape = RectangleShape // Use RectangleShape for square buttons
+                            )
+                            .border(0.5.dp, Color.White, RectangleShape) // Add white border
+                            .size(35.dp, 35.dp),
+                    ) {
+                        Text(
+                            text = "...",
+                            color = Color.White,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                }
+
                 // Next Page Button
                 Box(
                     modifier = Modifier
+                        // Add logging statements in the "Next Page Button" click listener
                         .clickable {
                             if (currentPage < maxSlides) {
                                 currentPage += 1
                                 currentText = displayText[currentPage]
+                                Log.d("NextPageButton", "Navigating to page $currentPage")
                             } else {
                                 startGoTimeScreen(navController)
+                                Log.d("NextPageButton", "Navigating to GoTimeScreen")
                             }
                         }
                         .background(
                             color = Color(0xFFDEB841),
                             shape = RectangleShape // Use RectangleShape for square buttons
                         )
-                        .border(1.dp, Color.White, RectangleShape) // Add white border
-                        .size(42.dp, 50.dp),
+                        .border(0.5.dp, Color.White, RectangleShape) // Add white border
+                        .size(50.dp, 35.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowForward, // Use built-in icon for next
@@ -216,40 +272,11 @@ fun TutorialCard(
             }
         }
     }
-//    Column {
-//        Text(text = currentText.title)
-//        Text(text = currentText.description)
-//
-//        Row {
-//            Button(onClick = { startGoTimeScreen(navController) }) {
-//                Text(text = "SKIP")
-//            }
-//
-//            Button(onClick = {
-//                if (i==maxSlides)
-//                {
-//                    startGoTimeScreen(navController)
-//
-//                }
-//                else{
-//                    i += 1
-//                    currentText = displayText[i]
-//                }
-//
-//            })
-//            { Text(text = "NEXT") }
-//
-//
-//        }
-//
-//
-//    }
 }
-
 data class tutorialInfo(
-    val title:String,
-    val img:Int,
-    val description:String
+    val title: String,
+    val img: Int?,
+    val description: String?
 )
 
 object tutorialText{
@@ -257,41 +284,68 @@ object tutorialText{
         tutorialInfo(
             title = "How to Play",
             img = R.drawable.tutorial1,
-            description = "Follow the tutorial to learn about the buttons and metrics to make your experience smooth"
+            description = "Follow the tutorial to learn about the buttons and metrics to make your experience smooth."
         ),
         tutorialInfo(
             "The Goal",
             R.drawable.tutorial2,
             "You have been given \$10,000 and a goal: to make as much money at the end of 12 months as you can. ",
         ),
-//        tutorialInfo(
-//            "Key Metrics" ,
-//            "a. Note your net worth, investments, federal funds rate, and wallet.",
-//        ),
-//        tutorialInfo(
-//            "Net Worth [ICON: NET WORTH CARD SCREENSHOT]",
-//            "a. Your net worth is the combined value of your wallet and investments.",
-//        ),
-//        tutorialInfo(
-//            "Investments [ICON: INVESTMENTS CARD SCREENSHOT]",
-//            "a. Your investments is the sum of the number of bonds multiplied by each of their prices.",
-//        ),
-//        tutorialInfo(
-//            "Wallet [ICON: WALLET CARD SCREENSHOT]",
-//            "a. Keep track of your wallet, which tells you how much cash you have on hand to invest instantaneously.,
-//        ),
-//        tutorialInfo(
-//            "Fed Funds Rate [ICON: FED FUNDS RATE CARD SCREENSHOT]",
-//            "a. The fed funds rate is the interest rate of the federal government, which indicates how well the economy is performing. High fed funds rate means lower bond prices, or a weaker economy. Low fed funds rate means higher bond prices, or a strong economy.",
-//        ),
-//        tutorialInfo(
-//            "Here’s an introduction to bonds: ",
-//            "a. Bonds provide a way for governments and companies to raise capital for various purposes, such as funding infrastructure projects or expanding business operations. Investors, in turn, are attracted to bonds for their fixed income stream and relative stability compared to more volatile investments like stocks. However, it's important to note that the value of bonds can fluctuate in response to changes in interest rates and other market conditions.",
-//        ),
-//        tutorialInfo(
-//            "Bond Transactions",
-//            "a. How does a bond transaction work: When an entity issues a bond, it essentially borrows money from bondholders. The bondholder, in turn, becomes a creditor to the issuer. In exchange for lending their money, bondholders receive periodic interest payments (referred to as coupon payments) and, upon maturity, the return of the principal amount they initially invested.",
-//        ),
+        tutorialInfo(
+            "Key Metrics" ,
+            R.drawable.tutorial3,
+            "Note your net worth, investments, federal funds rate, and wallet.",
+        ),
+        tutorialInfo(
+            "Net Worth",
+            R.drawable.tutorial4,
+            "Your net worth is the combined value of your wallet and investments.",
+        ),
+        tutorialInfo(
+            "Investments",
+            R.drawable.tutorial5,
+            "Your investments is the sum of the number of bonds multiplied by each of their prices.",
+        ),
+        tutorialInfo(
+            "Wallet",
+            R.drawable.tutorial6,
+            "Keep track of your wallet, which tells you how much cash you have on hand to invest instantaneously.",
+        ),
+        tutorialInfo(
+            "Fed Funds Rate",
+            R.drawable.tutorial7,
+            "The fed funds rate is the interest rate of the federal government, which indicates how well the economy is performing. High fed funds rate means lower bond prices, or a weaker economy. Low fed funds rate means higher bond prices, or a strong economy.",
+        ),
+        tutorialInfo(
+            "An Intro to Bonds ",
+            R.drawable.tutorial8,
+            "Bonds provide a way for governments and companies to raise capital for various purposes, such as funding infrastructure projects or expanding business operations. Investors, in turn, are attracted to bonds for their fixed income stream and relative stability compared to more volatile investments like stocks. However, it's important to note that the value of bonds can fluctuate in response to changes in interest rates and other market conditions.",
+        ),
+        tutorialInfo(
+            "Bond Transactions",
+            R.drawable.tutorial9,
+            "How does a bond transaction work: When an entity issues a bond, it essentially borrows money from bondholders. The bondholder, in turn, becomes a creditor to the issuer. In exchange for lending their money, bondholders receive periodic interest payments (referred to as coupon payments) and, upon maturity, the return of the principal amount they initially invested.",
+        ),
+        tutorialInfo(
+            "How to Invest",
+            R.drawable.tutorial10,
+            "To invest, select the number of bonds you want to buy and click the buy button."
+        ),
+        tutorialInfo(
+            "Check your portfolio",
+            R.drawable.tutorial11,
+            "If you want to see your whole portfolio of bonds you already bought, click on the shopping cart. There, you can also sell bonds from your portfolio. That money will go back into your wallet."
+        ),
+        tutorialInfo(
+            "Your Goal",
+            R.drawable.tutorial12,
+            "The goal is to maximize your net worth by diversifying your portfolio and buying bonds at the best time. Buy at low price, sell at high price."
+        ),
+        tutorialInfo(
+            "Need Help?",
+            R.drawable.tutorial13,
+            "Click on the help button if you want to learn more or return to the tutorial."
+        )
     )
 }
 
