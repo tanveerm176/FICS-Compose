@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,8 +33,13 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.fics_compose.BondInfo
 import com.example.fics_compose.InternalNav
@@ -51,8 +58,9 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PortfolioTopAppBar(user: usrInfo?, navController:NavController) {
-    var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+fun PortfolioTopAppBar(user: usrInfo?, navController: NavController) {
+    var scrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
         topBar = {
@@ -90,8 +98,6 @@ fun PortfolioTopAppBar(user: usrInfo?, navController:NavController) {
         ) { innerPadding ->
         if (user != null) {
             Column(modifier = Modifier.padding(innerPadding)) {
-
-                userCard(user = user)
                 PortfolioScreen(user)
 
             }
@@ -99,49 +105,51 @@ fun PortfolioTopAppBar(user: usrInfo?, navController:NavController) {
     }
 }
 
+@Composable
+fun PortfolioScreen(user: usrInfo) {
+    userCard(user = user)
+    BondScreen(user = user)
+}
 
 @Composable
-fun userCard(user:usrInfo){
-//    Surface(shape = MaterialTheme.shapes.medium, shadowElevation = 8.dp) {
-//        Row(
-//            modifier = Modifier
-//                .background(Color.Black)
-//                .fillMaxWidth()
-//                .padding(4.dp),
-//            verticalAlignment = Alignment.CenterVertically,
-//            horizontalArrangement = Arrangement.spacedBy(5.dp)
-//        ) {
+fun userCard(user: usrInfo) {
+    val varUser by remember {
+        mutableStateOf<usrInfo>(user)
+    }
 
-            Column {
-                Text(
-                    text = "Wallet: $${user.wallet}",
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 15.sp,
-                    //add color to text
-                    color = Color(0xFFDEB841),
-                    //change size of text
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(all = 5.dp),
-                    textAlign = TextAlign.Center
-                )
+    Card {
+        Column {
+            Text(
+                text = "Wallet: $${varUser.wallet}",
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 15.sp,
+                //add color to text
+                color = Color(0xFFDEB841),
+                //change size of text
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(all = 5.dp),
+                textAlign = TextAlign.Center
+            )
 
-                Text(
-                    text = "Investments: $${
-                        user.investment
-                    }",
-                    color = Color(0xFFDEB841),
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 15.sp,
-                    //change size of text
-                    style = MaterialTheme.typography.titleMedium,
-                    //add padding to body text
-                    modifier = Modifier.padding(all = 5.dp),
-                    textAlign = TextAlign.Center
-                )
+            Text(
+                text = "Investments: $${
+                    varUser.investment
+                }",
+                color = Color(0xFFDEB841),
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 15.sp,
+                //change size of text
+                style = MaterialTheme.typography.titleMedium,
+                //add padding to body text
+                modifier = Modifier.padding(all = 5.dp),
+                textAlign = TextAlign.Center
+            )
+        }
 
+        /*
                 Text(
                     text = "Net Worth: $${
-                        user.calcNetWorth(user.wallet,user.investment)
+                        user.calcNetWorth(user.wallet, user.investment)
                     }",
                     color = Color(0xFFDEB841),
                     fontWeight = FontWeight.ExtraBold,
@@ -163,63 +171,55 @@ fun userCard(user:usrInfo){
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(all = 5.dp),
                     textAlign = TextAlign.Center
-                )
-            }
-        }
-//    }
-    
-//}
+                )*/
+    }
+}
+
 
 @Composable
-fun PortfolioScreen(user: usrInfo?) {
+fun BondScreen(user: usrInfo?) {
     if (user != null) {
-        PortfolioList(portfolio = user.investList, user)
+        BondList(portfolio = user.investList, user)
     }
 }
 
 
 @Composable
-fun PortfolioList(portfolio: SnapshotStateList<BondInfo>, user: usrInfo) {
+fun BondList(portfolio: SnapshotStateList<BondInfo>, user: usrInfo) {
     LazyColumn {
-        itemsIndexed(portfolio) {index, bondPurchased ->
-            PortfolioCard(bondPurchased, index, user)
+        itemsIndexed(portfolio) { index, bondPurchased ->
+            BondCard(bondPurchased, index, user)
         }
     }
 }
 
 
 @Composable
-fun PortfolioCard(bondPurchased: BondInfo, index:Int, user: usrInfo){
-//    var reloadUserCard by remember {
-//        mutableStateOf(false)
-//    }
-//
-//    var reloadUser by remember {
-//        mutableStateOf(user)
-//    }
+fun BondCard(bondPurchased: BondInfo, index: Int, user: usrInfo) {
 
-//    val bondTitle:String = bondPurchased[0].toString()
-//    val bondPrice:Double = bondPurchased[1].toString().toDouble()
-//    val bondRate = bondPurchased[2].toString().toDouble()
-//    val numBonds = bondPurchased[3].toString().toDouble()
+    var bondSold by remember {
+        mutableStateOf(false)
+    }
 
     val bondTitle = bondPurchased.bondTitle
     val bondPrice = bondPurchased.bondPrice
     val bondRate = bondPurchased.interestRate
     val numBonds = bondPurchased.numberOfBonds
 
-    Log.d("bond","Bond Price: $bondPrice at interest rate $bondRate")
+    Log.d("bond", "Bond Price: $bondPrice at interest rate $bondRate")
     val cardColor = if (bondPrice == 0.0 && bondRate == 0.0) {
         Color(android.graphics.Color.parseColor("#FF7F7F"))
     } else {
         Color.LightGray
     }
 
-//
-//    if (reloadUserCard){
-//        userCard(user = reloadUser)
-//    }
-    Row(modifier = Modifier.fillMaxWidth()){
+    if (bondSold) {
+        modifyUser(user, bondPrice, numBonds)
+    }
+
+
+
+    Row(modifier = Modifier.fillMaxWidth()) {
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Spacer(modifier = Modifier.height(6.dp))
@@ -227,7 +227,11 @@ fun PortfolioCard(bondPurchased: BondInfo, index:Int, user: usrInfo){
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Surface(shape = MaterialTheme.shapes.medium, shadowElevation = 8.dp, color = Color.Transparent){
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                shadowElevation = 8.dp,
+                color = Color.Transparent
+            ) {
                 Row(
                     modifier = Modifier
                         .background(cardColor)
@@ -237,13 +241,13 @@ fun PortfolioCard(bondPurchased: BondInfo, index:Int, user: usrInfo){
                     horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
 
-                    Column{
+                    Column {
                         Text(
                             text = "Bond Title: $bondTitle",
                             color = Color.Black,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleSmall,
 
-                        );
+                            );
                         Text(
                             text = "Price: $$bondPrice",
                             color = Color.Black,
@@ -265,18 +269,15 @@ fun PortfolioCard(bondPurchased: BondInfo, index:Int, user: usrInfo){
                         modifier = Modifier.padding(all = 5.dp),
                         onClick = {
 
-                            user.wallet += (bondPrice*numBonds)
                             user.investList.removeAt(index)
+
+                            bondSold = true
 
                             // TODO: When selling a defaulted bond, display a snackbar or alert box.
 
-//                            val newUser = modifyUser(user,bondPrice,numBonds)
-//                            reloadUser = newUser
-//                            reloadUserCard = !reloadUserCard
+                            Log.d("bondSold", "Bond Sold: $bondTitle at index $index")
 
-                            Log.d("bondSold","Bond Sold: $bondTitle at index $index")
-
-                            Log.d("sellBond","{${user.investList.toList()}}")
+                            Log.d("sellBond", "{${user.investList.toList()}}")
                         }
                     ) {
                         Text(
@@ -290,14 +291,15 @@ fun PortfolioCard(bondPurchased: BondInfo, index:Int, user: usrInfo){
     }
 }
 
-fun modifyUser(user: usrInfo, bondPrice:Double, numBonds:Double): usrInfo{
+@Composable
+fun modifyUser(user: usrInfo, bondPrice: Double, numBonds: Int) {
     user.wallet += (bondPrice * numBonds)
     user.incrementTrades()
-
-    return user
+    Log.d("wallet", "${user.wallet}")
+    userCard(user = user)
 }
 
-fun returnToSimulator(navController: NavController, user:usrInfo){
-    navController.currentBackStackEntry?.savedStateHandle?.set("user",user)
+fun returnToSimulator(navController: NavController, user: usrInfo) {
+    navController.currentBackStackEntry?.savedStateHandle?.set("user", user)
     navController.navigate(InternalNav.Simulator.route)
 }

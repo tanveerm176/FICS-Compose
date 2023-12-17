@@ -90,7 +90,8 @@ fun SimulatorTopAppBar(navController: NavController, user: usrInfo? = null) {
                     Box(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             modifier = Modifier.align(Alignment.CenterStart),
-                            text = "FICS Simulator"
+                            text = "FICS Simulator",
+                            style = MaterialTheme.typography.titleSmall
                         )
                         Button(
                             onClick = { showHelp.value = true },

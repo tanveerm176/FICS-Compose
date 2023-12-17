@@ -56,7 +56,7 @@ fun HistoryTopAppBar() {
                 ),
                 title = {
                     Box(modifier = Modifier.fillMaxWidth()) {
-                        Text("History")
+                        Text("History", style = MaterialTheme.typography.titleSmall)
                     }
                 }
             )
@@ -112,7 +112,7 @@ fun HistoryCard(history: HistoryItem){
             Text(
                 text = "Number of Trades: ${history.trades}",
                 color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleSmall
             );
 
             Spacer(modifier = Modifier.height(4.dp))
