@@ -419,28 +419,6 @@ fun BondCard(
                     color = Color(0xFF8a191f),
                     style = MaterialTheme.typography.labelMedium
                 )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp)
-                ) {
-                    // First column
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 10.dp, end = 10.dp)
-                    ) {
-                        WhiteBox("Interest Rate", "$bondRate%")
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 5.dp, end = 5.dp)
-                    ) {
-                        WhiteBox("Monthly Return", "$month")
-                    }
-                }
                 Text(
                     text = "Price: $" + bond.price,
                     modifier = Modifier.padding(all = 5.dp),
