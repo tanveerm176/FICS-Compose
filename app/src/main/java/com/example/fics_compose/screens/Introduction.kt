@@ -100,12 +100,13 @@ fun IntroCard(
                     .background(color = yellow,shape = RectangleShape)
                     .absolutePadding(top = 6.dp, bottom = 13.dp)
                     .border(1.5.dp, Color.White)
+                    .size(width = 200.dp, height = 160.dp)
             ) {
                 Box(
                     modifier = Modifier
 //                        .background(color = yellow)
-                        .absolutePadding(left = 8.dp, top = 28.dp, bottom = 28.dp)
-                        .wrapContentWidth(Alignment.Start)
+                        .absolutePadding(left = 8.dp, top = 28.dp, bottom = 28.dp),
+                    contentAlignment = Alignment.CenterStart
                 ) {
                     Text(
                         text = currentText.description,

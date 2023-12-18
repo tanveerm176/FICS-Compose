@@ -439,7 +439,7 @@ fun PortfolioCard(
                             Text(
                                 text = "$bondTitle",
                                 color = Color.Black,
-                                style = MaterialTheme.typography.labelLarge,
+                                style = MaterialTheme.typography.labelMedium,
                             )
                         }
                         // Divider
