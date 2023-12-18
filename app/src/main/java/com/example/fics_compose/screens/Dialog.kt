@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -71,6 +72,7 @@ fun SimulatorDialog(
                     }
                     Text(
                         text = title,
+                        style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp,
                         modifier = Modifier.padding(16.dp),
@@ -78,6 +80,7 @@ fun SimulatorDialog(
                     )
                     Text(
                         text = info,
+                        style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(16.dp),
                     )
                     Row(

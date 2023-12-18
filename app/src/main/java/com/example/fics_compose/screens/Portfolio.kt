@@ -1,12 +1,18 @@
 package com.example.fics_compose.screens
 
 import android.util.Log
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,13 +20,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -49,7 +62,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -57,80 +74,82 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.fics_compose.BondInfo
 import com.example.fics_compose.InternalNav
+import com.example.fics_compose.R
 import com.example.fics_compose.UserInfo
+import com.example.fics_compose.ui.theme.lightGray
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PortfolioTopAppBar(user: UserInfo?, navController:NavController) {
-    var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    var observedUser by remember { mutableStateOf(user) }
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun PortfolioTopAppBar(user: UserInfo?, navController:NavController) {
+//    var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+//    var observedUser by remember { mutableStateOf(user) }
+//
+//    Scaffold(
+//        topBar = {
+//            TopAppBar(
+//                colors = TopAppBarDefaults.smallTopAppBarColors(
+//                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+//                    titleContentColor = MaterialTheme.colorScheme.secondary,
+//                ),
+//                title = {
+//                    Box(modifier = Modifier.fillMaxWidth()) {
+//                        Text("Current Portfolio")
+//                    }
+//                },
+//
+//                navigationIcon = {
+//                    IconButton(
+//                        onClick = {
+//                            if (user != null) {
+//                                returnToSimulator(navController, user)
+//                            }
+//                            if (user != null) {
+//                                Log.d("current invest-list", "${user.investList.toList()}")
+//                            }
+//                        }
+//                    ) {
+//                        Icon(
+//                            imageVector = Icons.Filled.ArrowBack,
+//                            contentDescription = null
+//                        )
+//                    }
+//                }
+//            )
+//            scrollBehavior = scrollBehavior
+//        },
+//
+//        ) { innerPadding ->
+//        if (user != null) {
+//            Column(modifier = Modifier.padding(innerPadding)) {
+//                PortfolioScreen(user)
+//            }
+//        }
+//    }
+//}
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.smallTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.secondary,
-                ),
-                title = {
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        Text("Current Portfolio")
-                    }
-                },
-
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            if (user != null) {
-                                returnToSimulator(navController, user)
-                            }
-                            if (user != null) {
-                                Log.d("current invest-list", "${user.investList.toList()}")
-                            }
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
-            )
-            scrollBehavior = scrollBehavior
-        },
-
-        ) { innerPadding ->
-        if (user != null) {
-            Column(modifier = Modifier.padding(innerPadding)) {
-                PortfolioScreen(user)
-            }
-        }
-    }
-}
-
-@Composable
-fun PortfolioScreen(user: UserInfo) {
-    val wallet = remember {
-        mutableDoubleStateOf(user.wallet)
-    }
-    val investments = remember {
-        mutableDoubleStateOf(user.investments)
-    }
-    val netWorth = remember {
-        mutableDoubleStateOf(user.netWorth)
-    }
-    val monthlyReturn = remember {
-        mutableDoubleStateOf(user.monthlyReturn)
-    }
-    userCard(wallet, investments, netWorth, monthlyReturn)
-    LazyColumn {
-        itemsIndexed(user.investList) {index, bondPurchased ->
-            PortfolioCard(bondPurchased, index, user, wallet, investments, netWorth, monthlyReturn)
-        }
-    }
-}
+//@Composable
+//fun PortfolioScreen(user: UserInfo) {
+//    val wallet = remember {
+//        mutableDoubleStateOf(user.wallet)
+//    }
+//    val investments = remember {
+//        mutableDoubleStateOf(user.investments)
+//    }
+//    val netWorth = remember {
+//        mutableDoubleStateOf(user.netWorth)
+//    }
+//    val monthlyReturn = remember {
+//        mutableDoubleStateOf(user.monthlyReturn)
+//    }
+//    userCard(wallet, investments, netWorth, monthlyReturn)
+//    LazyColumn {
+//        itemsIndexed(user.investList) {index, bondPurchased ->
+//            PortfolioCard(bondPurchased, index, user, wallet, investments, netWorth, monthlyReturn)
+//        }
+//    }
+//}
 
 
 //@Composable
@@ -142,6 +161,131 @@ fun PortfolioScreen(user: UserInfo) {
 //    }
 //}
 
+@Composable
+fun PortfolioScreen(user: UserInfo?, navController: NavController) {
+    if (user != null) {
+        val wallet = remember { mutableDoubleStateOf(user.wallet) }
+        val investments = remember { mutableDoubleStateOf(user.investments) }
+        val netWorth = remember { mutableDoubleStateOf(user.netWorth) }
+        val monthlyReturn = remember { mutableDoubleStateOf(user.monthlyReturn) }
+        var showHelp = remember { mutableStateOf(false) }
+
+        Column(
+            modifier = Modifier
+                .background(color = lightGray)
+                .padding(start = 5.dp, end=8.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ){
+            Button(
+                onClick = { showHelp.value = true },
+                shape = RoundedCornerShape(200.dp),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 10.dp,
+                    pressedElevation = 6.dp
+                ),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF8A191D),
+                    contentColor = Color.White,
+                ),
+                modifier = Modifier.align(Alignment.End)
+            ){
+                Text(
+                    text = "?",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+
+            if (showHelp.value) {
+                ShowHelpDialog(onSkip = { showHelp.value = false })
+            }
+
+            Text(
+                text = "Current Portfolio",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(15.dp)
+            )
+            Text(
+                text = "Here’s everything you’ve already invested in.",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(start = 62.dp, end = 65.dp)
+            )
+            Text(
+                text = " . . .",
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFDEB841),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(start = 62.dp, end = 65.dp)
+            )
+
+
+            userCard(wallet, investments, netWorth, monthlyReturn)
+            LazyColumn {
+                itemsIndexed(user.investList) { index, bondPurchased ->
+                    PortfolioCard(
+                        bondPurchased,
+                        index,
+                        user,
+                        wallet,
+                        investments,
+                        netWorth,
+                        monthlyReturn
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ShowHelpDialog(onSkip: () -> Unit) {
+    var showDialog by remember { mutableStateOf(true) }
+    var currentDialogIndex by remember { mutableStateOf(0) }
+    var dialogList = SimulatorContent
+
+    if (currentDialogIndex < dialogList.size) {
+        val currentDialog = dialogList[currentDialogIndex]
+
+        AlertDialog(
+            onDismissRequest = {
+                onSkip()
+                showDialog = false // Dismiss the dialog
+            },
+            title = {
+                Text(currentDialog.title)
+            },
+            text = {
+                Text(currentDialog.info)
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (currentDialogIndex < dialogList.size - 1) {
+                            // Display the next dialog content
+                            currentDialogIndex++
+                        }
+                    },
+                ) {
+                    Text("Next")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        onSkip()
+                        showDialog = false // Dismiss the dialog
+                    },
+                ) {
+                    Text("Dismiss")
+                }
+            }
+        )
+    }
+}
 
 @Composable
 fun userCard(
@@ -150,74 +294,107 @@ fun userCard(
     netWorth: MutableDoubleState,
     monthlyReturn: MutableDoubleState
 ) {
-    Column {
-        Text(
-            text = "Wallet: $${wallet.value}",
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 15.sp,
-            //add color to text
-            color = Color(0xFFDEB841),
-            //change size of text
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(all = 5.dp),
-            textAlign = TextAlign.Center
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 3.dp, bottom = 20.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Column 1: Investments
+        Column(
+            modifier = Modifier.weight(1.11f).fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "Investment Value",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF8A191D),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(3.dp)
+            )
+            Text(
+                text = "$${investments.value}",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+
+        // Divider
+        Divider(
+            modifier = Modifier
+                .height(60.dp)
+                .width(1.1.dp)
+                .background(Color.Gray),
         )
 
-        Text(
-            text = "Investments: $${investments.value}",
-            color = Color(0xFFDEB841),
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 15.sp,
-            //change size of text
-            style = MaterialTheme.typography.titleMedium,
-            //add padding to body text
-            modifier = Modifier.padding(all = 5.dp),
-            textAlign = TextAlign.Center
-        )
+        // Column 2: Net Worth
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "Net Worth",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF8A191D),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(5.dp)
+            )
+            Text(
+                text = "$${netWorth.value}",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
 
-        Text(
-            text = "Net Worth: $${netWorth.value}",
-            color = Color(0xFFDEB841),
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 15.sp,
-            //change size of text
-            style = MaterialTheme.typography.titleMedium,
-            //add padding to body text
-            modifier = Modifier.padding(all = 5.dp),
-            textAlign = TextAlign.Center
+        // Divider
+        Divider(
+            modifier = Modifier
+                .height(60.dp)
+                .width(1.1.dp)
+                .background(Color.Gray),
         )
-
-        Text(
-            text = "Monthly Return: $${monthlyReturn.value}",
-            color = Color(0xFFDEB841),
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 15.sp,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(all = 5.dp),
-            textAlign = TextAlign.Center
-        )
+        // Column 3: Wallet
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "Wallet",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF8A191D),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(5.dp)
+            )
+            Text(
+                text = "$${wallet.value}",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
     }
 }
 
+
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PortfolioCard(
     bondPurchased: BondInfo,
-    index:Int,
+    index: Int,
     user: UserInfo,
     wallet: MutableDoubleState,
     investments: MutableDoubleState,
     netWorth: MutableDoubleState,
     monthlyReturn: MutableDoubleState
-){
-
+) {
+    var isExpanded by remember { mutableStateOf(false) }
     val bondTitle = bondPurchased.bondTitle
     val bondPrice = bondPurchased.bondPrice
     val bondRate = bondPurchased.interestRate
     val numBonds = bondPurchased.numberOfBonds
+    val investval = bondPurchased.investment
 
     val showAlert = remember { mutableStateOf(false) }
 
-    if (showAlert.value){
+    if (showAlert.value) {
         ShowAlertDialog()
     }
 
@@ -226,73 +403,184 @@ fun PortfolioCard(
     } else {
         Color.LightGray
     }
-
-    Row(modifier = Modifier.fillMaxWidth()){
+    Row(modifier = Modifier.fillMaxWidth()) {
         Spacer(modifier = Modifier.width(8.dp))
-        Column {
+        Column() {
             Spacer(modifier = Modifier.height(6.dp))
-
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Surface(shape = MaterialTheme.shapes.medium, shadowElevation = 8.dp, color = Color.Transparent){
-                Row(
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { isExpanded = !isExpanded }
+                    .background(
+                        color = Color.Transparent,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .border(3.dp, Color(0xFFDEB841), RoundedCornerShape(10.dp))
+            ) {
+                Column(
                     modifier = Modifier
-                        .background(cardColor)
                         .fillMaxWidth()
-                        .padding(4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                        .padding(10.dp)
                 ) {
-
-                    Column{
-                        Text(
-                            text = "Bond Title: $bondTitle",
-                            color = Color.Black,
-                            style = MaterialTheme.typography.titleSmall,
-
-                        );
-                        Text(
-                            text = "Price: $$bondPrice",
-                            color = Color.Black,
-                            modifier = Modifier.padding(all = 3.dp),
-                        );
-                        Text(
-                            text = "Interest Rate: %$bondRate",
-                            color = Color.Black,
-                            modifier = Modifier.padding(all = 3.dp),
-                        );
-                        Text(
-                            text = "Amount Bought: $numBonds",
-                            color = Color.Black,
-                            modifier = Modifier.padding(all = 3.dp),
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.weight(0.55f).fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "$bondTitle",
+                                color = Color.Black,
+                                style = MaterialTheme.typography.labelLarge,
+                            )
+                        }
+                        // Divider
+                        Divider(
+                            modifier = Modifier
+                                .height(60.dp)
+                                .width(1.5.dp)
+                                .background(Color.Gray),
                         )
+                        Column(
+                            modifier = Modifier.weight(1f).padding(all = 3.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Investment Value",
+                                color = Color(0xFF8A191D),
+                                style = MaterialTheme.typography.bodyMedium,
+//                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "$investval",
+                                color = Color.Black,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f).padding(top = 6.dp, start = 3.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Number of Bonds",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color(0xFF8A191D),
+//                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "$numBonds",
+                                color = Color.Black,
+                                modifier = Modifier.padding(all = 3.dp),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
                     }
 
-                    Button(
-                        modifier = Modifier.padding(all = 5.dp),
-                        onClick = {
-
-                            if (bondPrice == 0.0 && bondRate == 0.0) {
-                                showAlert.value = true
+                    if (isExpanded) {
+                        // Additional content when expanded
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp)
+                        ) {
+                            // First column
+                            Column(
+                                modifier = Modifier
+                                    .weight(0.9f)
+                                    .padding(start = 5.dp, end = 5.dp)
+                            ) {
+                                WhiteBox("Interest Rate", "$bondRate%")
+                                Spacer(modifier = Modifier.height(16.dp))
+                                WhiteBox("Bond Price", "$$bondPrice")
                             }
-                            user.wallet += (bondPrice * numBonds)
-                            wallet.value = user.wallet
-                            user.monthlyReturn -= bondPurchased.monthlyReturn
-                            monthlyReturn.value = user.monthlyReturn
-                            user.investments -= bondPurchased.investment
-                            investments.value = user.investments
-                            netWorth.value = user.netWorth
-                            user.investList.removeAt(index)
-                            Log.d("bondSold", "Bond Sold: $bondTitle at index $index")
-                            Log.d("sellBond", "{${user.investList.toList()}}")
 
+                            // Second column
+                            Column(
+                                modifier = Modifier.weight(1f)
+                                    .padding(start = 5.dp, end = 5.dp)
+                            ) {
+                                WhiteBox("Monthly Return", "$${user.monthlyReturn}")
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                // Nested Row for the second row
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    // First column in the second row
+                                    Box(
+                                        modifier = Modifier.weight(1f),
+                                        contentAlignment = Alignment.CenterStart,
+                                        content = {
+                                            Column (
+                                                modifier = Modifier.fillMaxSize(),
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ){
+                                                Text(
+                                                    text = "Investment Value",
+                                                    color = Color(0xFF8A191D),
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    textAlign = TextAlign.Center
+                                                )
+                                                Spacer(modifier = Modifier.height(1.dp))
+                                                Text(
+                                                    text = "$$investval",
+                                                    color = Color.Black,
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                        })
+
+                                    // Second column in the second row
+                                    Box(
+                                        modifier = Modifier.weight(1f),
+                                        contentAlignment = Alignment.CenterEnd
+                                    ) {
+                                        Button(
+                                            onClick = {
+                                                if (bondPrice == 0.0 && bondRate == 0.0) {
+                                                    showAlert.value = true
+                                                }
+                                                user.wallet += (bondPrice * numBonds)
+                                                wallet.value = user.wallet
+                                                user.monthlyReturn -= bondPurchased.monthlyReturn
+                                                monthlyReturn.value = user.monthlyReturn
+                                                user.investments -= bondPurchased.investment
+                                                investments.value = user.investments
+                                                netWorth.value = user.netWorth
+                                                user.investList.removeAt(index)
+                                                Log.d(
+                                                    "bondSold",
+                                                    "Bond Sold: $bondTitle at index $index"
+                                                )
+                                                Log.d("sellBond", "{${user.investList.toList()}}")
+                                            } ,
+                                            shape = RoundedCornerShape(7.dp),
+//                                            modifier = Modifier.height(.dp).width(150.dp),
+//                                            elevation = ButtonDefaults.buttonElevation(
+//                                                defaultElevation = 10.dp,
+//                                                pressedElevation = 6.dp
+//                                            ),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color(0xFFDEB841),
+                                                contentColor = Color.White,
+                                            )
+                                        ) {
+                                            Text(text = "Sell")
+                                        }
+                                    }
+                                }
+                            }
                         }
-                    ) {
-                        Text(
-                            text = "Sell"
-                        )
-
                     }
                 }
             }
@@ -300,6 +588,26 @@ fun PortfolioCard(
     }
 }
 
+@Composable
+fun WhiteBox(label: String, value: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+    ) {
+        Column (modifier = Modifier
+            .padding(10.dp)){
+            Text(text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFFDEB841),
+                textAlign = TextAlign.Center)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = value,
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center)
+        }
+    }
+}
 
 @Composable
 private fun ShowAlertDialog() {
