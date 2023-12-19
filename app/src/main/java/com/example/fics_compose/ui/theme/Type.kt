@@ -12,6 +12,10 @@ val fenixFont = FontFamily(
     Font(R.font.fenix_regular)
 )
 
+val fjallafont = FontFamily(
+    Font(R.font.fjallaoneregular)
+)
+
 // Set of Material typography styles to start with
 val Typography = Typography(
     titleMedium = TextStyle(
@@ -38,6 +42,11 @@ val Typography = Typography(
         fontSize = 17.sp,
         lineHeight = 20.sp,
     ),
+    labelMedium = TextStyle(
+        fontFamily = fjallafont,
+        fontWeight = FontWeight(400),
+        fontSize = 20.sp,
+    )
 )
 
 /* Other default text styles to override

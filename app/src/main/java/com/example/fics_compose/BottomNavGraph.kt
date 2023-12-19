@@ -12,8 +12,8 @@ import com.example.fics_compose.screens.GoTimeScreen
 import com.example.fics_compose.screens.HistoryTopAppBar
 import com.example.fics_compose.screens.IntroductionScreen
 import com.example.fics_compose.screens.LetsInvestScreen
-import com.example.fics_compose.screens.PortfolioTopAppBar
-import com.example.fics_compose.screens.SimulatorTopAppBar
+import com.example.fics_compose.screens.PortfolioScreen
+import com.example.fics_compose.screens.SimulatorScreen
 import com.example.fics_compose.screens.TutorialScreen
 import com.example.fics_compose.screens.WelcomeScreen
 
@@ -29,7 +29,7 @@ fun BottomNavGraph(navController: NavHostController){
         }
 
         composable(route=BottomNavBar.Simulator.route){
-            SimulatorTopAppBar(navController)
+            SimulatorScreen(navController)
         }
 
         composable(route=WelcomeNav.Welcome.route){
@@ -56,12 +56,12 @@ fun BottomNavGraph(navController: NavHostController){
         
         composable(route=InternalNav.Portfolio.route){
             val result = navController.previousBackStackEntry?.savedStateHandle?.get<UserInfo>("portfolio")
-            PortfolioTopAppBar(result, navController)
+            PortfolioScreen(result, navController)
         }
 
         composable(route=InternalNav.Simulator.route){
             val user = navController.previousBackStackEntry?.savedStateHandle?.get<UserInfo>("user")
-            SimulatorTopAppBar(navController, user)
+            SimulatorScreen(navController, user)
         }
     }
 

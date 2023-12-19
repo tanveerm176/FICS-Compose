@@ -54,7 +54,7 @@ fun GoTimeCard(navController: NavController){
                 modifier = Modifier
                     .padding(bottom = 35.dp)
             )
-            Text(text = "You have 24 months to make as much money as you can.",
+            Text(text = "You have 12 months to make as much money as you can.",
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,

@@ -35,7 +35,7 @@ class UserInfo(
     var monthlyReturn: Double = 0.0,
     var numBonds: Int = 0,
     var trades: Int = 0,
-    var month: Int = 0
+    var month: Int = 0,
 ) : Parcelable {
 
     //mutableStateListOf updates lazy column when list is modified
