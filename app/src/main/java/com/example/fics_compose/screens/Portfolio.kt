@@ -173,29 +173,48 @@ fun PortfolioScreen(user: UserInfo?, navController: NavController) {
         Column(
             modifier = Modifier
                 .background(color = lightGray)
-                .padding(start = 5.dp, end=8.dp)
+                .padding(start = 5.dp, end = 8.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ){
-            Button(
-                onClick = { showHelp.value = true },
-                shape = RoundedCornerShape(200.dp),
-                elevation = ButtonDefaults.buttonElevation(
-                    defaultElevation = 10.dp,
-                    pressedElevation = 6.dp
-                ),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF8A191D),
-                    contentColor = Color.White,
-                ),
-                modifier = Modifier.align(Alignment.End)
-            ){
-                Text(
-                    text = "?",
-                    style = MaterialTheme.typography.bodyLarge
-                )
+            Row {
+                    IconButton(
+                        onClick = {
+                            if (user != null) {
+                                returnToSimulator(navController, user)
+                            }
+                            if (user != null) {
+                                Log.d("current invest-list", "${user.investList.toList()}")
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                Spacer(modifier = Modifier.width(24.dp))
+                Button(
+                    onClick = { showHelp.value = true },
+                    shape = RoundedCornerShape(200.dp),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 10.dp,
+                        pressedElevation = 6.dp
+                    ),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF8A191D),
+                        contentColor = Color.White,
+                    ),
+//                    modifier = Modifier.align(Alignment.End)
+                ){
+                    Text(
+                        text = "?",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
             }
+
 
             if (showHelp.value) {
                 ShowHelpDialog(onSkip = { showHelp.value = false })
@@ -303,7 +322,9 @@ fun userCard(
     ) {
         // Column 1: Investments
         Column(
-            modifier = Modifier.weight(1.11f).fillMaxWidth(),
+            modifier = Modifier
+                .weight(1.11f)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -433,7 +454,9 @@ fun PortfolioCard(
                         horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
                         Column(
-                            modifier = Modifier.weight(0.55f).fillMaxWidth(),
+                            modifier = Modifier
+                                .weight(0.55f)
+                                .fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
@@ -450,7 +473,9 @@ fun PortfolioCard(
                                 .background(Color.Gray),
                         )
                         Column(
-                            modifier = Modifier.weight(1f).padding(all = 3.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(all = 3.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
@@ -466,7 +491,9 @@ fun PortfolioCard(
                             )
                         }
                         Column(
-                            modifier = Modifier.weight(1f).padding(top = 6.dp, start = 3.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(top = 6.dp, start = 3.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
@@ -504,7 +531,8 @@ fun PortfolioCard(
 
                             // Second column
                             Column(
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
                                     .padding(start = 5.dp, end = 5.dp)
                             ) {
                                 WhiteBox("Monthly Return", "$${user.monthlyReturn}")

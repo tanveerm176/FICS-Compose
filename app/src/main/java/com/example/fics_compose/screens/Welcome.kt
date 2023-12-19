@@ -81,7 +81,7 @@ fun WelcomeScreen(navController: NavController) {
             ) {
                 Text(
                     text = "Get Started",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }

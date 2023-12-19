@@ -24,10 +24,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material3.MaterialTheme
@@ -224,19 +228,31 @@ fun SimulatorCard(
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        // Month Display
-        Text(
-            text = "Month $month of 12",
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 25.sp,
-            color = Color(0xFFDEB841),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(all = 5.dp),
-        )
+    )
+    {
+        Row {
+            // Month Display
+            Text(
+                text = "Month $month of 12",
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 25.sp,
+                color = Color(0xFF8a191f),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(all = 5.dp),
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+
+            IconButton(onClick = { startPortfolioScreen(navController, userInfo) }) {
+                Icon(Icons.Filled.ShoppingCart, contentDescription = "Investment List")
+            }
+            
+        }
+        
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -406,11 +422,11 @@ fun BondCard(
         BoxWithConstraints(
             modifier = Modifier
                 .background(shape = RectangleShape, color = Color(0xFFDFDCD1))
-                .fillMaxWidth()
-                .absolutePadding(top = 6.dp, bottom = 13.dp)
+//                .fillMaxWidth()
+//                .absolutePadding(top = 6.dp, bottom = 8.dp)
         ) {
             Column(
-                modifier = Modifier.padding(top = 10.dp, start = 10.dp),
+//                modifier = Modifier.padding(top = 10.dp, start = 10.dp),
 //                verticalArrangement = Arrangement.Center,
 //                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -421,22 +437,22 @@ fun BondCard(
                 )
                 Text(
                     text = "Price: $" + bond.price,
-                    modifier = Modifier.padding(all = 5.dp),
+//                    modifier = Modifier.padding(all = 5.dp),
                     color = Color(0xFF08010F)
                 )
                 Text(
                     text = "Interest Rate: % " + bond.interestRate,
-                    modifier = Modifier.padding(all = 5.dp),
+//                    modifier = Modifier.padding(all = 5.dp),
                     color = Color(0xFF08010F)
                 )
                 Text(
                     text = "Monthly Return: $" + (bond.price * bond.interestRate / 100),
-                    modifier = Modifier.padding(all = 5.dp),
+//                    modifier = Modifier.padding(all = 5.dp),
                     color = Color(0xFF08010F)
                 )
                 Text(
                     text = "Buy # of Bonds: ",
-                    modifier = Modifier.padding(top = 5.dp),
+//                    modifier = Modifier.padding(top = 5.dp),
                     color = Color(0xFF08010F)
                 )
                 NumericInputField(
@@ -447,7 +463,8 @@ fun BondCard(
                 )
                 // Invest Button
                 Button(
-                    modifier = Modifier.padding(all = 5.dp),
+//                    modifier = Modifier.padding(all = 5.dp),
+//                    modifier = Modifier.align(Alignment.),
                     onClick = {
                         // add bond to investment list
                         var bondInfo =
@@ -487,7 +504,7 @@ fun UserCard(
             text = "Wallet: $${userInfo.wallet}",
             fontWeight = FontWeight.ExtraBold,
             fontSize = 15.sp,
-            color = Color(0xFFDEB841),
+            color = Color(0xFF8a191f),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(all = 5.dp),
             textAlign = TextAlign.Center
@@ -497,7 +514,7 @@ fun UserCard(
             text = "Investments: $${
                 userInfo.investments
             }",
-            color = Color(0xFFDEB841),
+            color = Color(0xFF8a191f),
             fontWeight = FontWeight.ExtraBold,
             fontSize = 15.sp,
             style = MaterialTheme.typography.titleMedium,
@@ -509,7 +526,7 @@ fun UserCard(
             text = "Net Worth: $${
                 userInfo.netWorth
             }",
-            color = Color(0xFFDEB841),
+            color = Color(0xFF8a191f),
             fontWeight = FontWeight.ExtraBold,
             fontSize = 15.sp,
             style = MaterialTheme.typography.titleMedium,
@@ -521,7 +538,7 @@ fun UserCard(
             text = "Monthly Return: $${
                 userInfo.monthlyReturn
             }",
-            color = Color(0xFFDEB841),
+            color = Color(0xFF8a191f),
             fontWeight = FontWeight.ExtraBold,
             fontSize = 15.sp,
             style = MaterialTheme.typography.titleMedium,
@@ -547,7 +564,7 @@ fun NumericInputField(value: Int, onValueChange: (Int) -> Unit) {
         },
         textStyle = LocalTextStyle.current.copy(color = Color.Black),
         modifier = Modifier
-            .padding(16.dp)
+//            .padding(16.dp)
             .width(80.dp)
             .border(1.5.dp, Color.Gray, shape = RoundedCornerShape(4.dp)),
         singleLine = true,
@@ -557,19 +574,19 @@ fun NumericInputField(value: Int, onValueChange: (Int) -> Unit) {
 object TestData{
     val testDataList = listOf(
         BondOption(
-            title = "Treasury Bills",
+            title = "T-Bills",
             img = R.drawable.treasuries,
             price = 100.00,
             interestRate = 2.00
         ),
         BondOption(
-            title = "Treasury Notes",
+            title = "T-Notes",
             img = R.drawable.treasuries,
             price = 200.00,
             interestRate = 3.00,
         ),
         BondOption(
-            title = "Treasury Bonds",
+            title = "T-Bonds",
             img = R.drawable.treasuries,
             price = 500.00,
             interestRate = 0.5,
