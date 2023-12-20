@@ -50,7 +50,7 @@ fun WelcomeScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painterResource(id = R.drawable.welcomelogo),
+                painterResource(id = R.drawable.ficslogo),
                 contentDescription = null,
                 modifier = Modifier
                     .padding(top = 40.dp)
@@ -81,7 +81,7 @@ fun WelcomeScreen(navController: NavController) {
             ) {
                 Text(
                     text = "Get Started",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         }

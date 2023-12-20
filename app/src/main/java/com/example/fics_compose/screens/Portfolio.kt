@@ -626,12 +626,12 @@ fun WhiteBox(label: String, value: String) {
         Column (modifier = Modifier
             .padding(10.dp)){
             Text(text = label,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = Color(0xFFDEB841),
                 textAlign = TextAlign.Center)
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(2.dp))
             Text(text = value,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.displayLarge,
                 textAlign = TextAlign.Center)
         }
     }

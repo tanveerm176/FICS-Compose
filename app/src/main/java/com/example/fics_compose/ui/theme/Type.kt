@@ -46,7 +46,19 @@ val Typography = Typography(
         fontFamily = fjallafont,
         fontWeight = FontWeight(400),
         fontSize = 20.sp,
-    )
+    ),
+    displayMedium = TextStyle(
+        fontFamily = fjallafont,
+        fontWeight = FontWeight(400),
+        fontSize = 27.sp,
+        lineHeight = 30.sp,
+    ),
+    displayLarge = TextStyle(
+        fontFamily = fenixFont,
+        fontWeight = FontWeight(400),
+        fontSize = 28.sp,
+        lineHeight = 25.sp,
+    ),
 )
 
 /* Other default text styles to override
