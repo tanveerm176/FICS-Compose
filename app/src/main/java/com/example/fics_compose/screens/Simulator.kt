@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -78,54 +79,6 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun SimulatorTopAppBar(navController: NavController, user: UserInfo? = null) {
-//    var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-//    var showHelp = remember { mutableStateOf(false) }
-//    var simNumber = remember { mutableIntStateOf(0) }
-//    val scope = rememberCoroutineScope()
-//    val snackbarHostState = remember { SnackbarHostState() }
-//
-//    Scaffold(
-//        snackbarHost = {
-//            SnackbarHost(hostState = snackbarHostState)
-//        },
-//        topBar = {
-//            TopAppBar(
-//                colors = TopAppBarDefaults.smallTopAppBarColors(
-//                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-//                    titleContentColor = MaterialTheme.colorScheme.secondary,
-//                ),
-//                title = {
-//                    Box(modifier = Modifier.fillMaxWidth()) {
-//                        Text(
-//                            modifier = Modifier.align(Alignment.CenterStart),
-//                            text = "FICS Simulator"
-//                        )
-//                        Button(
-//                            onClick = { showHelp.value = true },
-//                            modifier = Modifier
-//                                .align(Alignment.TopEnd)
-//                                .padding(horizontal = 5.dp)
-//                        ) {
-//                            Text(text = "Help")
-//                        }
-//                        if (showHelp.value) {
-//                            ShowDialog(onSkip = {showHelp.value = false}, simNumber.value)
-//                        }
-//                    }
-//                }
-//            )
-//            scrollBehavior = scrollBehavior
-//        },
-//    ) {innerPadding ->
-//        Box(modifier = Modifier.padding(innerPadding)){
-//            SimulatorScreen(navController, user, simNumber, scope, snackbarHostState)
-//        }
-//    }
-//}
-
 @Composable
 fun SimulatorScreen(
     navController: NavController,
@@ -137,35 +90,66 @@ fun SimulatorScreen(
 
     var showHelp = remember { mutableStateOf(false) }
 
+
     Column(
         modifier = Modifier
             .background(color = lightGray)
-            .padding(top = 8.dp, start = 5.dp, end = 11.dp)
+            .padding(start = 11.dp, top= 6.dp, end = 11.dp)
             .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Button(
-            onClick = { showHelp.value = true },
-            shape = RoundedCornerShape(200.dp),
-            elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 10.dp,
-                pressedElevation = 6.dp
-            ),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF8A191D),
-                contentColor = Color.White,
-            ),
-            modifier = Modifier.align(Alignment.End)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+//                .padding(end = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(
-                text = "?",
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Button(
+                onClick = {
+                    // TODO: Add logic to reset simulation progress
+                    // For example, reset the simNumber, user info, etc.
+                    simNumber.value = 0
+                    // Reset other necessary state variables
+
+                    // TODO: Show a toast or snackbar to indicate that the simulation is reset
+                },
+                shape = RoundedCornerShape(200.dp),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 10.dp,
+                    pressedElevation = 6.dp
+                ),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF8A191D),
+                    contentColor = Color.White,
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Replay"
+                )
+            }
+            Spacer(modifier = Modifier.width(2.dp))
+
+            Button(
+                onClick = { showHelp.value = true },
+                shape = RoundedCornerShape(200.dp),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 10.dp,
+                    pressedElevation = 6.dp
+                ),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF8A191D),
+                    contentColor = Color.White,
+                ),
+            ) {
+                Text(
+                    text = "?",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         }
 
         if (showHelp.value) {
-            ShowDialog(onSkip = {showHelp.value = false}, simNumber.value)
+            ShowDialog(onSkip = { showHelp.value = false }, simNumber.value)
         }
 
         //when first starting the sim
@@ -227,14 +211,26 @@ fun SimulatorCard(
         )
     }
 
+    val netWorthChange = if (userInfo.netWorthList.size >= 2) {
+        userInfo.netWorthList.last() - userInfo.netWorthList[userInfo.netWorthList.size - 2]
+    } else {
+        0
+    }
+
+    val percentChange =
+        if (userInfo.netWorthList.size >= 2 && userInfo.netWorthList[userInfo.netWorthList.size - 2] != 0.0) {
+            (netWorthChange.toDouble() / userInfo.netWorthList[userInfo.netWorthList.size - 2]) * 100
+        } else {
+            0.0
+        }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp),
+            .padding(start = 10.dp, end=10.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
-    )
-    {
+    ) {
         Row {
             // Month Display
             Text(
@@ -243,40 +239,81 @@ fun SimulatorCard(
                 fontSize = 25.sp,
                 color = Color(0xFF8a191f),
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(all = 5.dp),
             )
             Spacer(modifier = Modifier.width(8.dp))
-
-            IconButton(onClick = { startPortfolioScreen(navController, userInfo) }) {
-                Icon(Icons.Filled.ShoppingCart, contentDescription = "Investment List")
-            }
-            
         }
-        
+        Column(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                ) {
+                    Text(
+                        text = "Net Worth:",
+                        color = Color.Black,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 15.sp,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(all = 5.dp),
+                        textAlign = TextAlign.Center
+                    )
+
+                    // Display the arrow image next to "Net Worth" text
+                    val netWorthArrowRes = when {
+                        percentChange > 0 -> R.drawable.green_up_arrow
+                        percentChange < 0 -> R.drawable.red_down_arrow
+                        else -> 0 // You can provide a default image resource or handle this case as needed
+                    }
+
+                    if (netWorthArrowRes != 0) {
+                        Image(
+                            painter = painterResource(id = netWorthArrowRes),
+                            contentDescription = "Net Worth Arrow",
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+
+                    // Display the net worth change value with dynamic color
+                    Text(
+                        text = "${if (percentChange > 0) "+" else ""}${"%.2f".format(percentChange)}%",
+                        color = if (percentChange > 0) Color.Green else if (percentChange < 0) Color.Red else Color.Black,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 15.sp,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(all = 5.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                ) {
+                    Text(
+                        text = "Final Net Worth",
+                        color = Color(0xFF8A191D),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(all = 3.dp),
+                    )
+                    Text(
+                        text = "$${netWorthChange}",
+                        color = Color.Black,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(all = 3.dp),
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Two-column layout
-//        Row(
-//            modifier = Modifier.fillMaxWidth(),
-//            horizontalArrangement = Arrangement.SpaceBetween
-//        ) {
-//            TransparentBox(
-//                label = "Net Worth Change",
-//                value = "$netWorthPercentChange%",
-//                upArrowImageRes = R.drawable.green_up_arrow,
-//                downArrowImageRes = R.drawable.red_down_arrow
-//            )
-//            TransparentBox(
-//                label = "Investments Change",
-//                value = "$investmentsPercentChange%",
-//                upArrowImageRes = R.drawable.green_up_arrow,
-//                downArrowImageRes = R.drawable.red_down_arrow
-//            )
-//        }
-
-
-        Spacer(modifier = Modifier.height(8.dp))
         Divider(
             modifier = Modifier
                 .fillMaxWidth()
@@ -360,52 +397,6 @@ fun SimulatorCard(
         UserCard(userInfo = userInfo)
     }
 }
-
-//@Composable
-//fun TransparentBox(
-//    label: String,
-//    value: String,
-//    upArrowImageRes: Int,
-//    downArrowImageRes: Int
-//) {
-//    Box(
-//        modifier = Modifier
-//            .fillMaxWidth(0.5f)
-//            .background(color = Color.Transparent)
-//            .padding(10.dp),
-//        contentAlignment = Alignment.CenterStart
-//    ) {
-//        // Display label and value
-//        Column(
-//            horizontalAlignment = Alignment.Start
-//        ) {
-//            Text(
-//                text = label,
-//                style = MaterialTheme.typography.bodyMedium,
-//                color = Color(0xFFDEB841),
-//                textAlign = TextAlign.Start
-//            )
-//            Spacer(modifier = Modifier.height(2.dp))
-//            Text(
-//                text = value,
-//                style = MaterialTheme.typography.bodyLarge,
-//                textAlign = TextAlign.Start
-//            )
-//        }
-
-        // Display arrow image
-//        val arrowImageRes = if (value.toDouble() >= 0) upArrowImageRes else downArrowImageRes
-//        Image(
-//            painter = painterResource(id = arrowImageRes),
-//            contentDescription = null,
-//            modifier = Modifier
-//                .size(24.dp) // Adjust the size as needed
-//                .padding(start = 8.dp)
-//        )
-//    }
-//}
-
-
 
 @Composable
 fun BondCard(
@@ -492,6 +483,11 @@ fun BondCard(
             }
         }
 }
+
+//SHOPPING CART LOGIC
+//IconButton(onClick = { startPortfolioScreen(navController, userInfo) }) {
+//    Icon(Icons.Filled.ShoppingCart, contentDescription = "Investment List")
+//}
 
 @Composable
 fun UserCard(
@@ -722,7 +718,7 @@ private fun ShowAlertDialog(randomBondTitle: String, onSkip: () -> Unit) {
 }
 
 //TODO: Replace Toast Msg with Dialog Boxes 2in Final
-private fun toastMessages(context: Context, flg:String) {
+fun toastMessages(context: Context, flg:String) {
     when (flg) {
         "reset" -> Toast.makeText(context, "Simulation Reset", Toast.LENGTH_LONG).show()
         "finish" -> Toast.makeText(context, "Simulation Complete, View Portfolio", Toast.LENGTH_LONG).show()
