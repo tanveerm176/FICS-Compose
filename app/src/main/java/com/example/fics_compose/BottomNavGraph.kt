@@ -9,7 +9,7 @@ import androidx.navigation.compose.composable
 import com.example.fics_compose.screens.GlossaryScreen
 import com.example.fics_compose.screens.GoTimeCard
 import com.example.fics_compose.screens.GoTimeScreen
-import com.example.fics_compose.screens.HistoryTopAppBar
+import com.example.fics_compose.screens.HistoryScreen
 import com.example.fics_compose.screens.IntroductionScreen
 import com.example.fics_compose.screens.LetsInvestScreen
 import com.example.fics_compose.screens.PortfolioScreen
@@ -51,7 +51,7 @@ fun BottomNavGraph(navController: NavHostController){
         }
 
         composable(route=BottomNavBar.History.route){
-            HistoryTopAppBar()
+            HistoryScreen(navController)
         }
         
         composable(route=InternalNav.Portfolio.route){
