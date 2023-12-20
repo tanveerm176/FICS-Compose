@@ -535,7 +535,7 @@ fun PortfolioCard(
                                     .weight(1f)
                                     .padding(start = 5.dp, end = 5.dp)
                             ) {
-                                WhiteBox("Monthly Return", "$${user.monthlyReturn}")
+                                WhiteBox("Monthly Return", "$${bondPurchased.monthlyReturn}")
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 // Nested Row for the second row
