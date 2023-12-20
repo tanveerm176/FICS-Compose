@@ -1,5 +1,6 @@
 package com.example.fics_compose.screens
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
@@ -30,12 +31,15 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
@@ -126,6 +130,8 @@ import kotlin.random.Random
 //    }
 //}
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SimulatorScreen(
     navController: NavController,
@@ -137,58 +143,64 @@ fun SimulatorScreen(
 
     var showHelp = remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .background(color = lightGray)
-            .padding(top = 8.dp, start = 5.dp, end = 11.dp)
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        }
     ) {
-        Button(
-            onClick = { showHelp.value = true },
-            shape = RoundedCornerShape(200.dp),
-            elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 10.dp,
-                pressedElevation = 6.dp
-            ),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF8A191D),
-                contentColor = Color.White,
-            ),
-            modifier = Modifier.align(Alignment.End)
+        Column(
+            modifier = Modifier
+                .background(color = lightGray)
+                .padding(top = 8.dp, start = 5.dp, end = 11.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(
-                text = "?",
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
+            Button(
+                onClick = { showHelp.value = true },
+                shape = RoundedCornerShape(200.dp),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 10.dp,
+                    pressedElevation = 6.dp
+                ),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF8A191D),
+                    contentColor = Color.White,
+                ),
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text(
+                    text = "?",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
 
-        if (showHelp.value) {
-            ShowDialog(onSkip = {showHelp.value = false}, simNumber.value)
-        }
+            if (showHelp.value) {
+                ShowDialog(onSkip = { showHelp.value = false }, simNumber.value)
+            }
 
-        //when first starting the sim
-        if (user == null) {
-            SimulatorCard(
-                UserInfo(),
-                bonds = TestData.testDataList,
-                navController,
-                simNumber,
-                scope,
-                snackbarHostState
-            )
-        }
-        //when returning from portfolio screen
-        else {
-            SimulatorCard(
-                user,
-                bonds = TestData.testDataList,
-                navController,
-                simNumber,
-                scope,
-                snackbarHostState
-            )
+            //when first starting the sim
+            if (user == null) {
+                SimulatorCard(
+                    UserInfo(),
+                    bonds = TestData.testDataList,
+                    navController,
+                    simNumber,
+                    scope,
+                    snackbarHostState
+                )
+            }
+            //when returning from portfolio screen
+            else {
+                SimulatorCard(
+                    user,
+                    bonds = TestData.testDataList,
+                    navController,
+                    simNumber,
+                    scope,
+                    snackbarHostState
+                )
+            }
         }
     }
 }
