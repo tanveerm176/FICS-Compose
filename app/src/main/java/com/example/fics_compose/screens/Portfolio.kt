@@ -320,7 +320,7 @@ fun userCard(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Column 1: Investments
+        // Column 1: Wallet
         Column(
             modifier = Modifier
                 .weight(1.11f)
@@ -328,14 +328,14 @@ fun userCard(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Investment Value",
+                text = "Wallet",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF8A191D),
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(3.dp)
             )
             Text(
-                text = "$${investments.value}",
+                text = "$${wallet.value}",
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
@@ -373,20 +373,20 @@ fun userCard(
                 .width(1.1.dp)
                 .background(Color.Gray),
         )
-        // Column 3: Wallet
+        // Column 3: Total Investments
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Wallet",
+                text = "Total Investments",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF8A191D),
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(5.dp)
             )
             Text(
-                text = "$${wallet.value}",
+                text = "$${investments.value}",
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
@@ -462,7 +462,7 @@ fun PortfolioCard(
                             Text(
                                 text = "$bondTitle",
                                 color = Color.Black,
-                                style = MaterialTheme.typography.labelMedium,
+                                style = MaterialTheme.typography.bodyMedium,
                             )
                         }
                         // Divider
@@ -479,17 +479,25 @@ fun PortfolioCard(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "Investment Value",
+                                text = "Number Bought",
                                 color = Color(0xFF8A191D),
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.typography.bodySmall,
+                                textAlign = TextAlign.Center
 //                                fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "$investval",
+                                text = "$numBonds",
                                 color = Color.Black,
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
+                        // Divider
+                        Divider(
+                            modifier = Modifier
+                                .height(60.dp)
+                                .width(1.5.dp)
+                                .background(Color.Gray),
+                        )
                         Column(
                             modifier = Modifier
                                 .weight(1f)
@@ -497,13 +505,14 @@ fun PortfolioCard(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "Number of Bonds",
-                                style = MaterialTheme.typography.bodyMedium,
+                                text = "Investment Value",
+                                style = MaterialTheme.typography.bodySmall,
                                 color = Color(0xFF8A191D),
+                                textAlign = TextAlign.Center
 //                                fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "$numBonds",
+                                text = "$investval",
                                 color = Color.Black,
                                 modifier = Modifier.padding(all = 3.dp),
                                 style = MaterialTheme.typography.bodyLarge
@@ -535,8 +544,8 @@ fun PortfolioCard(
                                     .weight(1f)
                                     .padding(start = 5.dp, end = 5.dp)
                             ) {
-                                WhiteBox("Monthly Return", "$${bondPurchased.monthlyReturn}")
-                                Spacer(modifier = Modifier.height(16.dp))
+                                WhiteBox("Return", "$${bondPurchased.monthlyReturn}")
+                                Spacer(modifier = Modifier.height(24.dp))
 
                                 // Nested Row for the second row
                                 Row(
@@ -544,7 +553,7 @@ fun PortfolioCard(
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     // First column in the second row
-                                    Box(
+                                    /*Box(
                                         modifier = Modifier.weight(1f),
                                         contentAlignment = Alignment.CenterStart,
                                         content = {
@@ -566,12 +575,12 @@ fun PortfolioCard(
                                                     fontWeight = FontWeight.Bold
                                                 )
                                             }
-                                        })
+                                        })*/
 
                                     // Second column in the second row
                                     Box(
                                         modifier = Modifier.weight(1f),
-                                        contentAlignment = Alignment.CenterEnd
+                                        contentAlignment = Alignment.Center
                                     ) {
                                         Button(
                                             onClick = {

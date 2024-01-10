@@ -558,13 +558,13 @@ fun BondCard(
         modifier = Modifier
             .fillMaxWidth()
 //                    .padding(16.dp)
-            .border(1.5.dp, Color(0xFFDEB841), RectangleShape)
-            .background(Color.LightGray, RectangleShape) // Set the background color and shape of the box
+            .border(1.5.dp, Color(0xFFDEB841), RoundedCornerShape(10.dp))
+            .background(Color.LightGray, RoundedCornerShape(10.dp)) // Set the background color and shape of the box
     ) {
         Column(
             modifier = Modifier
 //                .fillMaxWidth()
-                .padding(10.dp),
+                .padding(8.dp),
 //            verticalArrangement = Arrangement.Center,
 //            horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -576,7 +576,7 @@ fun BondCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 6.dp)
+                    .padding(top = 1.dp)
             ) {
                 // First column
                 Column(
@@ -585,17 +585,17 @@ fun BondCard(
 //                        .padding(start = 5.dp, end = 5.dp)
                 ) {
                     WhiteBox("Interest Rate", "${bondRate}%")
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(3.dp))
                     WhiteBox("Bond Price", "$${bond.price}")
                 }
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 3.dp, end = 2.dp, bottom = 6.dp)
+                        .padding(start = 1.dp, end = 1.dp, bottom = 1.dp)
                 ) {
-                    WhiteBox("Monthly Return", "${(bond.price * bond.interestRate / 100)}%")
-                    Spacer(modifier = Modifier.height(16.dp))
-                    WhiteBox("Wallet", "${userInfo.wallet}")
+                    WhiteBox("Return", "${(bond.price * bond.interestRate / 100)}%")
+                    Spacer(modifier = Modifier.height(3.dp))
+                    WhiteBox("Wallet", "$${userInfo.wallet}")
                 }
             }
         }
