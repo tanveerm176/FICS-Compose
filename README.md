@@ -20,4 +20,4 @@ will also address economic conditions that can affect these investments. For our
 interest rates, and the business cycle (expansion, peak, recession, depression).
 
 This project was completed as part of Hunter College Computer Science Capstone course.
-![](https://github.com/tanveerm176/FICS-Compose/blob/main/FICS_Demo.gif)
+![](https://github.com/tanveerm176/FICS-Compose/blob/main/FICS_Demo2.gif)
