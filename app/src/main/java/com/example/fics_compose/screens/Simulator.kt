@@ -593,7 +593,7 @@ fun BondCard(
                         .weight(1f)
                         .padding(start = 1.dp, end = 1.dp, bottom = 1.dp)
                 ) {
-                    WhiteBox("Return", "${(bond.price * bond.interestRate / 100)}%")
+                    WhiteBox("Return", "$${(bond.price * bond.interestRate / 100)}")
                     Spacer(modifier = Modifier.height(3.dp))
                     WhiteBox("Wallet", "$${userInfo.wallet}")
                 }
@@ -815,19 +815,19 @@ fun NumericInputField(value: Int, onValueChange: (Int) -> Unit) {
 object TestData{
     val testDataList = listOf(
         BondOption(
-            title = "T-Bills",
+            title = "Treasury Bill",
             img = R.drawable.treasuries,
             price = 100.00,
             interestRate = 2.00
         ),
         BondOption(
-            title = "T-Notes",
+            title = "Treasury Note",
             img = R.drawable.treasuries,
             price = 200.00,
             interestRate = 3.00,
         ),
         BondOption(
-            title = "T-Bonds",
+            title = "Treasury Bond",
             img = R.drawable.treasuries,
             price = 500.00,
             interestRate = 0.5,
