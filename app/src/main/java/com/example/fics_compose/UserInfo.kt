@@ -73,6 +73,9 @@ class UserInfo(
         this.monthlyReturn = 0.0
         this.numBonds = 0
         this.month = 0
+        this.trades = 0
+        this.totalGains
+        this.netWorth
         return this
     }
 }
