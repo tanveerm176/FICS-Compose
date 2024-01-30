@@ -7,6 +7,7 @@ object DatabaseBuilder {
     private var INSTANCE : HistoryDatabase? = null
 
     fun getDatabase(context: Context): HistoryDatabase{
+        /*prevents two instances of db being created --> single source of truth*/
         return INSTANCE ?: synchronized(this){
             val instance = Room.databaseBuilder(
                 context.applicationContext,
