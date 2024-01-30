@@ -51,7 +51,9 @@ fun BottomNavGraph(navController: NavHostController){
         }
 
         composable(route=BottomNavBar.History.route){
-            HistoryScreen(navController)
+            HistoryScreen(onPlayAgainClick = {
+                navController.navigate(BottomNavBar.Simulator.route)
+            })
         }
         
         composable(route=InternalNav.Portfolio.route){
