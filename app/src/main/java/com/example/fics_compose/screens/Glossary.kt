@@ -69,27 +69,32 @@ import androidx.compose.ui.text.input.ImeAction
 import com.example.fics_compose.ui.theme.lightGray
 import com.example.fics_compose.ui.theme.yellow
 import androidx.compose.material3.Divider
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun GlossaryScreen() {
+fun GlossaryScreen(
+
+)
+
+{
     var searchTerm by remember { mutableStateOf("") }
     var glossary by remember { mutableStateOf(GlossaryData.glossaryTopics) }
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    // Filter glossary based on search term
+    /* Show glossary list based on either the topic name or the term name that matches the user's search
+    * If no input from user show all terms in glossary */
     val filteredGlossary = glossary.filter { topic ->
         topic.topicName.contains(searchTerm, ignoreCase = true) ||
                 topic.terms.any { term -> term.termName.contains(searchTerm, ignoreCase = true) }
     }
 
-    // Display the filtered glossary
+    /* Display the filtered glossary*/
     Column (
         modifier = Modifier
             .background(color = lightGray)
             .fillMaxWidth()
-            .padding(start=20.dp, top=40.dp, bottom = 40.dp, end=20.dp),
     ){
         BoxWithConstraints(
             modifier = Modifier
@@ -116,30 +121,32 @@ fun GlossaryScreen() {
                 )
                 TextField(
                     value = searchTerm,
+                    /* If user has not searched, show entire glossary,
+                    otherwise show filtered glossary*/
                     onValueChange = {
                         searchTerm = it
-                        // Update glossary when the search term changes
-                        glossary = if (it.isEmpty()) {
+                        glossary = if (searchTerm.isEmpty()) {
                             GlossaryData.glossaryTopics
                         } else {
                             filteredGlossary
                         }
                     },
                     placeholder = { Text("Search Glossary") },
+
+                    /*triggers the search icon to appear in place of ENTER on keyboard*/
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Search
                     ),
+
+                    /*When search icon pressed hide keyboard*/
                     keyboardActions = KeyboardActions(
                         onSearch = {
-                            // Perform search action if needed
-                            // For example, you can trigger a network request to search for the term
-                            // or update the glossary based on the local data.
                             keyboardController?.hide()
                         }
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start=20.dp, end=20.dp, bottom=30.dp)
+                        .padding(start = 20.dp, end = 20.dp, bottom = 30.dp)
                 )
             }
         }
@@ -150,103 +157,16 @@ fun GlossaryScreen() {
             modifier = Modifier
                 .padding(top = 18.dp, bottom=20.dp)
         )
-            // Display the glossary based on the search results
-            GlossaryList(filteredGlossary)
+        /* Display the glossary based on the search results*/
+        GlossaryList(filteredGlossary)
     }
 }
 
-
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun DefinitionCard(term: Term) {
-    var expandedState by remember { mutableStateOf(false) }
-    var showInformalDefinition by remember { mutableStateOf(false) }
-
-    val rotationState by animateFloatAsState(
-        targetValue = if (expandedState) 180f else 0f, label = "rotateState"
-    )
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize(
-                animationSpec = tween(
-                    durationMillis = 300,
-                    easing = LinearOutSlowInEasing
-                )
-            ),
-        shape = RoundedCornerShape(10.dp),
-        onClick = {
-            expandedState = !expandedState
-        }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-//                .padding(5.dp)
-        ) {
-            // Add a Divider between terms
-            Divider(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom=9.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    modifier = Modifier
-                        .weight(6f),
-                    text = term.termName,
-                    color = Color(0xFF8A191D),
-                    style = MaterialTheme.typography.bodyMedium,
-//                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                IconButton(
-                    modifier = Modifier
-                        .weight(1f)
-                        .alpha(ContentAlpha.medium)
-                        .rotate(rotationState),
-                    onClick = {
-                        expandedState = !expandedState
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        tint = Color(0xFF8A191D),
-                        contentDescription = "Drop-Down Arrow"
-                    )
-                }
-            }
-            // Use the isExpanded property to decide whether to display the definition
-            if (expandedState) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Switch(
-                        checked = showInformalDefinition,
-                        onCheckedChange = { showInformalDefinition = it },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color(0xFFDEB841),
-                            checkedTrackColor = Color(0xFFEEE1B9),
-                            uncheckedThumbColor = Color(0xFFDEB841),
-                            uncheckedTrackColor = Color(0xFFEEE1B9),
-                        ),
-                    )
-                    // Display some text indicating the current definition
-                    val definitionLabel =
-                        if (showInformalDefinition) "FICS Definition" else "Formal Definition"
-                    Text(text = definitionLabel,
-                        style = MaterialTheme.typography.bodyMedium,
-////                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
-                // Content of the term definition goes here
-                val definition =
-                    if (showInformalDefinition) term.informalDefinition else term.formalDefinition
-                Text(text = definition, style = MaterialTheme.typography.bodyMedium,)
-            }
+fun GlossaryList(glossary: List<Topic>) {
+    LazyColumn {
+        items(glossary) { topic ->
+            ExpandableCard(topic)
         }
     }
 }
@@ -307,6 +227,7 @@ fun ExpandableCard(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = "Drop-Down Arrow",
                         tint = Color(0xFF8A191D),
+                        modifier = Modifier.size(50.dp)
                     )
                 }
             }
@@ -322,14 +243,117 @@ fun ExpandableCard(
     }
 }
 
+
 @Composable
-fun GlossaryList(glossary: List<Topic>) {
-    LazyColumn {
-        items(glossary) { topic ->
-            ExpandableCard(topic)
+@OptIn(ExperimentalMaterial3Api::class)
+fun DefinitionCard(term: Term,
+                   glossaryViewModel: GlossaryViewModel = viewModel()
+) {
+    /*NOTE: added this as part of viewModel*/
+    val glossaryUiState by glossaryViewModel.glossaryUiState.collectAsState()
+    /*NOTE: added this as part of viewModel*/
+    /*NOTE: how to accommodate the need for remember???? ASK HANNAN*/
+
+//    var showInformalDefinition by remember { mutableStateOf(false) }
+    var showInformalDefinition by remember {
+        mutableStateOf(glossaryUiState.showInformalDefinition)
+    }
+
+//    var expandedState by remember {mutableStateOf(false)}
+
+    var expandedState by remember {
+        mutableStateOf(glossaryUiState.expandedState)
+    }
+
+    val rotationState by animateFloatAsState(
+        targetValue = if (expandedState) 180f else 0f, label = "rotateState"
+    )
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize(
+                animationSpec = tween(
+                    durationMillis = 300,
+                    easing = LinearOutSlowInEasing
+                )
+            ),
+        shape = RoundedCornerShape(10.dp),
+        onClick = {
+            expandedState = !expandedState
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            /* Add a Divider between terms*/
+            Divider(modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 9.dp, bottom = 9.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier
+                        .weight(6f),
+                    text = term.termName,
+                    color = Color(0xFF8A191D),
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                IconButton(
+                    modifier = Modifier
+                        .weight(1f)
+                        .alpha(ContentAlpha.medium)
+                        .rotate(rotationState),
+                    onClick = {
+                        expandedState = !expandedState
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        tint = Color(0xFF8A191D),
+                        contentDescription = "Drop-Down Arrow"
+                    )
+                }
+            }
+            /* Use the isExpanded property to decide whether to display the definition*/
+            if (expandedState) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Switch(
+                        checked = showInformalDefinition,
+                        onCheckedChange = { showInformalDefinition = it },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color(0xFF8A191D),
+                            checkedTrackColor = Color(0xFFDEB841),
+                            uncheckedThumbColor = Color(0xFFDEB841),
+                            uncheckedTrackColor = Color(0xFFEEE1B9),
+                        ),
+                    )
+                    /*NOTE: Change 1 with viewModel*/
+                    /* Display label of the current definition*/
+                    Text(text = glossaryViewModel.showDefinitionLabel(showInformalDefinition),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+                /*NOTE: Change 2 with viewModel*/
+                /* Display text of current definition*/
+                Text(text = glossaryViewModel.showDefinitionText(showInformalDefinition,term),
+                    style = MaterialTheme.typography.bodyMedium)
+            }
         }
     }
 }
+
+
+
 
 
 @Preview
