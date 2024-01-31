@@ -74,11 +74,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun GlossaryScreen(
-
+    glossaryViewModel: GlossaryViewModel = viewModel()
 )
 
 {
-    var searchTerm by remember { mutableStateOf("") }
+//    val glossaryUiState by glossaryViewModel.glossaryUiState.collectAsState()
+
+//    var searchTerm by remember { mutableStateOf("") }
     var glossary by remember { mutableStateOf(GlossaryData.glossaryTopics) }
 
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -86,8 +88,8 @@ fun GlossaryScreen(
     /* Show glossary list based on either the topic name or the term name that matches the user's search
     * If no input from user show all terms in glossary */
     val filteredGlossary = glossary.filter { topic ->
-        topic.topicName.contains(searchTerm, ignoreCase = true) ||
-                topic.terms.any { term -> term.termName.contains(searchTerm, ignoreCase = true) }
+        topic.topicName.contains(glossaryViewModel.searchTerm, ignoreCase = true) ||
+                topic.terms.any { term -> term.termName.contains(glossaryViewModel.searchTerm, ignoreCase = true) }
     }
 
     /* Display the filtered glossary*/
@@ -120,16 +122,18 @@ fun GlossaryScreen(
                     modifier = Modifier.padding(bottom = 30.dp)
                 )
                 TextField(
-                    value = searchTerm,
+                    value = glossaryViewModel.searchTerm,
                     /* If user has not searched, show entire glossary,
                     otherwise show filtered glossary*/
                     onValueChange = {
-                        searchTerm = it
-                        glossary = if (searchTerm.isEmpty()) {
+                        glossaryViewModel.searchTerm = it
+
+                        glossary = if (glossaryViewModel.searchTerm.isEmpty()) {
                             GlossaryData.glossaryTopics
                         } else {
                             filteredGlossary
                         }
+
                     },
                     placeholder = { Text("Search Glossary") },
 
@@ -254,16 +258,16 @@ fun DefinitionCard(term: Term,
     /*NOTE: added this as part of viewModel*/
     /*NOTE: how to accommodate the need for remember???? ASK HANNAN*/
 
-//    var showInformalDefinition by remember { mutableStateOf(false) }
-    var showInformalDefinition by remember {
+    var showInformalDefinition by remember { mutableStateOf(false) }
+    /*var showInformalDefinition by remember {
         mutableStateOf(glossaryUiState.showInformalDefinition)
-    }
+    }*/
 
-//    var expandedState by remember {mutableStateOf(false)}
+    var expandedState by remember {mutableStateOf(false)}
 
-    var expandedState by remember {
+    /*var expandedState by remember {
         mutableStateOf(glossaryUiState.expandedState)
-    }
+    }*/
 
     val rotationState by animateFloatAsState(
         targetValue = if (expandedState) 180f else 0f, label = "rotateState"
