@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.fics_compose.DatabaseBuilder
 import com.example.fics_compose.HistoryItem
@@ -55,32 +56,11 @@ import com.example.fics_compose.initialWallet
 import com.example.fics_compose.ui.theme.lightGray
 
 
-//TODO: parcelable can't be persistent, need to create an internal data class and set results to its attr
-
 @Composable
-fun HistoryScreen(navController: NavController)
-{
-    val context = LocalContext.current
-    addToHistory(context, navController)
-}
-
-@Composable
-fun addToHistory(context: Context, navController: NavController){
-    var historyList by remember { mutableStateOf(emptyList<HistoryItem>()) }
-    val database = DatabaseBuilder.getDatabase(context)
-    val dao = database.historyDAO()
-
-    LaunchedEffect(true){
-        historyList = dao.getAllPortfolios()
-    }
-
-    Log.d("portfolioList","$historyList")
-
-    HistoryList(history = historyList, navController)
-}
-
-@Composable
-fun HistoryList(history: List<HistoryItem>, navController: NavController) {
+fun HistoryScreen(
+    onPlayAgainClick: () -> Unit,
+    historyViewModel: HistoryViewModel = viewModel()
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -92,10 +72,12 @@ fun HistoryList(history: List<HistoryItem>, navController: NavController) {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Play Again Button
+            /* Play Again Button*/
             Button(
-                onClick = { startSimulatorScreen(navController) },
-                modifier = Modifier.align(Alignment.End).border(1.5.dp, Color(0xFF8A191D), RoundedCornerShape(30.dp)),
+                onClick = onPlayAgainClick,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .border(1.5.dp, Color(0xFF8A191D), RoundedCornerShape(30.dp)),
                 elevation = ButtonDefaults.buttonElevation(
                     pressedElevation = 6.dp
                 ),
@@ -107,10 +89,12 @@ fun HistoryList(history: List<HistoryItem>, navController: NavController) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "Play Again",
+                    Text(
+                        text = "Play Again",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color(0xFF8A191D),
-                        fontWeight = FontWeight.Bold)
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
             Text(
@@ -120,32 +104,27 @@ fun HistoryList(history: List<HistoryItem>, navController: NavController) {
                 modifier = Modifier.padding(top = 40.dp, bottom = 20.dp)
             )
             Text(
-                text = "See your performance over time.",
+                text = "Here you can see your performance over time.",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(start = 80.dp, end = 85.dp, bottom=5.dp)
+                modifier = Modifier.padding(start = 80.dp, end = 85.dp, bottom = 5.dp)
             )
             Spacer(modifier = Modifier.height(10.dp))
 
             LazyColumn {
-                items(history) { history ->
-                    val roi = calculateROI(history)
-                    HistoryCard(history, roi)
+                items(historyViewModel.historyViewModelList) { historyListItem ->
+                    HistoryCard(historyListItem)
                 }
             }
         }
     }
 }
 
-@Composable
-fun calculateROI(historyItem: HistoryItem): Double {
-    // Assuming initialWallet is a constant or known value
-    return if (initialWallet != 0.0) (historyItem.gains / initialWallet) * 100.0
-    else 0.0
-}
+
+
 
 @Composable
-fun HistoryCard(history: HistoryItem, roi: Double) {
+fun HistoryCard(history: HistoryViewModelItem) {
     var isExpanded by remember { mutableStateOf(false) }
 
     Spacer(modifier = Modifier.height(40.dp))
@@ -181,26 +160,30 @@ fun HistoryCard(history: HistoryItem, roi: Double) {
                     Surface(
                         modifier = Modifier.size(48.dp),
                         color = when {
-                            roi > 0 -> Color(0xff027148)
-                            roi < 0.0 -> Color.Red
+                            history.roi > 0 -> Color(0xff027148)
+                            history.roi < 0.0 -> Color.Red
                             else -> Color.White
                         },
                         shape = CircleShape
                     ) {
-                        // Draw the arrow in the center of the circle
-                        if (roi > 0) {
+                        /* Draw the arrow in the center of the circle*/
+                        if (history.roi > 0) {
                             Icon(
                                 painter = painterResource(id = R.drawable.roiuparrow),
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(12.dp).padding(3.dp),
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .padding(3.dp),
                             )
-                        } else if (roi < 0) {
+                        } else if (history.roi < 0) {
                             Icon(
                                 painter = painterResource(id = R.drawable.roidownarrow),
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(12.dp).padding(3.dp),
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .padding(3.dp),
                             )
                         } else {
                             Icon(
@@ -216,47 +199,45 @@ fun HistoryCard(history: HistoryItem, roi: Double) {
                     modifier = Modifier
                         .weight(1f)
                         .padding(all = 3.dp),
-//                        horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val sign = if (roi > 0) "+" else if (roi < 0) "-" else ""
+                    val sign = if (history.roi > 0) "+" else if (history.roi < 0) "-" else ""
                     Text(
-                        text = "${sign}${roi}%", // Display the calculated ROI
+                        /*Display the calculated ROI*/
+                        text = "${sign}${history.roi}%",
                         style = MaterialTheme.typography.bodyLarge,
                         color = when {
-                            roi > 0 -> Color(0xff027148)
-                            roi < 0.0 -> Color.Red
+                            history.roi > 0 -> Color(0xff027148)
+                            history.roi < 0.0 -> Color.Red
                             else -> Color.Black
                         },
-//                        modifier = Modifier.padding(all = 3.dp),
                     )
                     Text(
                         text = " Return On Investment",
                         color = Color.Black,
                         style = MaterialTheme.typography.bodyMedium,
-//                        modifier = Modifier.padding(all = 3.dp),
                     )
                 }
             }
 
             if (isExpanded) {
-                Divider(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom=9.dp))
+                Divider(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 9.dp, bottom = 9.dp))
+
+                /*Final Net Worth UI*/
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-//                        .padding(top = 16.dp)
                 ) {
-                    // First Column (Image 1)
                     Column(
                         modifier = Modifier
                             .weight(1f)
                     ) {
-                        // First Row
                         Row(
                             modifier = Modifier
                                 .padding(8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            // First Column
                             Column(
                                 modifier = Modifier
                                     .weight(0.4f)
@@ -286,13 +267,13 @@ fun HistoryCard(history: HistoryItem, roi: Double) {
                             }
                         }
 
-                        // Second Row
+                        /* Number of Trades UI*/
                         Row(
                             modifier = Modifier
                                 .padding(3.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            // Second Column
+
                             Column(
                                 modifier = Modifier
                                     .weight(0.4f)
@@ -323,13 +304,13 @@ fun HistoryCard(history: HistoryItem, roi: Double) {
                             }
                         }
 
-                        // Third Row
+                        /*Final Wallet UI*/
                         Row(
                             modifier = Modifier
                                 .padding(3.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            // Third Column (Image 3)
+
                             Column(
                                 modifier = Modifier
                                     .weight(0.4f)
