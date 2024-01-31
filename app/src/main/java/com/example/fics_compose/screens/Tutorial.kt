@@ -310,11 +310,11 @@ object tutorialText{
             R.drawable.tutorial6,
             "Keep track of your wallet, which tells you how much cash you have on hand to invest instantaneously.",
         ),
-        tutorialInfo(
+        /*tutorialInfo(
             "Fed Funds Rate",
             R.drawable.tutorial7,
             "The fed funds rate is the interest rate of the federal government, which indicates how well the economy is performing. High fed funds rate means lower bond prices, or a weaker economy. Low fed funds rate means higher bond prices, or a strong economy.",
-        ),
+        ),*/
         tutorialInfo(
             "An Intro to Bonds ",
             R.drawable.tutorial8,
