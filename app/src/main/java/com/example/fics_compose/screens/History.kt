@@ -57,7 +57,10 @@ import com.example.fics_compose.ui.theme.lightGray
 
 
 @Composable
-fun HistoryScreen(onPlayAgainClick: () -> Unit, historyViewModel: HistoryViewModel = viewModel()) {
+fun HistoryScreen(
+    onPlayAgainClick: () -> Unit,
+    historyViewModel: HistoryViewModel = viewModel()
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -101,7 +104,7 @@ fun HistoryScreen(onPlayAgainClick: () -> Unit, historyViewModel: HistoryViewMod
                 modifier = Modifier.padding(top = 40.dp, bottom = 20.dp)
             )
             Text(
-                text = "See your performance over time.",
+                text = "Here you can see your performance over time.",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(start = 80.dp, end = 85.dp, bottom = 5.dp)
@@ -109,8 +112,8 @@ fun HistoryScreen(onPlayAgainClick: () -> Unit, historyViewModel: HistoryViewMod
             Spacer(modifier = Modifier.height(10.dp))
 
             LazyColumn {
-                items(historyViewModel.historyList) { history ->
-                    HistoryCard(history)
+                items(historyViewModel.historyViewModelList) { historyListItem ->
+                    HistoryCard(historyListItem)
                 }
             }
         }
@@ -121,7 +124,7 @@ fun HistoryScreen(onPlayAgainClick: () -> Unit, historyViewModel: HistoryViewMod
 
 
 @Composable
-fun HistoryCard(history: HistoryItemModel) {
+fun HistoryCard(history: HistoryViewModelItem) {
     var isExpanded by remember { mutableStateOf(false) }
 
     Spacer(modifier = Modifier.height(40.dp))

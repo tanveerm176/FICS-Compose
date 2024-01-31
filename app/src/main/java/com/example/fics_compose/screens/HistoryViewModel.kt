@@ -12,7 +12,7 @@ import kotlin.math.truncate
 
 class HistoryViewModel(application: Application) : AndroidViewModel(application) {
 
-    val historyList = mutableStateListOf<HistoryItemModel>()
+    val historyViewModelList = mutableStateListOf<HistoryViewModelItem>()
     private val database = DatabaseBuilder.getDatabase(getApplication())
 
     init {
@@ -23,8 +23,8 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             val portfolios = database.historyDAO().getAllPortfolios()
             portfolios.forEach { portfolio ->
-                val historyItem = HistoryItemModel(portfolio, calculateROI(portfolio.gains))
-                historyList.add(historyItem)
+                val historyItem = HistoryViewModelItem(portfolio, calculateROI(portfolio.gains))
+                historyViewModelList.add(historyItem)
             }
         }
     }
@@ -34,7 +34,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     }
 }
 
-data class HistoryItemModel(
+data class HistoryViewModelItem(
     val netWorth: Double,
     val wallet: Double,
     val trades: Int,
