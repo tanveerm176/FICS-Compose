@@ -1,5 +1,6 @@
 package com.example.fics_compose.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,19 +33,16 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fics_compose.R
 import com.example.fics_compose.WelcomeNav
 import com.example.fics_compose.ui.theme.lightGray
 
-@Composable
-fun LetsInvestScreen(navController: NavController){
-    LetsInvestCard(navController)
-}
 
 @Composable
-fun LetsInvestCard(navController: NavController):Int{
+fun LetsInvestScreen(onPlayClicked: () -> Unit) {
     Column(
         modifier = Modifier
             .background(color = lightGray)
@@ -64,7 +62,7 @@ fun LetsInvestCard(navController: NavController):Int{
             fontWeight = FontWeight.Bold
         )
         Button(
-            onClick = { startTutorialScreen(navController)},
+            onClick = onPlayClicked,
             modifier = Modifier
                 .border(2.dp, Color(0xFFDEB841), RoundedCornerShape(30.dp)),
             elevation = ButtonDefaults.buttonElevation(
@@ -104,19 +102,13 @@ fun LetsInvestCard(navController: NavController):Int{
             )
         }
     }
-//    Column {
-//        Text(text = "Let's Invest")
-//        Text(text = "You got this!")
-//
-//        Button(onClick = { startTutorialScreen(navController)}) {
-//            Text(text = "PLAY")
-////            Icon(painter = Icons.Filled.ArrowForward, contentDescription = )
-//        }
-//    }
-    return 1
 
 }
 
-fun startTutorialScreen(navController: NavController){
-    navController.navigate(WelcomeNav.Tutorial.route)
+@Composable
+@Preview
+fun LetsInvestPreview(){
+    LetsInvestScreen(onPlayClicked = {
+        Log.d("PlayButton","PlayButtonClicked")
+    })
 }
