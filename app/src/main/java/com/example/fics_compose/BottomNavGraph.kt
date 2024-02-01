@@ -33,7 +33,9 @@ fun BottomNavGraph(navController: NavHostController){
         }
 
         composable(route=WelcomeNav.Welcome.route){
-            WelcomeScreen(navController)
+            WelcomeScreen(onGetStartedClick = {
+                navController.navigate(WelcomeNav.Introduction.route)
+            })
         }
         
         composable(route = WelcomeNav.Tutorial.route){

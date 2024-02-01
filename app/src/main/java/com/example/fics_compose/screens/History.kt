@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -119,8 +120,6 @@ fun HistoryScreen(
         }
     }
 }
-
-
 
 
 @Composable
@@ -220,9 +219,11 @@ fun HistoryCard(history: HistoryViewModelItem) {
             }
 
             if (isExpanded) {
-                Divider(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 9.dp, bottom = 9.dp))
+                Divider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 9.dp, bottom = 9.dp)
+                )
 
                 /*Final Net Worth UI*/
                 Row(
@@ -346,6 +347,12 @@ fun HistoryCard(history: HistoryViewModelItem) {
             Spacer(modifier = Modifier.height(2.dp))
         }
     }
+}
+
+@Composable
+@Preview
+fun HistoryPreview() {
+    HistoryScreen(onPlayAgainClick = { Log.d("HistoryButton", "Play Again Clicked") })
 }
 
 
