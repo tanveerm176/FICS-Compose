@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +34,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,32 +46,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.fics_compose.R
+import com.example.fics_compose.ScreenData.IntroductionData
+import com.example.fics_compose.ScreenData.IntroductionText
 import com.example.fics_compose.WelcomeNav
 import com.example.fics_compose.ui.theme.lightGray
 import com.example.fics_compose.ui.theme.yellow
 
 @Composable
-fun IntroductionScreen(navController: NavController) {
-    IntroCard(navController = navController, displayText = introText.introTextList)
+fun IntroductionScreen(
+    startLetsInvestScreen: () -> Unit,
+//    displayText: List<IntroductionData> = IntroductionText.introTextList,
+    introductionViewModel: IntroductionViewModel = viewModel()
+) {
+//    val introductionUiState by introductionViewModel.introductionUiState.collectAsState()
+//    val maxSlides = displayText.size - 1
+//    var introListIndex by remember { mutableIntStateOf(0) }
+//
+//    var currentPage by remember { mutableIntStateOf(0) }
+//
+//    var currentText by remember { mutableStateOf(displayText[introListIndex]) }
 
-}
-
-@Composable
-fun IntroCard(
-    navController: NavController,
-    displayText:List<introInfo>,
-){
-    val maxSlides = displayText.size-1
-    var i by remember {
-        mutableIntStateOf(0)
-    }
-    var currentPage by remember { mutableStateOf(0) }
-    var currentText by remember {
-        mutableStateOf(displayText[i])
-    }
     Box(
         modifier = Modifier
             .background(color = lightGray)
@@ -80,14 +81,14 @@ fun IntroCard(
             modifier = Modifier
                 .padding(30.dp),
             horizontalAlignment = Alignment.CenterHorizontally
-        ){
+        ) {
             Text(
-                modifier = Modifier.padding(top=6.dp),
-                text = currentText.title,
+                modifier = Modifier.padding(top = 6.dp),
+                text = introductionViewModel.currentText.title,
                 style = MaterialTheme.typography.titleMedium
             )
             Image(
-                painter = painterResource(id = currentText.img),
+                painter = painterResource(id = introductionViewModel.currentText.img),
                 contentDescription = null,
                 modifier = Modifier
                     .size(252.dp)
@@ -97,37 +98,30 @@ fun IntroCard(
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = yellow,shape = RectangleShape)
+                    .background(color = yellow, shape = RectangleShape)
                     .absolutePadding(top = 6.dp, bottom = 13.dp)
                     .border(1.5.dp, Color.White)
-                    .size(width = 200.dp, height = 175.dp)
+                    .size(width = 200.dp, height = 125.dp)
             ) {
-                Box(
-                    modifier = Modifier
-//                        .background(color = yellow)
-                        .absolutePadding(left = 8.dp, top = 28.dp, bottom = 28.dp),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Text(
-                        text = currentText.description,
-                        modifier = Modifier.padding(5.dp),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
+                Text(
+                    text = introductionViewModel.currentText.description,
+                    modifier = Modifier.padding(5.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
             }
 
-            // Page Indicator
+            /* Page Indicator*/
             Row(
-                modifier = Modifier.padding(top = 17.dp, bottom= 26.dp),
+                modifier = Modifier.padding(top = 17.dp, bottom = 26.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Previous Page Button
+                /* Previous Page Button*/
                 Box(
                     modifier = Modifier
                         .clickable {
-                            if (currentPage > 0) {
-                                currentPage -= 1
-                                currentText = displayText[currentPage]
+                            if (introductionViewModel.currentPage > 0) {
+                                introductionViewModel.previousPage()
                             }
                         }
                         .background(
@@ -138,23 +132,24 @@ fun IntroCard(
                         .size(42.dp, 50.dp),
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack, // Use built-in icon for previous
+                        imageVector = Icons.Default.ArrowBack, 
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
 
-                // Page Number Buttons
-                for (page in 0 until maxSlides + 1) {
+                /* Page Number Buttons*/
+                for (page in 0 until introductionViewModel.maxSlides + 1) {
                     Box(
                         modifier = Modifier
                             .clickable {
-                                currentPage = page
-                                currentText = displayText[currentPage]
+                                introductionViewModel.currentPage = page
+                                introductionViewModel.displayCurrentText(introductionViewModel.currentPage)
                             }
                             .background(
-                                color = if (page == currentPage) Color(0xFF8A191D) else Color(0xFFDEB841),
+                                color = if (page == introductionViewModel.currentPage) Color(0xFF8A191D)
+                                else Color(0xFFDEB841),
                                 shape = RectangleShape // Use RectangleShape for square buttons
                             )
                             .border(1.dp, Color.White, RectangleShape) // Add white border
@@ -171,14 +166,15 @@ fun IntroCard(
                 // Next Page Button
                 Box(
                     modifier = Modifier
-                        .clickable {
-                            if (currentPage < maxSlides) {
-                                currentPage += 1
-                                currentText = displayText[currentPage]
-                            } else {
-                                startLetsInvestScreen(navController)
+                        .clickable(
+                            onClick = {
+                                if (introductionViewModel.currentPage < introductionViewModel.maxSlides) {
+                                    introductionViewModel.nextPage()
+                                } else {
+                                    startLetsInvestScreen()
+                                }
                             }
-                        }
+                        )
                         .background(
                             color = Color(0xFFDEB841),
                             shape = RectangleShape // Use RectangleShape for square buttons
@@ -194,9 +190,11 @@ fun IntroCard(
                     )
                 }
             }
+            
+            Spacer(modifier = Modifier.size(40.dp))
 
             Button(
-                onClick = { startLetsInvestScreen(navController) },
+                onClick = startLetsInvestScreen,
                 modifier = Modifier
                     .border(1.5.dp, Color(0xFF8A191D), RoundedCornerShape(30.dp))
                     .align(Alignment.End),
@@ -214,75 +212,12 @@ fun IntroCard(
                     Text(text = "Skip", color = Color(0xFF8A191D), fontWeight = FontWeight.Bold)
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowRight,
-                        contentDescription = null,
+                        contentDescription = "Skip to Let's Invest Screen",
                         tint = Color(0xFF8A191D),
                     )
                 }
             }
-
-
-//            Row {
-//                Button(onClick = { startLetsInvestScreen(navController) }) {
-//                    Text(text = "SKIP")
-//                }
-//
-//                Button(onClick = {
-//                    if (i == maxSlides) {
-//                        startLetsInvestScreen(navController)
-//
-//                    } else {
-//                        i += 1
-//                        currentText = displayText[i]
-//                    }
-//
-//                })
-//                { Text(text = "NEXT") }
-//            }
         }
     }
 }
 
-data class introInfo(
-    val title:String,
-    val description:String,
-    val img: Int
-)
-
-object introText{
-    val introTextList = listOf(
-        introInfo(
-            title = "What is FICS?",
-            img = R.drawable.intro1,
-            description = "Welcome to the new way for college students to learn about the biggest investment market in the world: the Fixed Income market."
-        ),
-        introInfo(
-            title = "Why Now?",
-            img = R.drawable.intro2,
-            description = "With the global fixed income market reaching almost $130 trillion, there is more opportunity than ever for you to generate income from investing."
-        ),
-        introInfo(
-            title = "FICS is Here",
-            img = R.drawable.intro3,
-            description = "We offer a fun, interactive trading simulation for you to learn firsthand how to invest in bonds – without real money. "
-        ),
-        introInfo(
-            title = "Glossary",
-            img = R.drawable.intro4,
-            description = "Check out the glossary page anytime to read about key terms to help you in our simulator or after you’ve started investing (for real) for a refresher."
-        ),
-    )
-
-}
-
-
-fun startLetsInvestScreen(navController: NavController){
-    navController.navigate(WelcomeNav.LetsInvest.route)
-}
-
-
-
-@Composable
-@Preview
-fun IntroPreview() {
-//    IntroductionScreen()
-}

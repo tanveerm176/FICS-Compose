@@ -41,7 +41,9 @@ fun BottomNavGraph(navController: NavHostController){
             TutorialScreen(navController)
         }
         composable(route = WelcomeNav.Introduction.route){
-            IntroductionScreen(navController)
+            IntroductionScreen(startLetsInvestScreen = {
+                navController.navigate(WelcomeNav.LetsInvest.route)
+            })
         }
 
         composable(route = WelcomeNav.LetsInvest.route){
