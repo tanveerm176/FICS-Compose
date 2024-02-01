@@ -1,5 +1,7 @@
 package com.example.fics_compose.screens
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,20 +35,17 @@ import com.example.fics_compose.WelcomeNav
 import com.example.fics_compose.ui.theme.lightGray
 
 @Composable
-fun WelcomeScreen(navController: NavController) {
+fun WelcomeScreen(onGetStartedClick: () -> Unit) {
     Box(
         modifier = Modifier
             .background(color = lightGray)
             .fillMaxHeight()
             .fillMaxWidth(),
-//        contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
                 .padding(16.dp),
-//                .fillMaxHeight()
-//                .fillMaxWidth()
-//                .background(Color.LightGray),
+
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
@@ -54,22 +53,25 @@ fun WelcomeScreen(navController: NavController) {
                 contentDescription = null,
                 modifier = Modifier
                     .padding(top = 40.dp)
-                    .size(280.dp))
+                    .size(280.dp)
+            )
             Text(
                 text = "Welcome!",
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
                 modifier = Modifier
-                    .padding(start=30.dp, top = 15.dp, bottom = 60.dp),
+                    .padding(start = 30.dp, top = 15.dp, bottom = 60.dp),
                 text = "Let’s work on your fixed income investing future, together!",
                 style = MaterialTheme.typography.bodyLarge
             )
 
             Button(
-                onClick = { startIntroductionScreen(navController) },
+                onClick = onGetStartedClick,
                 shape = RoundedCornerShape(7.dp),
-                modifier = Modifier.height(60.dp).width(150.dp),
+                modifier = Modifier
+                    .height(60.dp)
+                    .width(150.dp),
                 elevation = ButtonDefaults.buttonElevation(
                     defaultElevation = 10.dp,
                     pressedElevation = 6.dp
@@ -89,12 +91,11 @@ fun WelcomeScreen(navController: NavController) {
 }
 
 
-fun startIntroductionScreen(navController: NavController){
-    navController.navigate(WelcomeNav.Introduction.route)
 
-}
 @Composable
 @Preview
 fun WelcomePreview() {
-//    WelcomeScreen()
+    WelcomeScreen(onGetStartedClick = {
+        Log.d("WelcomeButton","Welcome Button Clicked")
+    })
 }
