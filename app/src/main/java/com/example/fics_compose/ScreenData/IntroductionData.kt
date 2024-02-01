@@ -28,7 +28,7 @@ object IntroductionText{
         IntroductionData(
             title = "Glossary",
             img = R.drawable.intro4,
-            description = "Check out the glossary page anytime to read about key terms to help you in our simulator or after you’ve started investing (for real) for a refresher."
+            description = "Check out the glossary page anytime to read about key terms to help you in our simulator or after you’ve started investing for a refresher."
         ),
     )
 
