@@ -48,7 +48,6 @@ fun MainScreen() {
 @Composable
 fun BottomBar(navController: NavHostController) {
     val screens = listOf(
-//        BottomNavBar.Welcome,
         BottomNavBar.Glossary,
         BottomNavBar.Simulator,
         BottomNavBar.History
@@ -82,7 +81,6 @@ fun RowScope.AddItem(
             Icon(
                 imageVector = screen.icon,
                 contentDescription = "Navigation Icon",
-//                modifier = Modifier.size(5.dp)
             )
         },
         selected = currentDestination?.hierarchy?.any {
