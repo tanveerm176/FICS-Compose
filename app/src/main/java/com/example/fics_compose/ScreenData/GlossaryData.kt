@@ -1,4 +1,4 @@
-package com.example.fics_compose.screens
+package com.example.fics_compose.ScreenData
 
 data class Term(val termName: String, val formalDefinition: String, val informalDefinition: String)
 data class Topic(val topicName: String, val terms: List<Term>)
