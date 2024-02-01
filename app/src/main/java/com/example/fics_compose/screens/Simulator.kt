@@ -69,13 +69,14 @@ import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavController
 import com.example.fics_compose.BondInfo
-import com.example.fics_compose.BondOption
 import com.example.fics_compose.BottomNavBar
 import com.example.fics_compose.DatabaseBuilder
 import com.example.fics_compose.HistoryDAO
 import com.example.fics_compose.HistoryItem
 import com.example.fics_compose.InternalNav
 import com.example.fics_compose.R
+import com.example.fics_compose.ScreenData.BondData
+import com.example.fics_compose.ScreenData.BondOption
 import com.example.fics_compose.UserInfo
 import com.example.fics_compose.ui.theme.lightGray
 import kotlinx.coroutines.CoroutineScope
@@ -83,65 +84,16 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun SimulatorTopAppBar(navController: NavController, user: UserInfo? = null) {
-//    var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-//    var showHelp = remember { mutableStateOf(false) }
-//    var simNumber = remember { mutableIntStateOf(0) }
-//    val scope = rememberCoroutineScope()
-//    val snackbarHostState = remember { SnackbarHostState() }
-//
-//    Scaffold(
-//        snackbarHost = {
-//            SnackbarHost(hostState = snackbarHostState)
-//        },
-//        topBar = {
-//            TopAppBar(
-//                colors = TopAppBarDefaults.smallTopAppBarColors(
-//                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-//                    titleContentColor = MaterialTheme.colorScheme.secondary,
-//                ),
-//                title = {
-//                    Box(modifier = Modifier.fillMaxWidth()) {
-//                        Text(
-//                            modifier = Modifier.align(Alignment.CenterStart),
-//                            text = "FICS Simulator"
-//                        )
-//                        Button(
-//                            onClick = { showHelp.value = true },
-//                            modifier = Modifier
-//                                .align(Alignment.TopEnd)
-//                                .padding(horizontal = 5.dp)
-//                        ) {
-//                            Text(text = "Help")
-//                        }
-//                        if (showHelp.value) {
-//                            ShowDialog(onSkip = {showHelp.value = false}, simNumber.value)
-//                        }
-//                    }
-//                }
-//            )
-//            scrollBehavior = scrollBehavior
-//        },
-//    ) {innerPadding ->
-//        Box(modifier = Modifier.padding(innerPadding)){
-//            SimulatorScreen(navController, user, simNumber, scope, snackbarHostState)
-//        }
-//    }
-//}
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SimulatorScreen(
     navController: NavController,
     user: UserInfo? = null
-){
+) {
     var simNumber = remember { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-
     var showHelp = remember { mutableStateOf(false) }
 
 
@@ -154,7 +106,6 @@ fun SimulatorScreen(
             modifier = Modifier
                 .background(color = lightGray)
                 .padding(top = 5.dp, start = 5.dp, end = 11.dp),
-//                .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -164,7 +115,7 @@ fun SimulatorScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Reset Button
+                /* Reset Button*/
                 Button(
                     onClick = { resetSimulation(navController) },
                     elevation = ButtonDefaults.buttonElevation(pressedElevation = 6.dp),
@@ -174,7 +125,7 @@ fun SimulatorScreen(
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = "Reset", tint = Color.White)
                 }
-                //Help Button
+                /*Help Button*/
                 Button(
                     onClick = { showHelp.value = true },
                     shape = RoundedCornerShape(30.dp),
@@ -199,22 +150,22 @@ fun SimulatorScreen(
                 ShowDialog(onSkip = { showHelp.value = false }, simNumber.value)
             }
 
-            //when first starting the sim
+            /*when first starting the sim*/
             if (user == null) {
                 SimulatorCard(
                     UserInfo(),
-                    bonds = TestData.testDataList,
+                    bonds = BondData.BondDataList,
                     navController,
                     simNumber,
                     scope,
                     snackbarHostState
                 )
             }
-            //when returning from portfolio screen
+            /*when returning from portfolio screen*/
             else {
                 SimulatorCard(
                     user,
-                    bonds = TestData.testDataList,
+                    bonds = BondData.BondDataList,
                     navController,
                     simNumber,
                     scope,
@@ -227,14 +178,14 @@ fun SimulatorScreen(
 
 @Composable
 fun SimulatorCard(
-    userInfo : UserInfo,
+    userInfo: UserInfo,
     bonds: List<BondOption>,
     navController: NavController,
     simNumber: MutableIntState,
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
 ) {
-    // for traversing bonds list
+    /* for traversing bonds list*/
     var i by remember { mutableIntStateOf(userInfo.month) }
     var numOfBonds by remember { mutableIntStateOf(userInfo.numBonds) }
     var currentBond by remember { mutableStateOf(bonds[i]) }
@@ -247,7 +198,11 @@ fun SimulatorCard(
 
     var showAlertDialog by remember { mutableStateOf(false) }
     if (showAlertDialog) {
-        val randomInt = Random.nextInt(3, userInfo.investList.size - 1)
+
+        /*note: Random int range should start from 3 since only corporate bonds incur credit default risk,
+            however this results in app crash if user has < 3 bonds in their current portfolio,
+            user is also unable to sell bonds from portfolio if range starts from 3 due to this crash*/
+        val randomInt = Random.nextInt(0, userInfo.investList.size - 1)
         val randomBondTitle = userInfo.investList[randomInt].bondTitle
         ShowAlertDialog(
             randomBondTitle = randomBondTitle,
@@ -267,7 +222,8 @@ fun SimulatorCard(
     val netWorthPercentDiff = calculatePercentChange(previousNetWorth, userInfo.netWorth)
     val investmentsPercentDiff = calculatePercentChange(previousInvestments, userInfo.investments)
     val walletPercentDiff = calculatePercentChange(previousWallet, userInfo.wallet)
-    val monthlyReturnPercentDiff = calculatePercentChange(previousMonthlyReturn, userInfo.monthlyReturn)
+    val monthlyReturnPercentDiff =
+        calculatePercentChange(previousMonthlyReturn, userInfo.monthlyReturn)
 
     Column(
         modifier = Modifier
@@ -282,20 +238,15 @@ fun SimulatorCard(
         )
         {
             Row {
-                // Month Display
+                /* Month Display*/
                 Text(
                     text = "Month $month of 12",
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 25.sp,
                     color = Color(0xFF8a191f),
                     style = MaterialTheme.typography.titleMedium,
-                    //                modifier = Modifier.padding(all = 5.dp),
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                //Portfolio Shopping Cart
-                //            IconButton(onClick = { startPortfolioScreen(navController, userInfo) }) {
-                //                Icon(Icons.Filled.ShoppingCart, contentDescription = "Investment List")
-                //            }
 
             }
 
@@ -304,9 +255,8 @@ fun SimulatorCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                //                        .padding(top = 16.dp)
             ) {
-                // First Column (Image 1)
+                /* First Column (Image 1)*/
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -323,10 +273,10 @@ fun SimulatorCard(
                         ) {
                             Text(
                                 text = "Net Worth",
-                                color = Color.Black,
+                                color = Color(0xFF8A191D),
                                 textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(start = 10.dp, bottom=1.dp),
+                                modifier = Modifier.padding(start = 10.dp, bottom = 1.dp),
                             )
                             Text(
                                 text = "$${userInfo.netWorth}",
@@ -344,7 +294,7 @@ fun SimulatorCard(
                                 text = "Investments",
                                 color = Color(0xFF8A191D),
                                 style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(start = 20.dp, bottom=1.dp)
+                                modifier = Modifier.padding(start = 20.dp, bottom = 1.dp)
                             )
                             Text(
                                 text = "$${userInfo.investments}",
@@ -374,15 +324,7 @@ fun SimulatorCard(
             )
             BondCard(bond = bonds[i], userInfo = userInfo)
 
-            //Bond Card
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-////                    .padding(16.dp)
-//                    .border(1.5.dp, Color(0xFFDEB841), RectangleShape)
-//                    .background(Color.LightGray, RectangleShape) // Set the background color and shape of the box
-//            )/
-            Column{
+            Column {
                 UserCard(
                     bond = bonds[i],
                     navController,
@@ -393,25 +335,26 @@ fun SimulatorCard(
                     userInfo = userInfo,
                     onInvestClicked = {
 
-                        // Update previous values
+                        /* Update previous values*/
                         previousNetWorth = userInfo.netWorth
                         previousInvestments = userInfo.investments
                         previousWallet = userInfo.wallet
                         previousMonthlyReturn = userInfo.monthlyReturn
 
-                        // increment month
+                        /* increment month*/
                         month += 1
                         userInfo.incrementMonth()
                         userInfo.wallet += userInfo.monthlyReturn
 
-                        // increment bond
+                        /* increment bond*/
                         i = (i + 1) % bonds.size
                         currentBond = bonds[i]
 
-                        // end simulation, go to history screen
+                        /* end simulation, go to history screen*/
                         if (month == 13) {
                             toastMessages(currContext, "finish")
-                            //TODO: Reset user and sim
+
+                            /*Reset user and sim*/
                             val usrHistory = HistoryItem(
                                 netWorth = userInfo.netWorth,
                                 wallet = userInfo.wallet,
@@ -424,8 +367,8 @@ fun SimulatorCard(
                             startHistoryScreen(navController)
                         }
 
-                        // new bond category
-                        if (month % 3 == 0) {
+                        /* new bond category*/
+                        if (month % 4 == 0) {
                             simNumber.value += 1
                             scope.launch {
                                 val result = snackbarHostState
@@ -441,7 +384,7 @@ fun SimulatorCard(
                             }
                         }
 
-                        // default risk
+                        /* default risk*/
                         if (month == 7) {
                             showAlertDialog = true
                         }
@@ -455,7 +398,7 @@ fun SimulatorCard(
 }
 
 
-// Function to calculate percentage change
+/* Function to calculate percentage change*/
 private fun calculatePercentChange(oldValue: Double, newValue: Double): Double {
     return if (oldValue != 0.0) {
         ((newValue - oldValue) / oldValue) * 100
@@ -469,9 +412,9 @@ private fun calculatePercentChange(oldValue: Double, newValue: Double): Double {
     }
 }
 
-// Function to reset the simulation state
+/* Function to reset the simulation state*/
 private fun resetSimulation(navController: NavController) {
-    // Replace the lines below with the initial values of your UserInfo properties
+    // reInit user values
     val initialWallet = 1000.0
     val initialInvestments = 0.0
     val initialMonthlyReturn = 0.0
@@ -496,77 +439,26 @@ private fun resetSimulation(navController: NavController) {
     }
 }
 
-//@Composable
-//fun TransparentBox(
-//    label: String,
-//    value: String,
-//    upArrowImageRes: Int,
-//    downArrowImageRes: Int
-//) {
-//    Box(
-//        modifier = Modifier
-//            .fillMaxWidth(0.5f)
-//            .background(color = Color.Transparent)
-//            .padding(10.dp),
-//        contentAlignment = Alignment.CenterStart
-//    ) {
-//        // Display label and value
-//        Column(
-//            horizontalAlignment = Alignment.Start
-//        ) {
-//            Text(
-//                text = label,
-//                style = MaterialTheme.typography.bodyMedium,
-//                color = Color(0xFFDEB841),
-//                textAlign = TextAlign.Start
-//            )
-//            Spacer(modifier = Modifier.height(2.dp))
-//            Text(
-//                text = value,
-//                style = MaterialTheme.typography.bodyLarge,
-//                textAlign = TextAlign.Start
-//            )
-//        }
-
-// Display arrow image
-//        val arrowImageRes = if (value.toDouble() >= 0) upArrowImageRes else downArrowImageRes
-//        Image(
-//            painter = painterResource(id = arrowImageRes),
-//            contentDescription = null,
-//            modifier = Modifier
-//                .size(24.dp) // Adjust the size as needed
-//                .padding(start = 8.dp)
-//        )
-//    }
-//}
-
-
-
 @Composable
 fun BondCard(
     bond: BondOption,
-//    numberOfBonds: Int,
-//    onNumberOfBondsChanged: (Int) -> Unit,
     userInfo: UserInfo,
-//    onInvestClicked: () -> Unit
 ) {
     val bondRate = bond.interestRate
     val month = userInfo.month
 
-//    var numBonds by remember { mutableIntStateOf(numberOfBonds) }
     Box(
         modifier = Modifier
             .fillMaxWidth()
-//                    .padding(16.dp)
             .border(1.5.dp, Color(0xFFDEB841), RoundedCornerShape(10.dp))
-            .background(Color.LightGray, RoundedCornerShape(10.dp)) // Set the background color and shape of the box
+            .background(
+                Color.LightGray,
+                RoundedCornerShape(10.dp)
+            ) // Set the background color and shape of the box
     ) {
         Column(
             modifier = Modifier
-//                .fillMaxWidth()
                 .padding(8.dp),
-//            verticalArrangement = Arrangement.Center,
-//            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = bond.title,
@@ -578,11 +470,10 @@ fun BondCard(
                     .fillMaxWidth()
                     .padding(top = 1.dp)
             ) {
-                // First column
+                /* First column*/
                 Column(
                     modifier = Modifier
                         .weight(1f)
-//                        .padding(start = 5.dp, end = 5.dp)
                 ) {
                     WhiteBox("Interest Rate", "${bondRate}%")
                     Spacer(modifier = Modifier.height(3.dp))
@@ -601,62 +492,7 @@ fun BondCard(
         }
     }
 
-//            Text(
-//                text = "Price: $" + bond.price,
-////                    modifier = Modifier.padding(all = 5.dp),
-//                color = Color(0xFF08010F)
-//            )
-//            Text(
-//                text = "Interest Rate: % " + bond.interestRate,
-////                    modifier = Modifier.padding(all = 5.dp),
-//                color = Color(0xFF08010F)
-//            )
-//            Text(
-//                text = "Monthly Return: $" + (bond.price * bond.interestRate / 100),
-////                    modifier = Modifier.padding(all = 5.dp),
-//                color = Color(0xFF08010F)
-//            )
-//            Text(
-//                text = "Buy # of Bonds: ",
-////                    modifier = Modifier.padding(top = 5.dp),
-//                color = Color(0xFF08010F)
-//            )
-//            NumericInputField(
-//                value = numBonds,
-//                onValueChange = {
-//                    onNumberOfBondsChanged(it)
-//                }
-//            )
-//            // Invest Button
-//            Button(
-////                    modifier = Modifier.padding(all = 5.dp),
-////                    modifier = Modifier.align(Alignment.),
-//                onClick = {
-//                    // add bond to investment list
-//                    var bondInfo =
-//                        BondInfo(bond.title, bond.price, bond.interestRate, numberOfBonds)
-//                    userInfo.investList.add(bondInfo)
-//                    Log.d("investList", "{${userInfo.investList.toList()}}") // log new list
-//
-//                    // update trades, wallet, total monthly ROI, invesments, and net worth list
-//                    userInfo.incrementTrades()
-//                    userInfo.wallet -= (bond.price * numberOfBonds)
-//                    userInfo.monthlyReturn += bondInfo.monthlyReturn
-//                    userInfo.investments += bondInfo.investment
-//                    userInfo.netWorthList.add(userInfo.netWorth)
-//
-//                    // note (S.S.): This does not change what the user sees in the input field, but it does allow
-//                    // user to keep investing the same number of bonds
-//                    numBonds = 0
-//                    onInvestClicked()
-//                },
-//            ) {
-//                Text(
-//                    text = "Invest",
-//                )
-//            }
 }
-
 
 
 @Composable
@@ -674,8 +510,6 @@ fun UserCard(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
-//            verticalAlignment = Alignment.Start,
-//            modifier = Modifier.fillMaxWidth()
         ) {
             NumericInputField(
                 value = numBonds,
@@ -683,10 +517,8 @@ fun UserCard(
                     onNumberOfBondsChanged(it)
                 }
             )
-            // Invest Button
+            /* Invest Button*/
             Button(
-                //                    modifier = Modifier.padding(all = 5.dp),
-                //                    modifier = Modifier.align(Alignment.),
                 onClick = {
                     // add bond to investment list
                     var bondInfo =
@@ -694,15 +526,12 @@ fun UserCard(
                     userInfo.investList.add(bondInfo)
                     Log.d("investList", "{${userInfo.investList.toList()}}") // log new list
 
-                    // update trades, wallet, total monthly ROI, invesments, and net worth list
                     userInfo.incrementTrades()
                     userInfo.wallet -= (bond.price * numberOfBonds)
                     userInfo.monthlyReturn += bondInfo.monthlyReturn
                     userInfo.investments += bondInfo.investment
                     userInfo.netWorthList.add(userInfo.netWorth)
 
-                    // note (S.S.): This does not change what the user sees in the input field, but it does allow
-                    // user to keep investing the same number of bonds
                     numBonds = 0
                     onInvestClicked()
                 },
@@ -726,61 +555,14 @@ fun UserCard(
             Spacer(modifier = Modifier.width(50.dp))
 
             IconButton(onClick = { startPortfolioScreen(navController, userInfo) }) {
-                Icon(Icons.TwoTone.ShoppingCart, contentDescription = "Investment List", modifier = Modifier.size(50.dp))
+                Icon(
+                    Icons.TwoTone.ShoppingCart,
+                    contentDescription = "Investment List",
+                    modifier = Modifier.size(50.dp)
+                )
             }
 
         }
-//        Text(
-//            text = "Investment Value: $${bond.}",
-//            color = Color(0xFF8a191f),
-//            fontWeight = FontWeight.ExtraBold,
-//            fontSize = 15.sp,
-//        )
-//        Text(
-//            text = "Wallet: $${userInfo.wallet}",
-//            fontWeight = FontWeight.ExtraBold,
-//            fontSize = 15.sp,
-//            color = Color(0xFF8a191f),
-//            style = MaterialTheme.typography.titleMedium,
-//            modifier = Modifier.padding(all = 5.dp),
-//            textAlign = TextAlign.Center
-//        )
-//
-//        Text(
-//            text = "Investments: $${
-//                userInfo.investments
-//            }",
-//            color = Color(0xFF8a191f),
-//            fontWeight = FontWeight.ExtraBold,
-//            fontSize = 15.sp,
-//            style = MaterialTheme.typography.titleMedium,
-//            modifier = Modifier.padding(all = 5.dp),
-//            textAlign = TextAlign.Center
-//        )
-//
-//        Text(
-//            text = "Net Worth: $${
-//                userInfo.netWorth
-//            }",
-//            color = Color(0xFF8a191f),
-//            fontWeight = FontWeight.ExtraBold,
-//            fontSize = 15.sp,
-//            style = MaterialTheme.typography.titleMedium,
-//            modifier = Modifier.padding(all = 5.dp),
-//            textAlign = TextAlign.Center
-//        )
-//
-//        Text(
-//            text = "Monthly Return: $${
-//                userInfo.monthlyReturn
-//            }",
-//            color = Color(0xFF8a191f),
-//            fontWeight = FontWeight.ExtraBold,
-//            fontSize = 15.sp,
-//            style = MaterialTheme.typography.titleMedium,
-//            modifier = Modifier.padding(all = 5.dp),
-//            textAlign = TextAlign.Center
-//        )
 
     }
 }
@@ -812,85 +594,9 @@ fun NumericInputField(value: Int, onValueChange: (Int) -> Unit) {
     }
 }
 
-object TestData{
-    val testDataList = listOf(
-        BondOption(
-            title = "Treasury Bill",
-            img = R.drawable.treasuries,
-            price = 100.00,
-            interestRate = 2.00
-        ),
-        BondOption(
-            title = "Treasury Note",
-            img = R.drawable.treasuries,
-            price = 200.00,
-            interestRate = 3.00,
-        ),
-        BondOption(
-            title = "Treasury Bond",
-            img = R.drawable.treasuries,
-            price = 500.00,
-            interestRate = 0.5,
-        ),
-        BondOption(
-            title = "Apple",
-            img = R.drawable.apple,
-            price = 500.00,
-            interestRate = 0.5,
-        ),
-        BondOption(
-            title = "Twitter",
-            img = R.drawable.twitter,
-            price = 500.00,
-            interestRate = 0.5,
-        ),
-        BondOption(
-            title = "AT&T",
-            img = R.drawable.att,
-            price = 500.00,
-            interestRate = 0.5,
-        ),
-        BondOption(
-            title = "FTX",
-            img = R.drawable.fedinterestrateup,
-            price = 500.00,
-            interestRate = 0.5,
-        ),
-        BondOption(
-            title = "Asset Backed",
-            img = R.drawable.assetbacked,
-            price = 500.00,
-            interestRate = 0.5,
-        ),
-        BondOption(
-            title = "TIPS",
-            img = R.drawable.tips,
-            price = 500.00,
-            interestRate = 0.5,
-        ),
-        BondOption(
-            title = "Municipal Bond",
-            img = R.drawable.mutualfunds,
-            price = 500.00,
-            interestRate = 0.5,
-        ),
-        BondOption(
-            title = "Munis",
-            img = R.drawable.munis,
-            price = 500.00,
-            interestRate = 0.5,
-        ),
-        BondOption(
-            title = "ETFs",
-            img = R.drawable.etf,
-            price = 500.00,
-            interestRate = 0.5,
-        ),
-    )
-}
 
 @Composable
-private fun ShowDialog (
+private fun ShowDialog(
     onSkip: () -> Unit,
     simNumber: Int
 ) {
@@ -963,24 +669,28 @@ private fun ShowAlertDialog(randomBondTitle: String, onSkip: () -> Unit) {
     }
 }
 
-//TODO: Replace Toast Msg with Dialog Boxes 2in Final
-private fun toastMessages(context: Context, flg:String) {
+private fun toastMessages(context: Context, flg: String) {
     when (flg) {
         "reset" -> Toast.makeText(context, "Simulation Reset", Toast.LENGTH_LONG).show()
-        "finish" -> Toast.makeText(context, "Simulation Complete, View Portfolio", Toast.LENGTH_LONG).show()
+        "finish" -> Toast.makeText(
+            context,
+            "Simulation Complete, View Portfolio",
+            Toast.LENGTH_LONG
+        ).show()
+
         "newBond" -> Toast.makeText(context, "New Bond!", Toast.LENGTH_LONG).show()
     }
 }
 
-fun startHistoryScreen(navController:NavController){
+fun startHistoryScreen(navController: NavController) {
     navController.navigate(BottomNavBar.History.route)
 }
 
-fun startPortfolioScreen(navController: NavController, portfolio: UserInfo){
+fun startPortfolioScreen(navController: NavController, portfolio: UserInfo) {
     navController.currentBackStackEntry?.savedStateHandle?.set("portfolio", portfolio)
     navController.navigate(InternalNav.Portfolio.route)
 }
 
-suspend fun insertHistory(item:HistoryItem, dao:HistoryDAO){
+suspend fun insertHistory(item: HistoryItem, dao: HistoryDAO) {
     dao.insert(item)
 }
