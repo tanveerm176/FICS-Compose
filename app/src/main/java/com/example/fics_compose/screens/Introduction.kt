@@ -47,20 +47,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fics_compose.R
+import com.example.fics_compose.ScreenData.IntroductionData
+import com.example.fics_compose.ScreenData.IntroductionText
 import com.example.fics_compose.WelcomeNav
 import com.example.fics_compose.ui.theme.lightGray
 import com.example.fics_compose.ui.theme.yellow
 
 @Composable
-fun IntroductionScreen(navController: NavController) {
-    IntroCard(navController = navController, displayText = introText.introTextList)
-
-}
-
-@Composable
-fun IntroCard(
-    navController: NavController,
-    displayText:List<introInfo>,
+fun IntroductionScreen(
+    startLetsInvestScreen: () -> Unit,
+    displayText:List<IntroductionData> = IntroductionText.introTextList,
 ){
     val maxSlides = displayText.size-1
     var i by remember {
@@ -97,7 +93,7 @@ fun IntroCard(
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = yellow,shape = RectangleShape)
+                    .background(color = yellow, shape = RectangleShape)
                     .absolutePadding(top = 6.dp, bottom = 13.dp)
                     .border(1.5.dp, Color.White)
                     .size(width = 200.dp, height = 175.dp)
@@ -154,7 +150,9 @@ fun IntroCard(
                                 currentText = displayText[currentPage]
                             }
                             .background(
-                                color = if (page == currentPage) Color(0xFF8A191D) else Color(0xFFDEB841),
+                                color = if (page == currentPage) Color(0xFF8A191D) else Color(
+                                    0xFFDEB841
+                                ),
                                 shape = RectangleShape // Use RectangleShape for square buttons
                             )
                             .border(1.dp, Color.White, RectangleShape) // Add white border
@@ -171,14 +169,16 @@ fun IntroCard(
                 // Next Page Button
                 Box(
                     modifier = Modifier
-                        .clickable {
-                            if (currentPage < maxSlides) {
-                                currentPage += 1
-                                currentText = displayText[currentPage]
-                            } else {
-                                startLetsInvestScreen(navController)
+                        .clickable(
+                            onClick = {
+                                if (currentPage < maxSlides) {
+                                    currentPage += 1
+                                    currentText = displayText[currentPage]
+                                } else {
+                                    startLetsInvestScreen()
+                                }
                             }
-                        }
+                        )
                         .background(
                             color = Color(0xFFDEB841),
                             shape = RectangleShape // Use RectangleShape for square buttons
@@ -196,7 +196,7 @@ fun IntroCard(
             }
 
             Button(
-                onClick = { startLetsInvestScreen(navController) },
+                onClick = startLetsInvestScreen,
                 modifier = Modifier
                     .border(1.5.dp, Color(0xFF8A191D), RoundedCornerShape(30.dp))
                     .align(Alignment.End),
@@ -219,70 +219,7 @@ fun IntroCard(
                     )
                 }
             }
-
-
-//            Row {
-//                Button(onClick = { startLetsInvestScreen(navController) }) {
-//                    Text(text = "SKIP")
-//                }
-//
-//                Button(onClick = {
-//                    if (i == maxSlides) {
-//                        startLetsInvestScreen(navController)
-//
-//                    } else {
-//                        i += 1
-//                        currentText = displayText[i]
-//                    }
-//
-//                })
-//                { Text(text = "NEXT") }
-//            }
         }
     }
 }
 
-data class introInfo(
-    val title:String,
-    val description:String,
-    val img: Int
-)
-
-object introText{
-    val introTextList = listOf(
-        introInfo(
-            title = "What is FICS?",
-            img = R.drawable.intro1,
-            description = "Welcome to the new way for college students to learn about the biggest investment market in the world: the Fixed Income market."
-        ),
-        introInfo(
-            title = "Why Now?",
-            img = R.drawable.intro2,
-            description = "With the global fixed income market reaching almost $130 trillion, there is more opportunity than ever for you to generate income from investing."
-        ),
-        introInfo(
-            title = "FICS is Here",
-            img = R.drawable.intro3,
-            description = "We offer a fun, interactive trading simulation for you to learn firsthand how to invest in bonds – without real money. "
-        ),
-        introInfo(
-            title = "Glossary",
-            img = R.drawable.intro4,
-            description = "Check out the glossary page anytime to read about key terms to help you in our simulator or after you’ve started investing (for real) for a refresher."
-        ),
-    )
-
-}
-
-
-fun startLetsInvestScreen(navController: NavController){
-    navController.navigate(WelcomeNav.LetsInvest.route)
-}
-
-
-
-@Composable
-@Preview
-fun IntroPreview() {
-//    IntroductionScreen()
-}
