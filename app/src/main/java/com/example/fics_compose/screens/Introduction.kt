@@ -1,5 +1,6 @@
 package com.example.fics_compose.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -59,7 +60,7 @@ import com.example.fics_compose.ui.theme.yellow
 
 @Composable
 fun IntroductionScreen(
-    startLetsInvestScreen: () -> Unit,
+    skipIntroButtonClicked: () -> Unit,
 //    displayText: List<IntroductionData> = IntroductionText.introTextList,
     introductionViewModel: IntroductionViewModel = viewModel()
 ) {
@@ -148,7 +149,9 @@ fun IntroductionScreen(
                                 introductionViewModel.displayCurrentText(introductionViewModel.currentPage)
                             }
                             .background(
-                                color = if (page == introductionViewModel.currentPage) Color(0xFF8A191D)
+                                color = if (page == introductionViewModel.currentPage) Color(
+                                    0xFF8A191D
+                                )
                                 else Color(0xFFDEB841),
                                 shape = RectangleShape // Use RectangleShape for square buttons
                             )
@@ -171,7 +174,7 @@ fun IntroductionScreen(
                                 if (introductionViewModel.currentPage < introductionViewModel.maxSlides) {
                                     introductionViewModel.nextPage()
                                 } else {
-                                    startLetsInvestScreen()
+                                    skipIntroButtonClicked()
                                 }
                             }
                         )
@@ -194,7 +197,7 @@ fun IntroductionScreen(
             Spacer(modifier = Modifier.size(40.dp))
 
             Button(
-                onClick = startLetsInvestScreen,
+                onClick = skipIntroButtonClicked,
                 modifier = Modifier
                     .border(1.5.dp, Color(0xFF8A191D), RoundedCornerShape(30.dp))
                     .align(Alignment.End),
@@ -219,5 +222,13 @@ fun IntroductionScreen(
             }
         }
     }
+}
+
+@Composable
+@Preview
+fun IntroPreview(){
+    IntroductionScreen(skipIntroButtonClicked = {
+        Log.d("Intro-Skipped", "Intro Skip Button Clicked")
+    })
 }
 
