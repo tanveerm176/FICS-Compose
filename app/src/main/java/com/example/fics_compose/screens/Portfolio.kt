@@ -80,86 +80,7 @@ import com.example.fics_compose.ui.theme.lightGray
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun PortfolioTopAppBar(user: UserInfo?, navController:NavController) {
-//    var scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-//    var observedUser by remember { mutableStateOf(user) }
-//
-//    Scaffold(
-//        topBar = {
-//            TopAppBar(
-//                colors = TopAppBarDefaults.smallTopAppBarColors(
-//                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-//                    titleContentColor = MaterialTheme.colorScheme.secondary,
-//                ),
-//                title = {
-//                    Box(modifier = Modifier.fillMaxWidth()) {
-//                        Text("Current Portfolio")
-//                    }
-//                },
-//
-//                navigationIcon = {
-//                    IconButton(
-//                        onClick = {
-//                            if (user != null) {
-//                                returnToSimulator(navController, user)
-//                            }
-//                            if (user != null) {
-//                                Log.d("current invest-list", "${user.investList.toList()}")
-//                            }
-//                        }
-//                    ) {
-//                        Icon(
-//                            imageVector = Icons.Filled.ArrowBack,
-//                            contentDescription = null
-//                        )
-//                    }
-//                }
-//            )
-//            scrollBehavior = scrollBehavior
-//        },
-//
-//        ) { innerPadding ->
-//        if (user != null) {
-//            Column(modifier = Modifier.padding(innerPadding)) {
-//                PortfolioScreen(user)
-//            }
-//        }
-//    }
-//}
 
-//@Composable
-//fun PortfolioScreen(user: UserInfo) {
-//    val wallet = remember {
-//        mutableDoubleStateOf(user.wallet)
-//    }
-//    val investments = remember {
-//        mutableDoubleStateOf(user.investments)
-//    }
-//    val netWorth = remember {
-//        mutableDoubleStateOf(user.netWorth)
-//    }
-//    val monthlyReturn = remember {
-//        mutableDoubleStateOf(user.monthlyReturn)
-//    }
-//    userCard(wallet, investments, netWorth, monthlyReturn)
-//    LazyColumn {
-//        itemsIndexed(user.investList) {index, bondPurchased ->
-//            PortfolioCard(bondPurchased, index, user, wallet, investments, netWorth, monthlyReturn)
-//        }
-//    }
-//}
-
-
-//@Composable
-//fun PortfolioList(portfolio: SnapshotStateList<BondInfo>, user: UserInfo) {
-//    LazyColumn {
-//        itemsIndexed(portfolio) {index, bondPurchased ->
-//            PortfolioCard(bondPurchased, index, user)
-//        }
-//    }
-//}
 
 @Composable
 fun PortfolioScreen(user: UserInfo?, navController: NavController) {
@@ -206,7 +127,6 @@ fun PortfolioScreen(user: UserInfo?, navController: NavController) {
                         containerColor = Color(0xFF8A191D),
                         contentColor = Color.White,
                     ),
-//                    modifier = Modifier.align(Alignment.End)
                 ){
                     Text(
                         text = "?",
@@ -379,7 +299,7 @@ fun userCard(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Total Investments",
+                text = "Investments",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF8A191D),
                 fontWeight = FontWeight.Bold,
@@ -419,11 +339,12 @@ fun PortfolioCard(
         ShowAlertDialog()
     }
 
-    val cardColor = if (bondPrice == 0.0 && bondRate == 0.0) {
-        Color(android.graphics.Color.parseColor("#FF7F7F"))
+    val cardColor = if (bondPrice == 0.0) {
+        Color(0xFF8A191D)
     } else {
-        Color.LightGray
+        Color.Transparent
     }
+
     Row(modifier = Modifier.fillMaxWidth()) {
         Spacer(modifier = Modifier.width(8.dp))
         Column() {
@@ -436,7 +357,7 @@ fun PortfolioCard(
                     .fillMaxWidth()
                     .clickable { isExpanded = !isExpanded }
                     .background(
-                        color = Color.Transparent,
+                        color = cardColor,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .border(3.dp, Color(0xFFDEB841), RoundedCornerShape(10.dp))
@@ -483,7 +404,6 @@ fun PortfolioCard(
                                 color = Color(0xFF8A191D),
                                 style = MaterialTheme.typography.bodySmall,
                                 textAlign = TextAlign.Center
-//                                fontWeight = FontWeight.Bold
                             )
                             Text(
                                 text = "$numBonds",
@@ -509,10 +429,9 @@ fun PortfolioCard(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color(0xFF8A191D),
                                 textAlign = TextAlign.Center
-//                                fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "$investval",
+                                text = "$$investval",
                                 color = Color.Black,
                                 modifier = Modifier.padding(all = 3.dp),
                                 style = MaterialTheme.typography.bodyLarge
@@ -552,30 +471,6 @@ fun PortfolioCard(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    // First column in the second row
-                                    /*Box(
-                                        modifier = Modifier.weight(1f),
-                                        contentAlignment = Alignment.CenterStart,
-                                        content = {
-                                            Column (
-                                                modifier = Modifier.fillMaxSize(),
-                                                horizontalAlignment = Alignment.CenterHorizontally
-                                            ){
-                                                Text(
-                                                    text = "Investment Value",
-                                                    color = Color(0xFF8A191D),
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    textAlign = TextAlign.Center
-                                                )
-                                                Spacer(modifier = Modifier.height(1.dp))
-                                                Text(
-                                                    text = "$$investval",
-                                                    color = Color.Black,
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    fontWeight = FontWeight.Bold
-                                                )
-                                            }
-                                        })*/
 
                                     // Second column in the second row
                                     Box(
@@ -602,11 +497,6 @@ fun PortfolioCard(
                                                 Log.d("sellBond", "{${user.investList.toList()}}")
                                             } ,
                                             shape = RoundedCornerShape(7.dp),
-//                                            modifier = Modifier.height(.dp).width(150.dp),
-//                                            elevation = ButtonDefaults.buttonElevation(
-//                                                defaultElevation = 10.dp,
-//                                                pressedElevation = 6.dp
-//                                            ),
                                             colors = ButtonDefaults.buttonColors(
                                                 containerColor = Color(0xFFDEB841),
                                                 contentColor = Color.White,
