@@ -76,6 +76,8 @@ class UserInfo(
         this.trades = 0
         this.totalGains
         this.netWorth
+        this.investList.clear()
+        this.netWorthList.clear()
         return this
     }
 }

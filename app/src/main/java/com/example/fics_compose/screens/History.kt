@@ -73,7 +73,7 @@ fun HistoryScreen(
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            /* Play Again Button*/
+            /*Play Again Button*/
             Button(
                 onClick = onPlayAgainClick,
                 modifier = Modifier
@@ -349,10 +349,10 @@ fun HistoryCard(history: HistoryViewModelItem) {
     }
 }
 
-@Composable
+/*@Composable
 @Preview
 fun HistoryPreview() {
-    HistoryScreen(onPlayAgainClick = { Log.d("HistoryButton", "Play Again Clicked") })
-}
+    HistoryScreen()
+}*/
 
 

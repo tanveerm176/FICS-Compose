@@ -89,13 +89,12 @@ import kotlin.random.Random
 @Composable
 fun SimulatorScreen(
     navController: NavController,
-    user: UserInfo? = null
+    user: UserInfo
 ) {
     var simNumber = remember { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var showHelp = remember { mutableStateOf(false) }
-
 
     Scaffold(
         snackbarHost = {
@@ -116,15 +115,15 @@ fun SimulatorScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 /* Reset Button*/
-                Button(
-                    onClick = { resetSimulation(navController) },
+                /*Button(
+                    onClick = { user.reset() },
                     elevation = ButtonDefaults.buttonElevation(pressedElevation = 6.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF8A191D),
                     )
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = "Reset", tint = Color.White)
-                }
+                }*/
                 /*Help Button*/
                 Button(
                     onClick = { showHelp.value = true },
@@ -150,28 +149,15 @@ fun SimulatorScreen(
                 ShowDialog(onSkip = { showHelp.value = false }, simNumber.value)
             }
 
-            /*when first starting the sim*/
-            if (user == null) {
-                SimulatorCard(
-                    UserInfo(),
-                    bonds = BondData.BondDataList,
-                    navController,
-                    simNumber,
-                    scope,
-                    snackbarHostState
-                )
-            }
-            /*when returning from portfolio screen*/
-            else {
-                SimulatorCard(
-                    user,
-                    bonds = BondData.BondDataList,
-                    navController,
-                    simNumber,
-                    scope,
-                    snackbarHostState
-                )
-            }
+
+            SimulatorCard(
+                user,
+                bonds = BondData.BondDataList,
+                navController,
+                simNumber,
+                scope,
+                snackbarHostState
+            )
         }
     }
 }
@@ -186,11 +172,11 @@ fun SimulatorCard(
     snackbarHostState: SnackbarHostState,
 ) {
     /* for traversing bonds list*/
-    var i by remember { mutableIntStateOf(userInfo.month) }
+    var i by remember { mutableIntStateOf(0) }
     var numOfBonds by remember { mutableIntStateOf(userInfo.numBonds) }
     var currentBond by remember { mutableStateOf(bonds[i]) }
 
-    var month by remember { mutableIntStateOf(userInfo.month + 1) }
+    var month by remember { mutableIntStateOf(1) }
     val currContext = LocalContext.current
 
     val database = DatabaseBuilder.getDatabase(currContext)
