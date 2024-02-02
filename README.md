@@ -1,6 +1,6 @@
 # FICS-Compose
 
-FICS is an interactive Android app that functions as an investment simulation platform for the fixed income market.
+FICS (Fixed Income for College Students) is an interactive Android app that functions as an investment simulation platform for the fixed income market.
 Our target audience consists of young adults with a basic understanding of investing, as well as financial educators
 looking for engaging resources for their students.
 
@@ -12,12 +12,23 @@ Our simulation will include four major asset types for investing: treasuries, co
 (treasury inflation protected securities), and securitized (asset-backed) bonds. The vehicles we will provide are mutual
 funds and EFTs.
 
-In the simulation, we will go step-by-step, introducing each asset type and vehicle so that the user has the chance to
-understand them all and invest in all of them. The first five screens of their simulation will be more of a tutorial, where
-we will introduce each asset/vehicle per month. After the introductions to new assets, our users can invest their
-money freely while keeping in mind economic situations such as default, interest rates, and inflation. Our simulation
-will also address economic conditions that can affect these investments. For our purposes, we will focus on inflation,
-interest rates, and the business cycle (expansion, peak, recession, depression).
+In the simulation, we will go step-by-step, with a new assest type introduced every three months to allow users to understand the differences between asset types.
+During the simulation users are able to buy and sell bonds as they wish, allowing them to understand how each decision affects their portfolio.
+To further assist in learning about fixed income investing, during the simulation users will have one of their bonds default and be forced to sell that bond, 
+allowing them to understand some of the risks associated with fixed income investing.
 
-This project was completed as part of Hunter College Computer Science Capstone course.
+This app is created using the Android Studio IDE, Kotlin, and Jetpack Compose UI Framework. Aside from the Simulator and Portfolio screens, 
+the app follows Model-View-Viewmodel architecture. The Simulator and Portfolio screen follow Event Driven Architecture. The app includes a persistent database and uses coroutines.
+
+Users are able to do the following:
+[] Navigate Welcome and Tutorial screen which introduce the app, it's features, as well as a brief introduction to Fixed Income Investing
+[] Access a Glossary Screen with both formal and informal definitions as well as the ability to search for specific terms
+[] Simulate a year of investing in the fixed income market, including being able to buy and sell bonds, respond to bond default risk, and access information about specific bond types
+[] After the simulation is complete users are able to access a persistent database via the History Screen to review their performance in their latest simulation as well as past simulation results
+
+The following is required to run FICS:
+[] Latest version of Android Studio??? SPECIFIC VERSION??
+[] Android Compile SDK Version 34 with min SDK Version 31
+
+You can view a walkthrough of the app below:
 ![](https://github.com/tanveerm176/FICS-Compose/blob/main/FICS_Demo2.gif)
