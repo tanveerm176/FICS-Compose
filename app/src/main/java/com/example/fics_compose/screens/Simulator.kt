@@ -364,19 +364,19 @@ fun SimulatorCard(
 }
 
 
-/* Function to calculate percentage change*/
-//private fun calculatePercentChange(oldValue: Double, newValue: Double): Double {
-//    return if (oldValue != 0.0) {
-//        ((newValue - oldValue) / oldValue) * 100
-//    } else {
-//        // Handle the case where the old value is zero to avoid division by zero
-//        if (newValue == 0.0) {
-//            0.0
-//        } else {
-//            0.0
-//        }
-//    }
-//}
+/* Function to calculate percentage change to be displayed as interactive UI*/
+/*private fun calculatePercentChange(oldValue: Double, newValue: Double): Double {
+    return if (oldValue != 0.0) {
+        ((newValue - oldValue) / oldValue) * 100
+    } else {
+        // Handle the case where the old value is zero to avoid division by zero
+        if (newValue == 0.0) {
+            0.0
+        } else {
+            0.0
+        }
+    }
+}*/
 
 @Composable
 fun BondCard(
@@ -534,9 +534,9 @@ fun NumericInputField(
                 .border(2.dp, Color(0xFFDEB841), shape = RoundedCornerShape(4.dp)),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            keyboardActions = KeyboardActions(
+            /*keyboardActions = KeyboardActions(
                 onDone = { onInvestClicked() }
-            )
+            )*/
         )
     }
 }
