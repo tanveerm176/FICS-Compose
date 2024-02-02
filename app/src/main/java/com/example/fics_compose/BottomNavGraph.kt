@@ -43,7 +43,7 @@ fun BottomNavGraph(navController: NavHostController){
             })
         }
         composable(route = WelcomeNav.Introduction.route){
-            IntroductionScreen(skipIntroButtonClicked = {
+            IntroductionScreen(onSkipIntroButtonClicked = {
                 navController.navigate(WelcomeNav.LetsInvest.route)
             })
         }

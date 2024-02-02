@@ -11,36 +11,33 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class IntroductionViewModel: ViewModel(){
-//    val maxSlides: Int = IntroductionText.introTextList.size -1
+class IntroductionViewModel : ViewModel() {
 
-    val displayText: List<IntroductionData> = IntroductionText.introTextList
+    private val displayText: List<IntroductionData> = IntroductionText.introTextList
 
     val maxSlides: Int = displayText.size - 1
-    val introListIndex by mutableIntStateOf(0)
     var currentPage by mutableIntStateOf(0)
-    var currentText by mutableStateOf(displayText[introListIndex])
-/*    private val _introductionUiState = MutableStateFlow(IntroductionUiState())
+        private set
+    var currentContent by mutableStateOf(displayText[currentPage])
+        private set
 
-    val introductionUiState: StateFlow<IntroductionUiState> = _introductionUiState.asStateFlow()*/
-
-    fun previousPage(){
-        currentPage -= 1
-        currentText = displayText[currentPage]
+    fun previousPage() {
+        if (currentPage > 0) {
+            updatePage(currentPage - 1)
+        }
     }
 
-    fun nextPage(){
-        currentPage += 1
-        currentText = displayText[currentPage]
+    fun nextPage() {
+        if (currentPage < maxSlides) {
+            updatePage(currentPage + 1)
+        }
     }
 
-    fun displayCurrentText(currentPage: Int){
-        currentText = displayText[currentPage]
+
+    fun updatePage(page: Int) {
+        currentPage = page
+        currentContent = displayText[currentPage]
+
     }
 }
 
-/*
-data class IntroductionUiState(
-    val maxSlides: Int = IntroductionText.introTextList.size -1,
-
-)*/

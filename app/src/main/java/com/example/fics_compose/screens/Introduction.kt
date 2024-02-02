@@ -60,18 +60,9 @@ import com.example.fics_compose.ui.theme.yellow
 
 @Composable
 fun IntroductionScreen(
-    skipIntroButtonClicked: () -> Unit,
-//    displayText: List<IntroductionData> = IntroductionText.introTextList,
+    onSkipIntroButtonClicked: () -> Unit,
     introductionViewModel: IntroductionViewModel = viewModel()
 ) {
-//    val introductionUiState by introductionViewModel.introductionUiState.collectAsState()
-//    val maxSlides = displayText.size - 1
-//    var introListIndex by remember { mutableIntStateOf(0) }
-//
-//    var currentPage by remember { mutableIntStateOf(0) }
-//
-//    var currentText by remember { mutableStateOf(displayText[introListIndex]) }
-
     Box(
         modifier = Modifier
             .background(color = lightGray)
@@ -85,11 +76,11 @@ fun IntroductionScreen(
         ) {
             Text(
                 modifier = Modifier.padding(top = 6.dp),
-                text = introductionViewModel.currentText.title,
+                text = introductionViewModel.currentContent.title,
                 style = MaterialTheme.typography.titleMedium
             )
             Image(
-                painter = painterResource(id = introductionViewModel.currentText.img),
+                painter = painterResource(id = introductionViewModel.currentContent.img),
                 contentDescription = null,
                 modifier = Modifier
                     .size(252.dp)
@@ -105,7 +96,7 @@ fun IntroductionScreen(
                     .size(width = 200.dp, height = 125.dp)
             ) {
                 Text(
-                    text = introductionViewModel.currentText.description,
+                    text = introductionViewModel.currentContent.description,
                     modifier = Modifier.padding(5.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center
@@ -121,9 +112,7 @@ fun IntroductionScreen(
                 Box(
                     modifier = Modifier
                         .clickable {
-                            if (introductionViewModel.currentPage > 0) {
-                                introductionViewModel.previousPage()
-                            }
+                            introductionViewModel.previousPage()
                         }
                         .background(
                             color = Color(0xFFDEB841),
@@ -145,8 +134,7 @@ fun IntroductionScreen(
                     Box(
                         modifier = Modifier
                             .clickable {
-                                introductionViewModel.currentPage = page
-                                introductionViewModel.displayCurrentText(introductionViewModel.currentPage)
+                                introductionViewModel.updatePage(page)
                             }
                             .background(
                                 color = if (page == introductionViewModel.currentPage) Color(
@@ -174,7 +162,7 @@ fun IntroductionScreen(
                                 if (introductionViewModel.currentPage < introductionViewModel.maxSlides) {
                                     introductionViewModel.nextPage()
                                 } else {
-                                    skipIntroButtonClicked()
+                                    onSkipIntroButtonClicked()
                                 }
                             }
                         )
@@ -197,7 +185,7 @@ fun IntroductionScreen(
             Spacer(modifier = Modifier.size(40.dp))
 
             Button(
-                onClick = skipIntroButtonClicked,
+                onClick = onSkipIntroButtonClicked,
                 modifier = Modifier
                     .border(1.5.dp, Color(0xFF8A191D), RoundedCornerShape(30.dp))
                     .align(Alignment.End),
@@ -227,7 +215,7 @@ fun IntroductionScreen(
 @Composable
 @Preview
 fun IntroPreview(){
-    IntroductionScreen(skipIntroButtonClicked = {
+    IntroductionScreen(onSkipIntroButtonClicked = {
         Log.d("Intro-Skipped", "Intro Skip Button Clicked")
     })
 }
