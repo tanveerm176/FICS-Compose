@@ -1,6 +1,7 @@
-# FICS-Compose
+# FICS (Fixed Income for College Students)
 
-FICS (Fixed Income for College Students) is an interactive Android app that functions as an investment simulation platform for the fixed income market.
+## Description
+FICS is an interactive Android app that functions as an investment simulation platform for the fixed income market.
 Our target audience consists of young adults with a basic understanding of investing, as well as financial educators
 looking for engaging resources for their students.
 
@@ -20,16 +21,18 @@ allowing them to understand some of the risks associated with fixed income inves
 This app is created using the Android Studio IDE, Kotlin, and Jetpack Compose UI Framework. Aside from the Simulator and Portfolio screens, 
 the app follows Model-View-Viewmodel architecture. The app includes a persistent database and uses coroutines.
 
+## User Features
 Users are able to do the following:
-[] Navigate Welcome and Tutorial screen which introduce the app, it's features, as well as a brief introduction to Fixed Income Investing
-[] Access a Glossary Screen with both formal and informal definitions as well as the ability to search for specific terms
-[] Simulate a year of investing in the fixed income market, including being able to buy and sell bonds, respond to bond default risk, and access information about specific bond types
-[] After the simulation is complete users are able to access a persistent database via the History Screen to review their performance in their latest simulation as well as past simulation results
+* Navigate Welcome and Tutorial screen which introduce the app, it's features, as well as a brief introduction to Fixed Income Investing
+* Access a Glossary Screen with both formal and informal definitions as well as the ability to search for specific terms
+* Simulate a year of investing in the fixed income market, including being able to buy and sell bonds, respond to bond default risk, and access information about specific bond types
+* After the simulation is complete users are able to access a persistent database via the History Screen to review their performance in their latest simulation as well as past simulation results
 
+## Requirements
 The following is required to run FICS:
-[] Android Studio Hedgehog | 2023.1.1 Patch 2
-[] Android Device or Emulator with API Version 34 or min API Version 31
-[] Java Version 1.8
+* Android Studio Hedgehog | 2023.1.1 Patch 2
+* Android Device or Emulator with API Version 34 or min API Version 31
+* Java Version 1.8
 
-You can view a walkthrough of the app below:
+## Demo
 ![](https://github.com/tanveerm176/FICS-Compose/blob/main/FICS_Demo2.gif)
