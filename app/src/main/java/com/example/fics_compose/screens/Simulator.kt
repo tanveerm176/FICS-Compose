@@ -7,10 +7,8 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,14 +20,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.twotone.ShoppingCart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -41,7 +39,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
@@ -52,18 +49,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
@@ -73,8 +66,6 @@ import com.example.fics_compose.BottomNavBar
 import com.example.fics_compose.DatabaseBuilder
 import com.example.fics_compose.HistoryDAO
 import com.example.fics_compose.HistoryItem
-import com.example.fics_compose.InternalNav
-import com.example.fics_compose.R
 import com.example.fics_compose.ScreenData.BondData
 import com.example.fics_compose.ScreenData.BondOption
 import com.example.fics_compose.UserInfo
@@ -88,8 +79,11 @@ import kotlin.random.Random
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SimulatorScreen(
-    navController: NavController,
-    user: UserInfo? = null
+    userInfo: UserInfo,
+    onResetSimClick: () -> Unit,
+    onSkipClick: () -> Unit,
+    navigateToHistory: () -> Unit,
+    onShoppingCartClick: () -> Unit
 ) {
     var simNumber = remember { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
@@ -117,7 +111,7 @@ fun SimulatorScreen(
             ) {
                 /* Reset Button*/
                 Button(
-                    onClick = { resetSimulation(navController) },
+                    onClick = onResetSimClick,
                     elevation = ButtonDefaults.buttonElevation(pressedElevation = 6.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF8A191D),
@@ -150,28 +144,16 @@ fun SimulatorScreen(
                 ShowDialog(onSkip = { showHelp.value = false }, simNumber.value)
             }
 
-            /*when first starting the sim*/
-            if (user == null) {
-                SimulatorCard(
-                    UserInfo(),
-                    bonds = BondData.BondDataList,
-                    navController,
-                    simNumber,
-                    scope,
-                    snackbarHostState
-                )
-            }
-            /*when returning from portfolio screen*/
-            else {
-                SimulatorCard(
-                    user,
-                    bonds = BondData.BondDataList,
-                    navController,
-                    simNumber,
-                    scope,
-                    snackbarHostState
-                )
-            }
+            SimulatorCard(
+                userInfo,
+                bonds = BondData.BondDataList,
+                simNumber,
+                scope,
+                snackbarHostState,
+                onSkipClick = onSkipClick,
+                navigateToHistory = navigateToHistory,
+                onShoppingCartClick = onShoppingCartClick
+            )
         }
     }
 }
@@ -180,17 +162,19 @@ fun SimulatorScreen(
 fun SimulatorCard(
     userInfo: UserInfo,
     bonds: List<BondOption>,
-    navController: NavController,
     simNumber: MutableIntState,
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
+    onSkipClick: () -> Unit,
+    navigateToHistory: () -> Unit,
+    onShoppingCartClick: () -> Unit,
 ) {
     /* for traversing bonds list*/
-    var i by remember { mutableIntStateOf(userInfo.month) }
-    var numOfBonds by remember { mutableIntStateOf(userInfo.numBonds) }
-    var currentBond by remember { mutableStateOf(bonds[i]) }
+    var i by remember { mutableIntStateOf(userInfo.month.intValue) }
+    var numOfBonds by remember { mutableIntStateOf(userInfo.numBonds.intValue) }
+    var currentBond = bonds[userInfo.month.intValue]
 
-    var month by remember { mutableIntStateOf(userInfo.month + 1) }
+    var month by remember { mutableIntStateOf(userInfo.month.intValue + 1) }
     val currContext = LocalContext.current
 
     val database = DatabaseBuilder.getDatabase(currContext)
@@ -207,23 +191,12 @@ fun SimulatorCard(
         ShowAlertDialog(
             randomBondTitle = randomBondTitle,
             onSkip = {
-                startPortfolioScreen(navController, userInfo)
+                onSkipClick()
                 userInfo.defaultRisk(randomInt)
                 showAlertDialog = false
             }
         )
     }
-
-    var previousNetWorth by remember { mutableStateOf(userInfo.netWorth) }
-    var previousInvestments by remember { mutableStateOf(userInfo.investments) }
-    var previousWallet by remember { mutableStateOf(userInfo.wallet) }
-    var previousMonthlyReturn by remember { mutableStateOf(userInfo.monthlyReturn) }
-
-    val netWorthPercentDiff = calculatePercentChange(previousNetWorth, userInfo.netWorth)
-    val investmentsPercentDiff = calculatePercentChange(previousInvestments, userInfo.investments)
-    val walletPercentDiff = calculatePercentChange(previousWallet, userInfo.wallet)
-    val monthlyReturnPercentDiff =
-        calculatePercentChange(previousMonthlyReturn, userInfo.monthlyReturn)
 
     Column(
         modifier = Modifier
@@ -297,8 +270,8 @@ fun SimulatorCard(
                                 modifier = Modifier.padding(start = 20.dp, bottom = 1.dp)
                             )
                             Text(
-                                text = "$${userInfo.investments}",
-                                color = if (userInfo.investments >= 0) Color(0xff027148) else Color.Red,
+                                text = "$${userInfo.investments.doubleValue}",
+                                color = if (userInfo.investments.doubleValue >= 0) Color(0xff027148) else Color.Red,
                                 style = MaterialTheme.typography.displayLarge,
                                 modifier = Modifier.padding(start = 20.dp),
                             )
@@ -327,24 +300,17 @@ fun SimulatorCard(
             Column {
                 UserCard(
                     bond = bonds[i],
-                    navController,
+                    onShoppingCartClick = onShoppingCartClick,
                     numberOfBonds = numOfBonds,
                     onNumberOfBondsChanged = {
                         numOfBonds = it
                     },
                     userInfo = userInfo,
                     onInvestClicked = {
-
-                        /* Update previous values*/
-                        previousNetWorth = userInfo.netWorth
-                        previousInvestments = userInfo.investments
-                        previousWallet = userInfo.wallet
-                        previousMonthlyReturn = userInfo.monthlyReturn
-
                         /* increment month*/
                         month += 1
                         userInfo.incrementMonth()
-                        userInfo.wallet += userInfo.monthlyReturn
+                        userInfo.wallet.doubleValue += userInfo.monthlyReturn.doubleValue
 
                         /* increment bond*/
                         i = (i + 1) % bonds.size
@@ -357,14 +323,14 @@ fun SimulatorCard(
                             /*Reset user and sim*/
                             val usrHistory = HistoryItem(
                                 netWorth = userInfo.netWorth,
-                                wallet = userInfo.wallet,
+                                wallet = userInfo.wallet.doubleValue,
                                 gains = userInfo.totalGains,
-                                trades = userInfo.trades
+                                trades = userInfo.trades.intValue
                             )
                             scope.launch {
                                 insertHistory(usrHistory, dao)
                             }
-                            startHistoryScreen(navController)
+                            navigateToHistory()
                         }
 
                         /* new bond category*/
@@ -399,45 +365,18 @@ fun SimulatorCard(
 
 
 /* Function to calculate percentage change*/
-private fun calculatePercentChange(oldValue: Double, newValue: Double): Double {
-    return if (oldValue != 0.0) {
-        ((newValue - oldValue) / oldValue) * 100
-    } else {
-        // Handle the case where the old value is zero to avoid division by zero
-        if (newValue == 0.0) {
-            0.0
-        } else {
-            0.0
-        }
-    }
-}
-
-/* Function to reset the simulation state*/
-private fun resetSimulation(navController: NavController) {
-    // reInit user values
-    val initialWallet = 1000.0
-    val initialInvestments = 0.0
-    val initialMonthlyReturn = 0.0
-    val initialNumBonds = 0
-    val initialMonth = 0
-
-    // Reset user data and simulation counters
-    val initialUser = UserInfo(
-        wallet = initialWallet,
-        investments = initialInvestments,
-        monthlyReturn = initialMonthlyReturn,
-        numBonds = initialNumBonds,
-        month = initialMonth
-    )
-
-    // Navigate back to the simulator screen with the reset state
-    navController.navigate(BottomNavBar.Simulator.route) {
-        popUpTo(navController.graph.startDestinationId) {
-            saveState = true
-        }
-        launchSingleTop = true
-    }
-}
+//private fun calculatePercentChange(oldValue: Double, newValue: Double): Double {
+//    return if (oldValue != 0.0) {
+//        ((newValue - oldValue) / oldValue) * 100
+//    } else {
+//        // Handle the case where the old value is zero to avoid division by zero
+//        if (newValue == 0.0) {
+//            0.0
+//        } else {
+//            0.0
+//        }
+//    }
+//}
 
 @Composable
 fun BondCard(
@@ -445,7 +384,6 @@ fun BondCard(
     userInfo: UserInfo,
 ) {
     val bondRate = bond.interestRate
-    val month = userInfo.month
 
     Box(
         modifier = Modifier
@@ -486,7 +424,7 @@ fun BondCard(
                 ) {
                     WhiteBox("Return", "$${(bond.price * bond.interestRate / 100)}")
                     Spacer(modifier = Modifier.height(3.dp))
-                    WhiteBox("Wallet", "$${userInfo.wallet}")
+                    WhiteBox("Wallet", "$${userInfo.wallet.doubleValue}")
                 }
             }
         }
@@ -498,7 +436,7 @@ fun BondCard(
 @Composable
 fun UserCard(
     bond: BondOption,
-    navController: NavController,
+    onShoppingCartClick: () -> Unit,
     numberOfBonds: Int,
     onNumberOfBondsChanged: (Int) -> Unit,
     userInfo: UserInfo,
@@ -515,7 +453,8 @@ fun UserCard(
                 value = numBonds,
                 onValueChange = {
                     onNumberOfBondsChanged(it)
-                }
+                },
+                onInvestClicked = onInvestClicked
             )
             /* Invest Button*/
             Button(
@@ -527,9 +466,9 @@ fun UserCard(
                     Log.d("investList", "{${userInfo.investList.toList()}}") // log new list
 
                     userInfo.incrementTrades()
-                    userInfo.wallet -= (bond.price * numberOfBonds)
-                    userInfo.monthlyReturn += bondInfo.monthlyReturn
-                    userInfo.investments += bondInfo.investment
+                    userInfo.wallet.doubleValue -= (bond.price * numberOfBonds)
+                    userInfo.monthlyReturn.doubleValue += bondInfo.monthlyReturn
+                    userInfo.investments.doubleValue += bondInfo.investment
                     userInfo.netWorthList.add(userInfo.netWorth)
 
                     numBonds = 0
@@ -554,7 +493,7 @@ fun UserCard(
             }
             Spacer(modifier = Modifier.width(50.dp))
 
-            IconButton(onClick = { startPortfolioScreen(navController, userInfo) }) {
+            IconButton(onClick = onShoppingCartClick) {
                 Icon(
                     Icons.TwoTone.ShoppingCart,
                     contentDescription = "Investment List",
@@ -569,7 +508,11 @@ fun UserCard(
 
 
 @Composable
-fun NumericInputField(value: Int, onValueChange: (Int) -> Unit) {
+fun NumericInputField(
+    value: Int,
+    onValueChange: (Int) -> Unit,
+    onInvestClicked: () -> Unit
+) {
     var text by remember { mutableStateOf(value.toString()) }
 
     Column {
@@ -590,6 +533,10 @@ fun NumericInputField(value: Int, onValueChange: (Int) -> Unit) {
                 .width(115.dp)
                 .border(2.dp, Color(0xFFDEB841), shape = RoundedCornerShape(4.dp)),
             singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardActions = KeyboardActions(
+                onDone = { onInvestClicked() }
+            )
         )
     }
 }
@@ -680,15 +627,6 @@ private fun toastMessages(context: Context, flg: String) {
 
         "newBond" -> Toast.makeText(context, "New Bond!", Toast.LENGTH_LONG).show()
     }
-}
-
-fun startHistoryScreen(navController: NavController) {
-    navController.navigate(BottomNavBar.History.route)
-}
-
-fun startPortfolioScreen(navController: NavController, portfolio: UserInfo) {
-    navController.currentBackStackEntry?.savedStateHandle?.set("portfolio", portfolio)
-    navController.navigate(InternalNav.Portfolio.route)
 }
 
 suspend fun insertHistory(item: HistoryItem, dao: HistoryDAO) {

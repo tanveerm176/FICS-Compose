@@ -1,10 +1,9 @@
 package com.example.fics_compose
 
-import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.navigation.compose.NavHost
+import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.fics_compose.screens.GlossaryScreen
 import com.example.fics_compose.screens.GoTimeScreen
@@ -18,6 +17,11 @@ import com.example.fics_compose.screens.WelcomeScreen
 
 @Composable
 fun BottomNavGraph(navController: NavHostController){
+
+    val userInfo = remember {
+        UserInfo()
+    }
+
     NavHost(
         navController = navController,
         startDestination = WelcomeNav.Welcome.route
@@ -28,7 +32,31 @@ fun BottomNavGraph(navController: NavHostController){
         }
 
         composable(route=BottomNavBar.Simulator.route){
-            SimulatorScreen(navController)
+            SimulatorScreen(
+                userInfo,
+                navigateToHistory = {
+                    navController.navigate(BottomNavBar.History.route)
+                },
+                onShoppingCartClick = {
+                    navController.navigate(BottomNavBar.Portfolio.route)
+                },
+                onSkipClick = {
+                    navController.navigate(BottomNavBar.Portfolio.route)
+                },
+                onResetSimClick = {
+                    userInfo.reset()
+                    navController.navigate(BottomNavBar.Simulator.route) {
+                        popUpTo(navController.graph.startDestinationId) {}
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable(route=BottomNavBar.Portfolio.route){
+            PortfolioScreen(userInfo, onReturnToSimulatorClick = {
+                navController.navigate(BottomNavBar.Simulator.route)
+            })
         }
 
         composable(route=WelcomeNav.Welcome.route){
@@ -61,18 +89,9 @@ fun BottomNavGraph(navController: NavHostController){
 
         composable(route=BottomNavBar.History.route){
             HistoryScreen(onPlayAgainClick = {
+                userInfo.reset()
                 navController.navigate(BottomNavBar.Simulator.route)
             })
-        }
-        
-        composable(route=InternalNav.Portfolio.route){
-            val result = navController.previousBackStackEntry?.savedStateHandle?.get<UserInfo>("portfolio")
-            PortfolioScreen(result, navController)
-        }
-
-        composable(route=InternalNav.Simulator.route){
-            val user = navController.previousBackStackEntry?.savedStateHandle?.get<UserInfo>("user")
-            SimulatorScreen(navController, user)
         }
     }
 

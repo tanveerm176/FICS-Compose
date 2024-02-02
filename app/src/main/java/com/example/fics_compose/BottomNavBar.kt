@@ -20,6 +20,11 @@ sealed class BottomNavBar(
         icon = Icons.Default.Home
     )
 
+    object Portfolio {
+        val route = "portfolio"
+        val title = "Portfolio"
+    }
+
     object Glossary:BottomNavBar(
         route = "glossary",
         title = "Glossary",
@@ -60,22 +65,6 @@ sealed class WelcomeNav(
     object GoTime:WelcomeNav(
         route = "go",
         title = "Go"
-    )
-
-}
-
-sealed class InternalNav(
-    val route: String,
-    val title: String,
-){
-    object Portfolio: InternalNav(
-        route = "portfolio",
-        title = "Portfolio"
-    )
-
-    object Simulator: InternalNav(
-        route = "simulator",
-        title = "Simulator"
     )
 
 }
