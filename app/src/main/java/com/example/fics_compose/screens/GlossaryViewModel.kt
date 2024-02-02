@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import com.example.fics_compose.ScreenData.GlossaryData
 import com.example.fics_compose.ScreenData.Term
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,40 +14,25 @@ import kotlinx.coroutines.flow.update
 
 class GlossaryViewModel(application: Application): AndroidViewModel(application) {
 
-    private val _glossaryUiState = MutableStateFlow(GlossaryUiState())
-
-    /*to be accessed by screen composable funcs*/
-    val glossaryUiState: StateFlow<GlossaryUiState> = _glossaryUiState.asStateFlow()
-
+    /*private set:
+    * still public var but only call it belongs to can modify it*/
     var searchTerm by mutableStateOf("")
-//        private set
+        private set
 
-//    var glossary = mutableStateListOf<Topic>()
+    private val glossary = GlossaryData.glossaryTopics
 
-    fun showDefinitionLabel(showInformalDefinition: Boolean): String{
-        val definitionLabel =
-            if (showInformalDefinition) "FICS Definition" else "Formal Definition"
-        return definitionLabel
-    }
+    var filteredGlossary by mutableStateOf(glossary)
+        private set
 
-    fun showDefinitionText(showInformalLabel: Boolean, term: Term): String{
-        val termDefinition =
-            if (showInformalLabel) term.informalDefinition else term.formalDefinition
-        return termDefinition
-    }
 
-    fun expandCard(): Boolean{
-        _glossaryUiState.update { currentState ->
-            currentState.copy(expandedState = true)
+    /* Show glossary list based on either the topic name or the term name that matches the user's search
+    * If no input from user show all terms in glossary */
+    fun updateSearchTerm(newSearchTerm:String){
+        searchTerm = newSearchTerm
+        filteredGlossary = glossary.filter { topic ->
+            topic.topicName.contains(searchTerm, ignoreCase = true) ||
+                    topic.terms.any { term -> term.termName.contains(searchTerm, ignoreCase = true) }
         }
-        return _glossaryUiState.value.expandedState
     }
 
 }
-
-data class GlossaryUiState(
-//    val searchTerm: String = "",
-    val showInformalDefinition: Boolean = false,
-    val showInformalLabel: Boolean  = false,
-    val expandedState: Boolean = false
-)

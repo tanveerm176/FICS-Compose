@@ -56,31 +56,16 @@ import com.example.fics_compose.ScreenData.Topic
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun GlossaryScreen(
-    glossaryViewModel: GlossaryViewModel = viewModel()
-)
-
-{
-//    val glossaryUiState by glossaryViewModel.glossaryUiState.collectAsState()
-
-//    var searchTerm by remember { mutableStateOf("") }
-    var glossary by remember { mutableStateOf(GlossaryData.glossaryTopics) }
+fun GlossaryScreen(glossaryViewModel: GlossaryViewModel = viewModel()) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    /* Show glossary list based on either the topic name or the term name that matches the user's search
-    * If no input from user show all terms in glossary */
-    val filteredGlossary = glossary.filter { topic ->
-        topic.topicName.contains(glossaryViewModel.searchTerm, ignoreCase = true) ||
-                topic.terms.any { term -> term.termName.contains(glossaryViewModel.searchTerm, ignoreCase = true) }
-    }
-
     /* Display the filtered glossary*/
-    Column (
+    Column(
         modifier = Modifier
             .background(color = lightGray)
             .fillMaxWidth()
-    ){
+    ) {
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
@@ -97,7 +82,7 @@ fun GlossaryScreen(
                 Text(
                     text = "Glossary",
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(top=30.dp, bottom = 20.dp)
+                    modifier = Modifier.padding(top = 30.dp, bottom = 20.dp)
                 )
                 Text(
                     text = "Search for key terms",
@@ -109,14 +94,7 @@ fun GlossaryScreen(
                     /* If user has not searched, show entire glossary,
                     otherwise show filtered glossary*/
                     onValueChange = {
-                        glossaryViewModel.searchTerm = it
-
-                        glossary = if (glossaryViewModel.searchTerm.isEmpty()) {
-                            GlossaryData.glossaryTopics
-                        } else {
-                            filteredGlossary
-                        }
-
+                        glossaryViewModel.updateSearchTerm(it)
                     },
                     placeholder = { Text("Search Glossary") },
 
@@ -142,10 +120,10 @@ fun GlossaryScreen(
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
-                .padding(top = 18.dp, bottom=20.dp)
+                .padding(top = 18.dp, bottom = 20.dp)
         )
         /* Display the glossary based on the search results*/
-        GlossaryList(filteredGlossary)
+        GlossaryList(glossaryViewModel.filteredGlossary)
     }
 }
 
@@ -153,16 +131,14 @@ fun GlossaryScreen(
 fun GlossaryList(glossary: List<Topic>) {
     LazyColumn {
         items(glossary) { topic ->
-            ExpandableCard(topic)
+            TopicCard(topic)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpandableCard(
-    topic: Topic,
-) {
+fun TopicCard(topic: Topic) {
     var expandedState by remember { mutableStateOf(false) }
     val rotationState by animateFloatAsState(
         targetValue = if (expandedState) 180f else 0f, label = "rotateState"
@@ -197,7 +173,6 @@ fun ExpandableCard(
                     text = topic.topicName,
                     color = Color(0xFF8A191D),
                     style = MaterialTheme.typography.bodyLarge,
-//                    fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -219,7 +194,6 @@ fun ExpandableCard(
                 }
             }
             if (expandedState) {
-//                Text("Expanded Content")
                 Column {
                     topic.terms.forEach { term ->
                         DefinitionCard(term)
@@ -233,25 +207,8 @@ fun ExpandableCard(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun DefinitionCard(term: Term,
-                   glossaryViewModel: GlossaryViewModel = viewModel()
-) {
-    /*NOTE: added this as part of viewModel*/
-    val glossaryUiState by glossaryViewModel.glossaryUiState.collectAsState()
-    /*NOTE: added this as part of viewModel*/
-    /*NOTE: how to accommodate the need for remember???? ASK HANNAN*/
-
-    var showInformalDefinition by remember { mutableStateOf(false) }
-    /*var showInformalDefinition by remember {
-        mutableStateOf(glossaryUiState.showInformalDefinition)
-    }*/
-
-    var expandedState by remember {mutableStateOf(false)}
-
-    /*var expandedState by remember {
-        mutableStateOf(glossaryUiState.expandedState)
-    }*/
-
+fun DefinitionCard(term: Term) {
+    var expandedState by remember { mutableStateOf(false) }
     val rotationState by animateFloatAsState(
         targetValue = if (expandedState) 180f else 0f, label = "rotateState"
     )
@@ -274,9 +231,11 @@ fun DefinitionCard(term: Term,
                 .fillMaxWidth()
         ) {
             /* Add a Divider between terms*/
-            Divider(modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 9.dp, bottom = 9.dp))
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 9.dp, bottom = 9.dp)
+            )
 
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -308,6 +267,11 @@ fun DefinitionCard(term: Term,
             }
             /* Use the isExpanded property to decide whether to display the definition*/
             if (expandedState) {
+                var showInformalDefinition by remember { mutableStateOf(false) }
+                val labelText: String =
+                    if (showInformalDefinition) "FICS Definition" else "Formal Definition"
+                val definitionText: String =
+                    if (showInformalDefinition) term.informalDefinition else term.formalDefinition
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -323,25 +287,22 @@ fun DefinitionCard(term: Term,
                             uncheckedTrackColor = Color(0xFFEEE1B9),
                         ),
                     )
-                    /*NOTE: Change 1 with viewModel*/
-                    /* Display label of the current definition*/
-                    Text(text = glossaryViewModel.showDefinitionLabel(showInformalDefinition),
+
+                    Text(
+                        text = labelText,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
-                /*NOTE: Change 2 with viewModel*/
-                /* Display text of current definition*/
-                Text(text = glossaryViewModel.showDefinitionText(showInformalDefinition,term),
-                    style = MaterialTheme.typography.bodyMedium)
+
+                Text(
+                    text = definitionText,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
         }
     }
 }
-
-
-
-
 
 @Preview
 @Composable
