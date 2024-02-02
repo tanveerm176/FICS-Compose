@@ -15,23 +15,27 @@ class TutorialViewModel : ViewModel() {
     val displayText: List<TutorialInfo> = TutorialText.tutorialTextList
 
     val maxSlides = displayText.size - 1
-    var tutorialSlidesIndex by mutableIntStateOf(0)
     var currentPage by mutableIntStateOf(0)
-    var currentText by mutableStateOf(displayText[tutorialSlidesIndex])
+        private set
+    var currentContent by mutableStateOf(displayText[currentPage])
+        private set
 
 
     fun previousPage() {
-        currentPage -= 1
-        currentText = displayText[currentPage]
+        if (currentPage>0){
+            updatePage(currentPage-1)
+        }
     }
 
     fun nextPage() {
-        currentPage += 1
-        currentText = displayText[currentPage]
+        if(currentPage<maxSlides){
+            updatePage(currentPage+1)
+        }
     }
 
-    fun displayCurrentText(currentPage: Int) {
-        currentText = displayText[currentPage]
+    fun updatePage(page: Int) {
+        currentPage = page
+        currentContent = displayText[currentPage]
     }
 
 

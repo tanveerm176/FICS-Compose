@@ -58,13 +58,8 @@ import kotlin.math.min
 @Composable
 fun TutorialScreen(
     onTutorialSkipClicked: () -> Unit,
-//    displayText: List<TutorialInfo> = TutorialText.tutorialTextList,
     tutorialViewModel: TutorialViewModel = viewModel()
 ) {
-//    val maxSlides = displayText.size - 1
-//    var i by remember { mutableIntStateOf(0) }
-//    var currentPage by remember { mutableStateOf(0) }
-//    var currentText by remember { mutableStateOf(displayText[i]) }
     val descriptionScrollState = rememberScrollState()
 
     Box(
@@ -81,7 +76,7 @@ fun TutorialScreen(
         ) {
             Text(
                 modifier = Modifier.padding(top=6.dp),
-                text = tutorialViewModel.currentText.title,
+                text = tutorialViewModel.currentContent.title,
                 style = MaterialTheme.typography.titleMedium,
             )
             Column(
@@ -91,10 +86,10 @@ fun TutorialScreen(
                     .background(Color.Transparent) // Optional: Add a background color for clarity
             ) {
                 Image(
-                    painter = painterResource(id = tutorialViewModel.currentText.img),
+                    painter = painterResource(id = tutorialViewModel.currentContent.img),
                     contentDescription = "Image",
                     modifier = Modifier
-                        .fillMaxSize() // Fill the entire Box with the Image
+                        .fillMaxSize()
                 )
             }
             BoxWithConstraints(
@@ -113,7 +108,7 @@ fun TutorialScreen(
                     contentAlignment = Alignment.CenterStart
                 ) {
                     Text(
-                        text = tutorialViewModel.currentText.description,
+                        text = tutorialViewModel.currentContent.description,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(5.dp)
@@ -130,9 +125,7 @@ fun TutorialScreen(
                 Box(
                     modifier = Modifier
                         .clickable {
-                            if (tutorialViewModel.currentPage > 0) {
-                                tutorialViewModel.previousPage()
-                            }
+                            tutorialViewModel.previousPage()
                         }
                         .background(
                             color = Color(0xFFDEB841),
@@ -177,8 +170,7 @@ fun TutorialScreen(
                     Box(
                         modifier = Modifier
                             .clickable {
-                                tutorialViewModel.currentPage = page
-                                tutorialViewModel.displayCurrentText(tutorialViewModel.currentPage)
+                                tutorialViewModel.updatePage(page)
                             }
                             .background(
                                 color = if (page == tutorialViewModel.currentPage) Color(0xFF8A191D) else Color(
@@ -223,10 +215,8 @@ fun TutorialScreen(
                         .clickable {
                             if (tutorialViewModel.currentPage < tutorialViewModel.maxSlides) {
                                 tutorialViewModel.nextPage()
-//                                Log.d("NextPageButton", "Navigating to page $currentPage")
                             } else {
                                 onTutorialSkipClicked()
-                                Log.d("NextPageButton", "Navigating to GoTimeScreen")
                             }
                         }
                         .background(
