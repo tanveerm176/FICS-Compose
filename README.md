@@ -18,7 +18,7 @@ To further assist in learning about fixed income investing, during the simulatio
 allowing them to understand some of the risks associated with fixed income investing.
 
 This app is created using the Android Studio IDE, Kotlin, and Jetpack Compose UI Framework. Aside from the Simulator and Portfolio screens, 
-the app follows Model-View-Viewmodel architecture. The Simulator and Portfolio screen follow Event Driven Architecture. The app includes a persistent database and uses coroutines.
+the app follows Model-View-Viewmodel architecture. The app includes a persistent database and uses coroutines.
 
 Users are able to do the following:
 [] Navigate Welcome and Tutorial screen which introduce the app, it's features, as well as a brief introduction to Fixed Income Investing
@@ -27,8 +27,9 @@ Users are able to do the following:
 [] After the simulation is complete users are able to access a persistent database via the History Screen to review their performance in their latest simulation as well as past simulation results
 
 The following is required to run FICS:
-[] Latest version of Android Studio??? SPECIFIC VERSION??
-[] Android Compile SDK Version 34 with min SDK Version 31
+[] Android Studio Hedgehog | 2023.1.1 Patch 2
+[] Android Device or Emulator with API Version 34 or min API Version 31
+[] Java Version 1.8
 
 You can view a walkthrough of the app below:
 ![](https://github.com/tanveerm176/FICS-Compose/blob/main/FICS_Demo2.gif)
