@@ -1,6 +1,7 @@
 package com.example.fics_compose.screens
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
@@ -60,6 +61,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.fics_compose.BondInfo
 import com.example.fics_compose.BottomNavBar
@@ -83,17 +86,18 @@ fun SimulatorScreen(
     onResetSimClick: () -> Unit,
     onSkipClick: () -> Unit,
     navigateToHistory: () -> Unit,
-    onShoppingCartClick: () -> Unit
+    onShoppingCartClick: () -> Unit,
+    simulatorViewModel: SimulatorViewModel = viewModel()
 ) {
-    var simNumber = remember { mutableIntStateOf(0) }
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-    var showHelp = remember { mutableStateOf(false) }
+//    var simNumber = remember { mutableIntStateOf(0) }
+//    val scope = rememberCoroutineScope()
+//    val snackbarHostState = remember { SnackbarHostState() }
+//    var showHelp = remember { mutableStateOf(false) }
 
 
     Scaffold(
         snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
+            SnackbarHost(hostState = simulatorViewModel.snackbarHostState)
         }
     ) {
         Column(
@@ -121,7 +125,7 @@ fun SimulatorScreen(
                 }
                 /*Help Button*/
                 Button(
-                    onClick = { showHelp.value = true },
+                    onClick = { simulatorViewModel.showHelpDialog() },
                     shape = RoundedCornerShape(30.dp),
                     elevation = ButtonDefaults.buttonElevation(
                         defaultElevation = 10.dp,
@@ -140,19 +144,20 @@ fun SimulatorScreen(
                 }
             }
 
-            if (showHelp.value) {
-                ShowDialog(onSkip = { showHelp.value = false }, simNumber.value)
+            if (simulatorViewModel.showHelpDialog.value) {
+                ShowSimHelpDialog(onSkip = { simulatorViewModel.dismissHelpDialog() }, simulatorViewModel.simNumber)
             }
 
             SimulatorCard(
                 userInfo,
-                bonds = BondData.BondDataList,
-                simNumber,
-                scope,
-                snackbarHostState,
+//                bondsList = simulatorViewModel.bondsList,
+//                simNumber = simulatorViewModel.simNumber,
+//                scope,
+//                snackbarHostState = simulatorViewModel.snackbarHostState,
                 onSkipClick = onSkipClick,
                 navigateToHistory = navigateToHistory,
-                onShoppingCartClick = onShoppingCartClick
+                onShoppingCartClick = onShoppingCartClick,
+                simulatorViewModel = simulatorViewModel
             )
         }
     }
@@ -161,18 +166,21 @@ fun SimulatorScreen(
 @Composable
 fun SimulatorCard(
     userInfo: UserInfo,
-    bonds: List<BondOption>,
-    simNumber: MutableIntState,
-    scope: CoroutineScope,
-    snackbarHostState: SnackbarHostState,
+//    bondsList: List<BondOption>,
+//    simNumber: Int,
+//    simNumber: MutableIntState,
+//    scope: CoroutineScope,
+//    snackbarHostState: SnackbarHostState,
     onSkipClick: () -> Unit,
     navigateToHistory: () -> Unit,
     onShoppingCartClick: () -> Unit,
+    simulatorViewModel: SimulatorViewModel
 ) {
     /* for traversing bonds list*/
-    var i by remember { mutableIntStateOf(userInfo.month.intValue) }
+    var bondsListIndex by remember { mutableIntStateOf(userInfo.month.intValue) }
     var numOfBonds by remember { mutableIntStateOf(userInfo.numBonds.intValue) }
-    var currentBond = bonds[userInfo.month.intValue]
+
+    var currentBond =  simulatorViewModel.bondsList[userInfo.month.intValue]
 
     var month by remember { mutableIntStateOf(userInfo.month.intValue + 1) }
     val currContext = LocalContext.current
@@ -180,20 +188,22 @@ fun SimulatorCard(
     val database = DatabaseBuilder.getDatabase(currContext)
     val dao = database.historyDAO()
 
-    var showAlertDialog by remember { mutableStateOf(false) }
-    if (showAlertDialog) {
+    val scope = rememberCoroutineScope()
 
-        /*note: Random int range should start from 3 since only corporate bonds incur credit default risk,
-            however this results in app crash if user has < 3 bonds in their current portfolio,
-            user is also unable to sell bonds from portfolio if range starts from 3 due to this crash*/
-        val randomInt = Random.nextInt(0, userInfo.investList.size - 1)
-        val randomBondTitle = userInfo.investList[randomInt].bondTitle
+//    var showAlertDialog by remember { mutableStateOf(false) }
+
+    if (simulatorViewModel.showAlertDialog) {
+
+//        val randomInt = Random.nextInt(0, userInfo.investList.size - 1)
+//        val randomBondTitle = userInfo.investList[randomInt].bondTitle
+        val (randomInt, randomBondTitle) = simulatorViewModel.getRandomBond(userInfo)
         ShowAlertDialog(
             randomBondTitle = randomBondTitle,
             onSkip = {
                 onSkipClick()
                 userInfo.defaultRisk(randomInt)
-                showAlertDialog = false
+//                showAlertDialog = false
+                simulatorViewModel.dismissAlertDialog()
             }
         )
     }
@@ -295,11 +305,15 @@ fun SimulatorCard(
                     .size(150.dp)
                     .clip(MaterialTheme.shapes.medium)
             )
-            BondCard(bond = bonds[i], userInfo = userInfo)
+            BondCard(
+                bond = simulatorViewModel.bondsList[bondsListIndex],
+                userInfo = userInfo,
+                simulatorViewModel = simulatorViewModel
+            )
 
             Column {
                 UserCard(
-                    bond = bonds[i],
+                    bond = simulatorViewModel.bondsList[bondsListIndex],
                     onShoppingCartClick = onShoppingCartClick,
                     numberOfBonds = numOfBonds,
                     onNumberOfBondsChanged = {
@@ -310,18 +324,22 @@ fun SimulatorCard(
                         /* increment month*/
                         month += 1
                         userInfo.incrementMonth()
+
+                        /*update wallet with monthly return*/
                         userInfo.wallet.doubleValue += userInfo.monthlyReturn.doubleValue
 
                         /* increment bond*/
-                        i = (i + 1) % bonds.size
-                        currentBond = bonds[i]
+                        bondsListIndex = (bondsListIndex + 1) % simulatorViewModel.bondsList.size
+                        currentBond = simulatorViewModel.bondsList[bondsListIndex]
 
                         /* end simulation, go to history screen*/
                         if (month == 13) {
-                            toastMessages(currContext, "finish")
+                            simulatorViewModel.toastMessages(currContext, "finish")
+                            simulatorViewModel.finishSimulation(scope, userInfo, dao)
+                            navigateToHistory()
 
                             /*Reset user and sim*/
-                            val usrHistory = HistoryItem(
+                            /*val usrHistory = HistoryItem(
                                 netWorth = userInfo.netWorth,
                                 wallet = userInfo.wallet.doubleValue,
                                 gains = userInfo.totalGains,
@@ -329,14 +347,15 @@ fun SimulatorCard(
                             )
                             scope.launch {
                                 insertHistory(usrHistory, dao)
-                            }
-                            navigateToHistory()
+                            }*/
                         }
 
                         /* new bond category*/
                         if (month % 4 == 0) {
-                            simNumber.value += 1
-                            scope.launch {
+                            simulatorViewModel.incrementSimNumber()
+                            simulatorViewModel.showNewBondSnackBar(scope)
+//                            simNumber += 1
+                            /*scope.launch {
                                 val result = snackbarHostState
                                     .showSnackbar(
                                         message = "New Bond Category! Click the help button to learn some key information!",
@@ -347,12 +366,13 @@ fun SimulatorCard(
                                     SnackbarResult.ActionPerformed -> {}
                                     SnackbarResult.Dismissed -> {}
                                 }
-                            }
+                            }*/
                         }
 
                         /* default risk*/
                         if (month == 7) {
-                            showAlertDialog = true
+//                            showAlertDialog = true
+                            simulatorViewModel.showAlertDialog()
                         }
                     }
                 )
@@ -382,6 +402,7 @@ fun SimulatorCard(
 fun BondCard(
     bond: BondOption,
     userInfo: UserInfo,
+    simulatorViewModel: SimulatorViewModel
 ) {
     val bondRate = bond.interestRate
 
@@ -422,7 +443,7 @@ fun BondCard(
                         .weight(1f)
                         .padding(start = 1.dp, end = 1.dp, bottom = 1.dp)
                 ) {
-                    WhiteBox("Return", "$${(bond.price * bond.interestRate / 100)}")
+                    WhiteBox("Return", "$${simulatorViewModel.calcMonthlyReturn(bond)}")
                     Spacer(modifier = Modifier.height(3.dp))
                     WhiteBox("Wallet", "$${userInfo.wallet.doubleValue}")
                 }
@@ -454,16 +475,14 @@ fun UserCard(
                 onValueChange = {
                     onNumberOfBondsChanged(it)
                 },
-                onInvestClicked = onInvestClicked
+//                onInvestClicked = onInvestClicked
             )
             /* Invest Button*/
             Button(
                 onClick = {
-                    // add bond to investment list
-                    var bondInfo =
-                        BondInfo(bond.title, bond.price, bond.interestRate, numberOfBonds)
+                    /* add bond to investment list*/
+                    var bondInfo = BondInfo(bond.title, bond.price, bond.interestRate, numberOfBonds)
                     userInfo.investList.add(bondInfo)
-                    Log.d("investList", "{${userInfo.investList.toList()}}") // log new list
 
                     userInfo.incrementTrades()
                     userInfo.wallet.doubleValue -= (bond.price * numberOfBonds)
@@ -511,7 +530,7 @@ fun UserCard(
 fun NumericInputField(
     value: Int,
     onValueChange: (Int) -> Unit,
-    onInvestClicked: () -> Unit
+//    onInvestClicked: () -> Unit
 ) {
     var text by remember { mutableStateOf(value.toString()) }
 
@@ -543,7 +562,7 @@ fun NumericInputField(
 
 
 @Composable
-private fun ShowDialog(
+private fun ShowSimHelpDialog(
     onSkip: () -> Unit,
     simNumber: Int
 ) {
@@ -580,43 +599,42 @@ private fun ShowDialog(
 
 @Composable
 private fun ShowAlertDialog(randomBondTitle: String, onSkip: () -> Unit) {
-    val showDialog = remember { mutableStateOf(true) }
-
-    if (showDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                showDialog.value = false
-                onSkip()
-            },
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Uh Oh!")
-                }
-            },
-            text = {
-                Text(
-                    text = "Oh no! In a shocking turn of events, $randomBondTitle has " +
-                            "encountered a credit risk crisis and must default on their bonds. Their bonds " +
-                            "are worth basically nothing now, so let’s take it off of your hands and out of " +
-                            "your portfolio value."
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showDialog.value = false
-                        onSkip()
-                    },
-                ) {
-                    Text("Ok")
-                }
+//    val showDialog = remember { mutableStateOf(true) }
+    AlertDialog(
+        onDismissRequest = {
+//                showDialog.value = false
+            onSkip()
+        },
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Uh Oh!")
             }
-        )
-    }
+        },
+        text = {
+            Text(
+                text = "Oh no! In a shocking turn of events, $randomBondTitle has " +
+                        "encountered a credit risk crisis and must default on their bonds. Their bonds " +
+                        "are worth basically nothing now, so let’s take it off of your hands and out of " +
+                        "your portfolio value."
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+//                        showDialog.value = false
+                    onSkip()
+                },
+            ) {
+                Text("Ok")
+            }
+        }
+    )
+
+//    if (showDialog.value) {}
 }
 
-private fun toastMessages(context: Context, flg: String) {
+/*private fun toastMessages(context: Context, flg: String) {
     when (flg) {
         "reset" -> Toast.makeText(context, "Simulation Reset", Toast.LENGTH_LONG).show()
         "finish" -> Toast.makeText(
@@ -627,8 +645,9 @@ private fun toastMessages(context: Context, flg: String) {
 
         "newBond" -> Toast.makeText(context, "New Bond!", Toast.LENGTH_LONG).show()
     }
-}
+}*/
 
+/*
 suspend fun insertHistory(item: HistoryItem, dao: HistoryDAO) {
     dao.insert(item)
-}
+}*/
