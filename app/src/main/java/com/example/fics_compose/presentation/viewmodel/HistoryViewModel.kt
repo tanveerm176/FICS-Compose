@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.fics_compose.data.db.DatabaseBuilder
 import com.example.fics_compose.data.dto.HistoryItem
 import com.example.fics_compose.domain.model.initialWallet
+import com.example.fics_compose.presentation.screendata.HistoryViewModelItem
 import kotlinx.coroutines.launch
 import kotlin.math.truncate
 
@@ -34,19 +35,3 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     }
 }
 
-data class HistoryViewModelItem(
-    val netWorth: Double,
-    val wallet: Double,
-    val trades: Int,
-    val roi: Double
-) {
-    constructor(
-        historyItem: HistoryItem,
-        roi: Double
-    ) : this(
-        netWorth = historyItem.netWorth,
-        wallet = historyItem.wallet,
-        trades = historyItem.trades,
-        roi = roi
-    )
-}

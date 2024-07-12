@@ -42,9 +42,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.fics_compose.R
+import com.example.fics_compose.presentation.screendata.HistoryViewModelItem
 import com.example.fics_compose.presentation.ui.theme.lightGray
 import com.example.fics_compose.presentation.viewmodel.HistoryViewModel
-import com.example.fics_compose.presentation.viewmodel.HistoryViewModelItem
 
 
 @Composable
