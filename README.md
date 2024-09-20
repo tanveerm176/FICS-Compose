@@ -13,7 +13,7 @@ Our simulation will include four major asset types for investing: treasuries, co
 (treasury inflation protected securities), and securitized (asset-backed) bonds. The vehicles we will provide are mutual
 funds and EFTs.
 
-In the simulation, we will go step-by-step, with a new assest type introduced every three months to allow users to understand the differences between asset types.
+In the simulation, we will go step-by-step, with a new asset type introduced every three months to allow users to understand the differences between asset types.
 During the simulation users are able to buy and sell bonds as they wish, allowing them to understand how each decision affects their portfolio.
 To further assist in learning about fixed income investing, during the simulation users will have one of their bonds default and be forced to sell that bond, 
 allowing them to understand some of the risks associated with fixed income investing.
